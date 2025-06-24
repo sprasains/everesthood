@@ -1,0 +1,29 @@
+{
+  "name": "Everhood - AI Vibe Hub for Gen-Z",
+  "short_name": "Everhood",
+  "description": "The AI-powered platform for Gen-Z to discover, learn, and grow with the latest tech trends.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#111827",
+  "theme_color": "#8b5cf6",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-512x512.png", 
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["education", "news", "lifestyle"],
+  "lang": "en-US",
+  "dir": "ltr",
+  "scope": "/",
+  "prefer_related_applications": false
+}

@@ -1,0 +1,51 @@
+{
+  "name": "everhood-platform",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "postinstall": "prisma generate",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio",
+    "cron:news": "ts-node scripts/fetchNews.ts",
+    "cron:genz": "ts-node scripts/fetchGenZContent.ts"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@google/generative-ai": "^0.1.3",
+    "@mui/icons-material": "^7.1.2",
+    "@mui/material": "^7.1.2",
+    "@prisma/client": "^5.6.0",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.5",
+    "axios": "^1.6.0",
+    "bcryptjs": "^2.4.3",
+    "framer-motion": "^10.16.4",
+    "jsonwebtoken": "^9.0.2",
+    "next": "14.0.0",
+    "next-auth": "^4.24.5",
+    "next-pwa": "^5.6.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "stripe": "^14.7.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.8.0",
+    "@types/react": "^18.2.31",
+    "@types/react-dom": "^18.2.14",
+    "autoprefixer": "^10.4.16",
+    "eslint": "^8.51.0",
+    "eslint-config-next": "14.0.0",
+    "postcss": "^8.4.31",
+    "prisma": "^5.6.0",
+    "tailwindcss": "^3.3.5",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  }
+}
