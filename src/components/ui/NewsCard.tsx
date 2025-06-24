@@ -1,142 +1,152 @@
-"use client"
-import { motion } from "framer-motion"
-import { useState } from "react"
-import { Article, User } from "@/types"
-import { trackEngagement } from "@/lib/analytics"
+"use client";
+
+import {
+  Card,
+  CardActionArea,
+  CardMedia,
+  CardContent,
+  CardActions,
+  Typography,
+  Button,
+} from "@mui/material";
+import Link from "next/link";
+import { Article } from "@/types";
+import { trackEngagement } from "@/lib/analytics";
+import { useUser } from "@/hooks/useUser";
+import { motion } from "framer-motion";
 
 interface NewsCardProps {
-  article: Article
-  user?: User
-  onSummarize?: (article: Article) => void
-  onLike?: (articleId: string) => void
-  onShare?: (article: Article) => void
+  article: Article;
+  onSummarize?: (article: Article) => void;
+  onShare?: (article: Article) => void;
 }
 
-export default function NewsCard({ article, user, onSummarize, onLike, onShare }: NewsCardProps) {
-  const [isLiked, setIsLiked] = useState(false)
-  const [showSummary, setShowSummary] = useState(false)
+export default function NewsCard({
+  article,
+  onSummarize,
+  onShare,
+}: NewsCardProps) {
+  const { user } = useUser();
+  const isSummarizeDisabled =
+    !user ||
+    (user.subscriptionStatus === "free" && (user.summariesUsed || 0) >= 3);
 
-  const handleLike = () => {
-    setIsLiked(!isLiked)
-    onLike?.(article.id)
-    trackEngagement.articleRead(article.id, 30, user?.id)
-  }
+  const handleSummarizeClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    onSummarize?.(article);
+    trackEngagement.aiSummaryUsed(
+      user?.persona || "ZenGPT",
+      article.id,
+      user?.id
+    );
+  };
 
-  const handleSummarize = () => {
-    onSummarize?.(article)
-    trackEngagement.aiSummaryUsed(user?.persona || "ZenGPT", article.id, user?.id)
-  }
-
-  const handleShare = () => {
-    onShare?.(article)
-    trackEngagement.socialShare("native", "article", user?.id)
-  }
+  const handleShareClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    onShare?.(article);
+    trackEngagement.socialShare("native", "article", user?.id);
+  };
 
   return (
-    <motion.div
-      whileHover={{ 
-        scale: 1.02,
-        boxShadow: "0 20px 25px -5px rgba(139, 92, 246, 0.3)"
+    <Card
+      sx={{
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        bgcolor: "rgba(255, 255, 255, 0.05)",
+        color: "white",
+        borderRadius: 4,
+        border: "1px solid rgba(255, 255, 255, 0.1)",
+        backdropFilter: "blur(10px)",
+        transition: "transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out",
+        "&:hover": {
+          transform: "translateY(-5px)",
+          boxShadow: "0px 10px 20px rgba(0, 0, 0, 0.2)",
+        },
       }}
-      whileTap={{ scale: 0.98 }}
-      className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-900 to-pink-900 p-6 transition-all duration-300"
     >
-      {/* Engagement Indicators */}
-      <div className="absolute top-4 right-4 flex space-x-2">
-        <div className="bg-black/30 backdrop-blur rounded-full px-3 py-1">
-          <span className="text-xs text-white">⚡ 2 min read</span>
-        </div>
-        <div className="bg-black/30 backdrop-blur rounded-full px-3 py-1">
-          <span className="text-xs text-yellow-300">🔥 Trending</span>
-        </div>
-      </div>
-
-      {/* Article Image */}
-      {article.imageUrl && (
-        <div className="mb-4 rounded-xl overflow-hidden">
-          <img 
-            src={article.imageUrl} 
+      <Link href={article.url} passHref legacyBehavior>
+        <CardActionArea
+          component="a"
+          target="_blank"
+          rel="noopener noreferrer"
+          sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}
+        >
+          <CardMedia
+            component="img"
+            sx={{
+              height: 140, // Fixed height to solve overlapping issues
+              transition: "transform 0.3s ease-in-out",
+              "&:hover": {
+                transform: "scale(1.05)",
+              },
+            }}
+            image={
+              article.imageUrl ||
+              "[https://source.unsplash.com/random/400x300/?technology](https://source.unsplash.com/random/400x300/?technology)"
+            }
             alt={article.title}
-            className="w-full h-48 object-cover"
           />
-        </div>
-      )}
-
-      {/* Content */}
-      <div className="space-y-3">
-        <div className="flex items-center space-x-2 text-sm text-gray-300">
-          <span className="bg-purple-600 px-2 py-1 rounded text-xs">{article.sourceName}</span>
-          <span>•</span>
-          <span>{new Date(article.publishedAt).toLocaleDateString()}</span>
-        </div>
-
-        <h2 className="text-lg font-bold text-white leading-tight">{article.title}</h2>
-
-        {article.description && (
-          <p className="text-sm text-gray-300 line-clamp-3">{article.description}</p>
-        )}
-
-        {/* Tags */}
-        {article.tags.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {article.tags.slice(0, 3).map((tag, index) => (
-              <span 
-                key={index}
-                className="text-xs bg-gray-700 text-gray-300 px-2 py-1 rounded-full"
-              >
-                #{tag}
-              </span>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Interactive Actions */}
-      <div className="flex justify-between items-center mt-6 pt-4 border-t border-gray-600">
-        <motion.button
-          whileTap={{ scale: 0.9 }}
-          onClick={handleLike}
-          className="flex items-center space-x-2 text-sm transition-colors"
+          <CardContent sx={{ flexGrow: 1 }}>
+            <Typography
+              variant="caption"
+              sx={{ color: "rgba(255, 255, 255, 0.7)" }}
+            >
+              {article.sourceName} •{" "}
+              {new Date(article.publishedAt).toLocaleDateString()}
+            </Typography>
+            <Typography
+              gutterBottom
+              variant="h6"
+              component="div"
+              sx={{
+                fontWeight: "bold",
+                mt: 1,
+                lineHeight: 1.3,
+                height: "3.9em", // Ensures space for 3 lines
+                display: "-webkit-box",
+                WebkitLineClamp: 3,
+                WebkitBoxOrient: "vertical",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+            >
+              {article.title}
+            </Typography>
+          </CardContent>
+        </CardActionArea>
+      </Link>
+      <CardActions
+        sx={{
+          bgcolor: "rgba(0, 0, 0, 0.2)",
+          p: 1,
+          justifyContent: "space-between",
+        }}
+      >
+        <Button
+          size="small"
+          onClick={handleSummarizeClick}
+          disabled={isSummarizeDisabled}
+          sx={{
+            color: "#c4b5fd",
+            "&:hover": { bgcolor: "rgba(139, 92, 246, 0.2)" },
+          }}
         >
-          <span className={`text-lg ${isLiked ? "text-pink-400" : "text-gray-400"}`}>
-            {isLiked ? "💖" : "🤍"}
-          </span>
-          <span className="text-purple-300">+5 XP</span>
-        </motion.button>
-
-        <motion.button
-          whileTap={{ scale: 0.9 }}
-          onClick={handleSummarize}
-          className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-full text-sm font-medium transition-colors"
-          disabled={!user || user.subscriptionStatus === "free" && user.summariesUsed >= 3}
+          🤖 AI Summary
+        </Button>
+        <Button
+          size="small"
+          onClick={handleShareClick}
+          sx={{
+            color: "#93c5fd",
+            "&:hover": { bgcolor: "rgba(59, 130, 246, 0.2)" },
+          }}
         >
-          🤖 AI Summarize
-        </motion.button>
-
-        <motion.button
-          whileTap={{ scale: 0.9 }}
-          onClick={handleShare}
-          className="text-blue-400 hover:text-blue-300 text-sm transition-colors"
-        >
-          🔗 Share
-        </motion.button>
-      </div>
-
-      {/* Daily Progress Indicator */}
-      {user && (
-        <div className="mt-4 space-y-2">
-          <div className="bg-gray-800 rounded-full h-2">
-            <div 
-              className="bg-gradient-to-r from-pink-500 to-purple-500 h-2 rounded-full transition-all duration-500"
-              style={{ width: `${Math.min((user.dailyProgress / user.weeklyGoal) * 100, 100)}%` }}
-            />
-          </div>
-          <p className="text-xs text-gray-400 flex justify-between">
-            <span>{user.dailyProgress}/{user.weeklyGoal} articles today</span>
-            <span>🔥 {user.streak} day streak</span>
-          </p>
-        </div>
-      )}
-    </motion.div>
-  )
+          Share
+        </Button>
+      </CardActions>
+    </Card>
+  );
 }

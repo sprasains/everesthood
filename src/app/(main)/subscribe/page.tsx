@@ -1,13 +1,13 @@
-"use client"
-import { motion } from "framer-motion"
-import { useState } from "react"
-import { useUser } from "@/hooks/useUser"
-import Navbar from "@/components/layout/Navbar"
+"use client";
+import { motion } from "framer-motion";
+import { useState } from "react";
+import { useUser } from "@/hooks/useUser";
+import Navbar from "@/components/layout/Navbar";
 
 export default function SubscribePage() {
-  const { user } = useUser()
-  const [selectedPlan, setSelectedPlan] = useState("premium")
-  const [loading, setLoading] = useState(false)
+  const { user } = useUser();
+  const [selectedPlan, setSelectedPlan] = useState("premium");
+  const [loading, setLoading] = useState(false);
 
   const plans = [
     {
@@ -21,58 +21,58 @@ export default function SubscribePage() {
         "Community access",
         "Weekly challenges",
         "Gen-Z content curation",
-        "Basic analytics"
+        "Basic analytics",
       ],
       cta: "Current Plan",
       theme: "from-gray-600 to-gray-700",
-      popular: false
+      popular: false,
     },
     {
-      id: "premium", 
+      id: "premium",
       name: "AI Oracle",
       price: "$9.99",
       description: "Unlock your full potential",
       features: [
         "Unlimited AI summaries",
-        "All personas + custom training", 
+        "All personas + custom training",
         "Exclusive research reports",
         "Priority support",
         "Advanced analytics",
         "Early access features",
         "Custom content feeds",
-        "Discord VIP access"
+        "Discord VIP access",
       ],
       cta: "Start Free Trial",
       theme: "from-purple-600 to-pink-600",
-      popular: true
-    }
-  ]
+      popular: true,
+    },
+  ];
 
   const handleSubscribe = async () => {
-    if (selectedPlan === "free") return
+    if (selectedPlan === "free") return;
 
-    setLoading(true)
+    setLoading(true);
     try {
-      const response = await fetch('/api/v1/stripe/create-checkout-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          priceId: 'price_premium_monthly', // Replace with actual Stripe price ID
+      const response = await fetch("/api/v1/stripe/create-checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          priceId: process.env.NEXT_PUBLIC_STRIPE_PREMIUM_PRICE_ID,
           successUrl: `${window.location.origin}/dashboard?upgraded=true`,
-          cancelUrl: `${window.location.origin}/subscribe`
-        })
-      })
+          cancelUrl: `${window.location.origin}/subscribe`,
+        }),
+      });
 
       if (response.ok) {
-        const { url } = await response.json()
-        window.location.href = url
+        const { url } = await response.json();
+        window.location.href = url;
       }
     } catch (error) {
-      console.error('Error creating checkout session:', error)
+      console.error("Error creating checkout session:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gray-900">
@@ -82,14 +82,14 @@ export default function SubscribePage() {
         <div className="max-w-4xl mx-auto">
           {/* Social Proof */}
           <div className="text-center mb-12">
-            <motion.h1 
+            <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-4"
             >
               Join 50k+ AI Enthusiasts
             </motion.h1>
-            <motion.p 
+            <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
@@ -109,7 +109,11 @@ export default function SubscribePage() {
                 transition={{ delay: index * 0.1 }}
                 className={`
                   relative rounded-2xl p-8 cursor-pointer transition-all border-2
-                  ${selectedPlan === plan.id ? 'border-purple-500' : 'border-transparent'}
+                  ${
+                    selectedPlan === plan.id
+                      ? "border-purple-500"
+                      : "border-transparent"
+                  }
                   bg-gradient-to-br ${plan.theme}
                 `}
                 onClick={() => setSelectedPlan(plan.id)}
@@ -122,10 +126,14 @@ export default function SubscribePage() {
                   </div>
                 )}
 
-                <h3 className="text-2xl font-bold text-white mb-2">{plan.name}</h3>
+                <h3 className="text-2xl font-bold text-white mb-2">
+                  {plan.name}
+                </h3>
                 <div className="text-3xl font-bold text-white mb-2">
                   {plan.price}
-                  {plan.id !== "free" && <span className="text-lg text-gray-300">/month</span>}
+                  {plan.id !== "free" && (
+                    <span className="text-lg text-gray-300">/month</span>
+                  )}
                 </div>
                 <p className="text-gray-300 mb-6">{plan.description}</p>
 
@@ -144,9 +152,10 @@ export default function SubscribePage() {
                   disabled={plan.id === "free" || loading}
                   className={`
                     w-full py-3 rounded-lg font-bold transition-all
-                    ${plan.id === "free" 
-                      ? "bg-gray-600 text-gray-300 cursor-not-allowed" 
-                      : "bg-white text-purple-600 hover:bg-gray-100"
+                    ${
+                      plan.id === "free"
+                        ? "bg-gray-600 text-gray-300 cursor-not-allowed"
+                        : "bg-white text-purple-600 hover:bg-gray-100"
                     }
                   `}
                 >
@@ -163,25 +172,30 @@ export default function SubscribePage() {
             transition={{ delay: 0.3 }}
             className="bg-gray-800 rounded-2xl p-8 mb-12"
           >
-            <h2 className="text-2xl font-bold text-white mb-6 text-center">✨ What Makes Premium Worth It?</h2>
+            <h2 className="text-2xl font-bold text-white mb-6 text-center">
+              ✨ What Makes Premium Worth It?
+            </h2>
 
             <div className="grid md:grid-cols-3 gap-6">
               {[
                 {
                   icon: "🤖",
                   title: "Unlimited AI Power",
-                  description: "Generate as many AI summaries as you want with all persona types"
+                  description:
+                    "Generate as many AI summaries as you want with all persona types",
                 },
                 {
                   icon: "📊",
-                  title: "Advanced Analytics", 
-                  description: "Track your learning patterns and get personalized insights"
+                  title: "Advanced Analytics",
+                  description:
+                    "Track your learning patterns and get personalized insights",
                 },
                 {
                   icon: "🎯",
                   title: "Custom Content",
-                  description: "Create personalized feeds based on your interests and goals"
-                }
+                  description:
+                    "Create personalized feeds based on your interests and goals",
+                },
               ].map((feature, index) => (
                 <div key={index} className="text-center">
                   <div className="text-4xl mb-3">{feature.icon}</div>
@@ -199,9 +213,12 @@ export default function SubscribePage() {
             transition={{ delay: 0.4 }}
             className="bg-gray-800 rounded-2xl p-8 text-center"
           >
-            <h3 className="text-xl font-bold text-white mb-4">🎯 Limited Time Offer</h3>
+            <h3 className="text-xl font-bold text-white mb-4">
+              🎯 Limited Time Offer
+            </h3>
             <p className="text-gray-400 mb-6">
-              Students get 50% off • Use code: <span className="text-purple-400 font-bold">STUDENT50</span>
+              Students get 50% off • Use code:{" "}
+              <span className="text-purple-400 font-bold">STUDENT50</span>
             </p>
             <div className="flex justify-center space-x-6 text-sm text-gray-400">
               <span className="flex items-center">
@@ -226,37 +243,48 @@ export default function SubscribePage() {
             transition={{ delay: 0.5 }}
             className="mt-12"
           >
-            <h3 className="text-xl font-bold text-white text-center mb-8">💬 What Gen-Z Users Say</h3>
+            <h3 className="text-xl font-bold text-white text-center mb-8">
+              💬 What Gen-Z Users Say
+            </h3>
             <div className="grid md:grid-cols-3 gap-6">
               {[
                 {
                   name: "Alex Chen",
                   role: "CS Student",
-                  content: "Everhood keeps me ahead of AI trends. The persona feature is genius!",
-                  avatar: "🦄"
+                  content:
+                    "Everhood keeps me ahead of AI trends. The persona feature is genius!",
+                  avatar: "🦄",
                 },
                 {
-                  name: "Sam Rivera", 
+                  name: "Sam Rivera",
                   role: "Startup Founder",
-                  content: "HustleBot mode gives me the energy and insights I need for my startup.",
-                  avatar: "🚀"
+                  content:
+                    "HustleBot mode gives me the energy and insights I need for my startup.",
+                  avatar: "🚀",
                 },
                 {
                   name: "Jordan Kim",
-                  role: "Tech Influencer", 
-                  content: "DataDaddy persona helps me create data-driven content that hits different.",
-                  avatar: "⚡"
-                }
+                  role: "Tech Influencer",
+                  content:
+                    "DataDaddy persona helps me create data-driven content that hits different.",
+                  avatar: "⚡",
+                },
               ].map((testimonial, index) => (
                 <div key={index} className="bg-gray-700 rounded-lg p-6">
                   <div className="flex items-center space-x-3 mb-4">
                     <span className="text-2xl">{testimonial.avatar}</span>
                     <div>
-                      <div className="font-semibold text-white">{testimonial.name}</div>
-                      <div className="text-sm text-gray-400">{testimonial.role}</div>
+                      <div className="font-semibold text-white">
+                        {testimonial.name}
+                      </div>
+                      <div className="text-sm text-gray-400">
+                        {testimonial.role}
+                      </div>
                     </div>
                   </div>
-                  <p className="text-gray-300 text-sm italic">"{testimonial.content}"</p>
+                  <p className="text-gray-300 text-sm italic">
+                    "{testimonial.content}"
+                  </p>
                 </div>
               ))}
             </div>
@@ -264,5 +292,5 @@ export default function SubscribePage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
