@@ -1,234 +1,496 @@
-"use client"
-import { motion } from "framer-motion"
-import { useUser } from "@/hooks/useUser"
-import { useStreak } from "@/hooks/useStreak"
-import StreakDisplay from "@/components/ui/StreakDisplay"
-import PersonaSelector from "@/components/ui/PersonaSelector"
-import SocialFeed from "@/components/ui/SocialFeed"
-import GenZContentPanel from "@/components/ui/GenZContentPanel"
-import AchievementCard from "@/components/ui/AchievementCard"
-import Navbar from "@/components/layout/Navbar"
-import { useState, useEffect } from "react"
+"use client";
+
+import { motion } from "framer-motion";
+import { useUser } from "@/hooks/useUser";
+import { useStreak } from "@/hooks/useStreak";
+import PersonaSelector from "@/components/ui/PersonaSelector";
+import SocialFeed from "@/components/ui/SocialFeed";
+import GenZContentPanel from "@/components/ui/GenZContentPanel";
+import AchievementCard from "@/components/ui/AchievementCard";
+import Navbar from "@/components/layout/Navbar";
+import UserStatusPanel from "./UserStatusPanel";
+import { useState, useEffect } from "react";
+import {
+  Container,
+  Typography,
+  Button,
+  Box,
+  Card,
+  CardContent,
+  Chip,
+  Stack,
+} from "@mui/material";
+import { Grid } from "@mui/material";
+import WbSunnyRoundedIcon from "@mui/icons-material/WbSunnyRounded";
+import WhatshotIcon from "@mui/icons-material/Whatshot";
+import StyleIcon from "@mui/icons-material/Style";
+import EmojiObjectsIcon from "@mui/icons-material/EmojiObjects";
+import DevicesIcon from "@mui/icons-material/Devices";
+import GroupIcon from "@mui/icons-material/Group";
 
 export default function DashboardPage() {
-  const { user, loading } = useUser()
-  const { incrementProgress } = useStreak()
-  const [achievements, setAchievements] = useState([])
-  const [showPersonaSelector, setShowPersonaSelector] = useState(false)
+  const { user, loading } = useUser();
+  const { incrementProgress } = useStreak();
+  const [achievements, setAchievements] = useState([]);
+  const [showPersonaSelector, setShowPersonaSelector] = useState(false);
 
   useEffect(() => {
-    // Load user achievements
-    if (user) {
-      fetchAchievements()
-    }
-  }, [user])
+    if (user) fetchAchievements();
+  }, [user]);
 
   const fetchAchievements = async () => {
     try {
-      const response = await fetch('/api/v1/achievements')
+      const response = await fetch("/api/v1/achievements");
       if (response.ok) {
-        const data = await response.json()
-        setAchievements(data.achievements || [])
+        const data = await response.json();
+        setAchievements(data.achievements || []);
       }
     } catch (error) {
-      console.error('Error fetching achievements:', error)
+      console.error("Error fetching achievements:", error);
     }
-  }
+  };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
-      </div>
-    )
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="100vh"
+        sx={{
+          background: "linear-gradient(135deg, #0f2027, #203a43, #2c5364)",
+          backgroundAttachment: "fixed",
+        }}
+      >
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          style={{
+            width: 50,
+            height: 50,
+            border: "5px solid transparent",
+            borderTop: "5px solid #ff4e53",
+            borderRadius: "50%",
+          }}
+        />
+      </Box>
+    );
   }
 
+  const displayName = user?.name || user?.email?.split("@")[0] || "AI Explorer";
+
   return (
-    <div className="min-h-screen bg-gray-900">
+    <Box
+      sx={{
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, #0f2027, #203a43, #2c5364)",
+        color: "white",
+        overflowX: "hidden",
+      }}
+    >
       <Navbar />
       <GenZContentPanel />
 
-      <div className="ml-80 pt-20 px-6 pb-6">
-        <div className="max-w-6xl mx-auto">
-          {/* Welcome Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-8"
-          >
-            <h1 className="text-3xl font-bold text-white mb-2">
-              Welcome back, {user?.name || 'AI Explorer'}! 👋
-            </h1>
-            <p className="text-gray-400">
-              Ready to dive into the latest AI trends and level up your knowledge?
-            </p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Left Column - Main Content */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Streak Display */}
-              <StreakDisplay />
-
-              {/* Quick Actions */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-                className="bg-gray-800 rounded-2xl p-6"
+      {/* --- Top Section: Hero and Trending --- */}
+      <Container maxWidth="xl" sx={{ pt: { xs: 6, md: 8 }, pb: 2 }}>
+        <Grid container spacing={3} alignItems="flex-start">
+          {/* Trending/Filters Card */}
+          <Grid size={{ xs: 12, md: 4 }}>
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.7, ease: "easeOut" }}
+            >
+              <Card
+                sx={{
+                  background: "rgba(255,255,255,0.09)",
+                  backdropFilter: "blur(10px)",
+                  borderRadius: 4,
+                  boxShadow: "0 4px 20px rgba(0,0,0,0.18)",
+                  px: { xs: 2, md: 3 },
+                  py: { xs: 2, md: 3 },
+                  mb: { xs: 2, md: 0 },
+                }}
               >
-                <h2 className="text-xl font-bold text-white mb-4">🚀 Quick Actions</h2>
-                <div className="grid grid-cols-2 gap-4">
-                  <button
-                    onClick={() => window.location.href = '/news'}
-                    className="bg-gradient-to-r from-purple-600 to-pink-600 p-4 rounded-xl text-white font-medium hover:shadow-lg transition-all"
-                  >
-                    📰 Read Latest News
-                  </button>
-                  <button
-                    onClick={() => setShowPersonaSelector(true)}
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 p-4 rounded-xl text-white font-medium hover:shadow-lg transition-all"
-                  >
-                    🤖 Switch AI Persona
-                  </button>
-                  <button
-                    onClick={() => window.location.href = '/community'}
-                    className="bg-gradient-to-r from-green-600 to-blue-600 p-4 rounded-xl text-white font-medium hover:shadow-lg transition-all"
-                  >
-                    👥 Join Community
-                  </button>
-                  <button
-                    onClick={() => incrementProgress()}
-                    className="bg-gradient-to-r from-orange-600 to-red-600 p-4 rounded-xl text-white font-medium hover:shadow-lg transition-all"
-                  >
-                    ⚡ Daily Challenge
-                  </button>
-                </div>
-              </motion.div>
-
-              {/* Recent Achievements */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="bg-gray-800 rounded-2xl p-6"
+                <Typography
+                  variant="h5"
+                  fontWeight="bold"
+                  sx={{
+                    mb: 1,
+                    background: "linear-gradient(90deg, #ff4e53, #ffcc00)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                  }}
+                >
+                  🌟 Gen-Z Vibes
+                </Typography>
+                <Typography variant="body1" sx={{ color: "#bdbdbd", mb: 2 }}>
+                  Trending culture & lifestyle
+                </Typography>
+                <Stack direction="row" spacing={1} flexWrap="wrap">
+                  <Chip
+                    icon={<WhatshotIcon />}
+                    label="All"
+                    color="warning"
+                    variant="filled"
+                    sx={{ fontWeight: "bold" }}
+                  />
+                  <Chip
+                    icon={<StyleIcon />}
+                    label="Fashion"
+                    color="primary"
+                    variant="outlined"
+                    sx={{ fontWeight: "bold" }}
+                  />
+                  <Chip
+                    icon={<EmojiObjectsIcon />}
+                    label="Culture"
+                    color="secondary"
+                    variant="outlined"
+                    sx={{ fontWeight: "bold" }}
+                  />
+                  <Chip
+                    icon={<DevicesIcon />}
+                    label="Tech"
+                    color="info"
+                    variant="outlined"
+                    sx={{ fontWeight: "bold" }}
+                  />
+                  <Chip
+                    icon={<GroupIcon />}
+                    label="Social"
+                    color="success"
+                    variant="outlined"
+                    sx={{ fontWeight: "bold" }}
+                  />
+                </Stack>
+              </Card>
+            </motion.div>
+          </Grid>
+          {/* Hero Card */}
+          <Grid size={{ xs: 12, md: 8 }}>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, ease: "easeOut" }}
+            >
+              <Card
+                sx={{
+                  background: "rgba(255,255,255,0.07)",
+                  backdropFilter: "blur(10px)",
+                  borderRadius: 4,
+                  boxShadow: "0 8px 32px rgba(0,0,0,0.25)",
+                  px: { xs: 3, md: 6 },
+                  py: { xs: 4, md: 6 },
+                  mb: 2,
+                }}
               >
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-bold text-white">🏆 Recent Achievements</h2>
-                  <button className="text-purple-400 hover:text-purple-300 text-sm">
-                    View All
-                  </button>
-                </div>
+                <CardContent sx={{ p: 0 }}>
+                  <Typography
+                    variant="h3"
+                    fontWeight="bold"
+                    gutterBottom
+                    sx={{
+                      fontSize: { xs: "2rem", md: "2.8rem" },
+                      background: "linear-gradient(90deg, #ff4e53, #ffcc00)",
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                    }}
+                  >
+                    Welcome back, {displayName}!{" "}
+                    <span role="img" aria-label="wave">
+                      👋
+                    </span>
+                  </Typography>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      color: "#e0e0e0",
+                      fontWeight: 400,
+                      fontSize: { xs: "1rem", md: "1.2rem" },
+                    }}
+                  >
+                    Ready to dive into the latest AI trends and level up your
+                    knowledge?
+                  </Typography>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </Grid>
+        </Grid>
+      </Container>
 
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {achievements.slice(0, 6).map((achievement, index) => (
-                    <AchievementCard
-                      key={achievement.id}
-                      achievement={achievement}
-                      earned={user?.achievements?.includes(achievement.id)}
-                      className="min-h-[120px]"
-                    />
-                  ))}
-                </div>
-              </motion.div>
+      {/* --- Main Content Section --- */}
+      <Container
+        maxWidth="xl"
+        sx={{
+          pt: { xs: 2, md: 4 },
+          px: { xs: 2, sm: 4, md: 6 },
+          pb: 6,
+        }}
+      >
+        <Grid container spacing={{ xs: 3, md: 6 }}>
+          {/* Left Column - Main Content */}
+          <Grid size={{ xs: 12, lg: 8 }}>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                gap: { xs: 3, md: 6 },
+              }}
+            >
+              {/* User Status Panel */}
+              <UserStatusPanel user={user} />
 
-              {/* AI Insights */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="bg-gray-800 rounded-2xl p-6"
-              >
-                <h2 className="text-xl font-bold text-white mb-4">🧠 AI Insights</h2>
-                <div className="space-y-4">
-                  <div className="bg-gray-700 rounded-lg p-4">
-                    <h3 className="font-semibold text-white mb-2">📈 Your Learning Trend</h3>
-                    <p className="text-gray-300 text-sm">
-                      You've been consistently engaging with AI and tech content. 
-                      Your {user?.persona || 'ZenGPT'} persona suggests focusing on emerging technologies this week.
-                    </p>
-                  </div>
-                  <div className="bg-gray-700 rounded-lg p-4">
-                    <h3 className="font-semibold text-white mb-2">🎯 Recommended Topics</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {['Machine Learning', 'Web3', 'AR/VR', 'Quantum Computing', 'Blockchain'].map((topic) => (
-                        <span key={topic} className="bg-purple-600 text-white text-xs px-2 py-1 rounded-full">
-                          {topic}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            </div>
-
-            {/* Right Column - Social & Stats */}
-            <div className="space-y-6">
-              {/* User Stats Card */}
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.1 }}
-                className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl p-6 text-white"
-              >
-                <div className="text-center">
-                  <div className="w-20 h-20 bg-white/20 rounded-full mx-auto mb-4 flex items-center justify-center text-3xl">
-                    {user?.persona === "ZenGPT" ? "🧘‍♀️" : 
-                     user?.persona === "HustleBot" ? "🔥" : 
-                     user?.persona === "DataDaddy" ? "📊" : "💪"}
-                  </div>
-                  <h3 className="font-bold text-lg">{user?.name || 'AI Explorer'}</h3>
-                  <p className="text-white/80 text-sm mb-4">Level {user?.level || 1} • {user?.persona || 'ZenGPT'}</p>
-
-                  <div className="grid grid-cols-2 gap-4 text-center">
-                    <div>
-                      <div className="text-2xl font-bold">{user?.xp || 0}</div>
-                      <div className="text-white/80 text-xs">Total XP</div>
-                    </div>
-                    <div>
-                      <div className="text-2xl font-bold">{user?.streak || 0}</div>
-                      <div className="text-white/80 text-xs">Day Streak</div>
-                    </div>
-                    <div>
-                      <div className="text-2xl font-bold">{user?.articlesRead || 0}</div>
-                      <div className="text-white/80 text-xs">Articles Read</div>
-                    </div>
-                    <div>
-                      <div className="text-2xl font-bold">{user?.summariesUsed || 0}</div>
-                      <div className="text-white/80 text-xs">AI Summaries</div>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-
-              {/* Social Feed */}
+              {
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1, duration: 0.8, ease: "easeOut" }}
+                >
+                  <Card
+                    sx={{
+                      background:
+                        "linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))",
+                      backdropFilter: "blur(15px)",
+                      border: "1px solid rgba(255, 255, 255, 0.1)",
+                      color: "white",
+                      borderRadius: 3,
+                      p: { xs: 3, sm: 4, md: 6 },
+                      boxShadow: "0 12px 30px rgba(0, 0, 0, 0.2)",
+                    }}
+                  >
+                    <CardContent sx={{ p: 0 }}>
+                      <Typography
+                        variant="h6"
+                        fontWeight="bold"
+                        gutterBottom
+                        sx={{
+                          fontSize: {
+                            xs: "1.2rem",
+                            sm: "1.4rem",
+                            md: "1.6rem",
+                          },
+                          color: "#fff",
+                          mb: { xs: 2, sm: 3, md: 4 },
+                        }}
+                      >
+                        🚀 Quick Actions
+                      </Typography>
+                      <Grid container spacing={{ xs: 2, sm: 3, md: 4 }}>
+                        <Grid size={{ xs: 6, sm: 6 }}>
+                          <Button
+                            variant="contained"
+                            fullWidth
+                            onClick={() => (window.location.href = "/news")}
+                            sx={{
+                              background:
+                                "linear-gradient(to right, #6a11cb, #2575fc)",
+                              p: { xs: 2, sm: 3, md: 4 },
+                              borderRadius: 2,
+                              color: "white",
+                              fontWeight: "medium",
+                              fontSize: {
+                                xs: "0.75rem",
+                                sm: "0.8rem",
+                                md: "0.9rem",
+                              },
+                              textTransform: "none",
+                              boxShadow: "0 4px 8px rgba(106, 17, 203, 0.3)",
+                              transition: "transform 0.2s, box-shadow 0.2s",
+                              height: "100%",
+                              "&:hover": {
+                                transform: "translateY(-2px)",
+                                boxShadow: "0 6px 12px rgba(106, 17, 203, 0.5)",
+                              },
+                            }}
+                          >
+                            📰 Read Latest News
+                          </Button>
+                        </Grid>
+                        <Grid size={{ xs: 6, sm: 6 }}>
+                          <Button
+                            variant="contained"
+                            fullWidth
+                            onClick={() => setShowPersonaSelector(true)}
+                            sx={{
+                              background:
+                                "linear-gradient(to right, #2575fc, #6a11cb)",
+                              p: { xs: 2, sm: 3, md: 4 },
+                              borderRadius: 2,
+                              color: "white",
+                              fontWeight: "medium",
+                              fontSize: {
+                                xs: "0.75rem",
+                                sm: "0.8rem",
+                                md: "0.9rem",
+                              },
+                              textTransform: "none",
+                              boxShadow: "0 4px 8px rgba(37, 117, 252, 0.3)",
+                              transition: "transform 0.2s, box-shadow 0.2s",
+                              height: "100%",
+                              "&:hover": {
+                                transform: "translateY(-2px)",
+                                boxShadow: "0 6px 12px rgba(37, 117, 252, 0.5)",
+                              },
+                            }}
+                          >
+                            🤖 Switch AI Persona
+                          </Button>
+                        </Grid>
+                        <Grid size={{ xs: 6, sm: 6 }}>
+                          <Button
+                            variant="contained"
+                            fullWidth
+                            onClick={() =>
+                              (window.location.href = "/community")
+                            }
+                            sx={{
+                              background:
+                                "linear-gradient(to right, #34A853, #2575fc)",
+                              p: { xs: 2, sm: 3, md: 4 },
+                              borderRadius: 2,
+                              color: "white",
+                              fontWeight: "medium",
+                              fontSize: {
+                                xs: "0.75rem",
+                                sm: "0.8rem",
+                                md: "0.9rem",
+                              },
+                              textTransform: "none",
+                              boxShadow: "0 4px 8px rgba(52, 168, 83, 0.3)",
+                              transition: "transform 0.2s, box-shadow 0.2s",
+                              height: "100%",
+                              "&:hover": {
+                                transform: "translateY(-2px)",
+                                boxShadow: "0 6px 12px rgba(52, 168, 83, 0.5)",
+                              },
+                            }}
+                          >
+                            👥 Join Community
+                          </Button>
+                        </Grid>
+                        <Grid size={{ xs: 6, sm: 6 }}>
+                          <Button
+                            variant="contained"
+                            fullWidth
+                            onClick={() => incrementProgress()}
+                            sx={{
+                              background:
+                                "linear-gradient(to right, #FBBC05, #EA4335)",
+                              p: { xs: 2, sm: 3, md: 4 },
+                              borderRadius: 2,
+                              color: "white",
+                              fontWeight: "medium",
+                              fontSize: {
+                                xs: "0.75rem",
+                                sm: "0.8rem",
+                                md: "0.9rem",
+                              },
+                              textTransform: "none",
+                              boxShadow: "0 4px 8px rgba(251, 188, 5, 0.3)",
+                              transition: "transform 0.2s, box-shadow 0.2s",
+                              height: "100%",
+                              "&:hover": {
+                                transform: "translateY(-2px)",
+                                boxShadow: "0 6px 12px rgba(251, 188, 5, 0.5)",
+                              },
+                            }}
+                          >
+                            ⚡ Daily Challenge
+                          </Button>
+                        </Grid>
+                      </Grid>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              }
+              {/* Place your previously working bottom section code here */}
+            </Box>
+          </Grid>
+          {/* Right Column - Social Feed */}
+          <Grid size={{ xs: 12, lg: 4 }}>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                gap: { xs: 3, md: 6 },
+              }}
+            >
               <SocialFeed />
-            </div>
-          </div>
-        </div>
-      </div>
+            </Box>
+          </Grid>
+        </Grid>
+      </Container>
 
       {/* Persona Selector Modal */}
       {showPersonaSelector && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <Box
+          sx={{
+            position: "fixed",
+            inset: 0,
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 50,
+            p: { xs: 2, sm: 4 },
+          }}
+        >
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-gray-800 rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            style={{
+              background:
+                "linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))",
+              backdropFilter: "blur(15px)",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+              borderRadius: 12,
+              padding: 32,
+              maxWidth: 600,
+              width: "100%",
+              maxHeight: "90vh",
+              overflowY: "auto",
+              color: "white",
+            }}
           >
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold text-white">Choose Your AI Mentor</h2>
-              <button
+            <Box
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+              mb={4}
+            >
+              <Typography
+                variant="h6"
+                fontWeight="bold"
+                sx={{
+                  fontSize: { xs: "1.2rem", sm: "1.4rem" },
+                  color: "#fff",
+                }}
+              >
+                Choose Your AI Mentor
+              </Typography>
+              <Button
                 onClick={() => setShowPersonaSelector(false)}
-                className="text-gray-400 hover:text-white"
+                sx={{
+                  color: "#d0d0d0",
+                  "&:hover": {
+                    color: "#ff4e53",
+                  },
+                  minWidth: "auto",
+                  p: 0,
+                }}
               >
                 ✕
-              </button>
-            </div>
-            <PersonaSelector onPersonaChange={() => setShowPersonaSelector(false)} />
+              </Button>
+            </Box>
+            <PersonaSelector
+              onPersonaChange={() => setShowPersonaSelector(false)}
+            />
           </motion.div>
-        </div>
+        </Box>
       )}
-    </div>
-  )
+    </Box>
+  );
 }

@@ -1,7 +1,19 @@
 "use client";
+
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
+import {
+  Container,
+  Typography,
+  Button,
+  Box,
+  TextField,
+  Card,
+  CardContent,
+} from "@mui/material";
+import { motion } from "framer-motion";
+import { AutoAwesome, Google, Facebook } from "@mui/icons-material";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
@@ -46,129 +58,321 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
-      <div className="bg-gray-800 rounded-2xl p-8 max-w-md w-full shadow-md">
-        <h1 className="text-3xl font-bold text-white mb-6 text-center">
-          Welcome to Everhood
-        </h1>
-        <p className="text-gray-400 mb-6 text-center">
-          Sign in to access AI-powered insights
-        </p>
-
-        {registered && (
-          <div className="bg-green-500/20 border border-green-500 text-green-200 p-3 rounded-lg mb-4 text-sm">
-            Account created successfully! Please sign in.
-          </div>
-        )}
-
-        {error && (
-          <div className="bg-red-500/20 border border-red-500 text-red-200 p-3 rounded-lg mb-4 text-sm">
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-white text-sm font-medium mb-1"
-            >
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Your Email"
-              className="w-full p-3 bg-gray-700 text-white rounded-lg border border-gray-600 focus:border-purple-500 focus:outline-none"
-              required
-            />
-          </div>
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-white text-sm font-medium mb-1"
-            >
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Your Password"
-              className="w-full p-3 bg-gray-700 text-white rounded-lg border border-gray-600 focus:border-purple-500 focus:outline-none"
-              required
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={loading}
-            className={`w-full py-3 rounded-lg font-bold text-white ${
-              loading
-                ? "bg-purple-400 cursor-not-allowed"
-                : "bg-purple-600 hover:bg-purple-700"
-            } transition-all`}
+    <Container
+      maxWidth={false}
+      disableGutters
+      sx={{
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, #0f2027, #203a43, #2c5364)",
+        color: "white",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        padding: 0,
+        overflowX: "hidden",
+      }}
+    >
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          width: "100%",
+          maxWidth: { xs: "90%", sm: "500px", md: "550px" },
+          p: { xs: 2, sm: 4, md: 6 },
+          my: "auto",
+        }}
+      >
+        <motion.div
+          initial={{ opacity: 0, y: -30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          style={{ width: "100%" }}
+        >
+          <Card
+            sx={{
+              background:
+                "linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))",
+              backdropFilter: "blur(15px)",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+              color: "white",
+              borderRadius: 3,
+              p: { xs: 3, sm: 5, md: 6 },
+              boxShadow: "0 12px 30px rgba(0, 0, 0, 0.3)",
+              textAlign: "center",
+            }}
           >
-            {loading ? "Signing In..." : "Sign In"}
-          </button>
-        </form>
+            <CardContent sx={{ p: 0 }}>
+              <Typography
+                variant="h3"
+                fontWeight="bold"
+                gutterBottom
+                sx={{
+                  fontSize: { xs: "1.8rem", sm: "2.2rem", md: "2.5rem" },
+                  background: "linear-gradient(45deg, #ff4e53, #ffcc00)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  mb: { xs: 1, sm: 2 },
+                }}
+              >
+                Welcome to Everhood
+              </Typography>
+              <Typography
+                variant="body1"
+                sx={{
+                  color: "#d0d0d0",
+                  mb: { xs: 2, sm: 3, md: 4 },
+                  fontSize: { xs: "0.85rem", sm: "0.9rem", md: "1rem" },
+                }}
+              >
+                Sign in to access AI-powered insights
+              </Typography>
 
-        <div className="mt-6 space-y-3">
-          <button
-            onClick={() => handleSocialSignIn("google")}
-            disabled={loading}
-            className="w-full bg-white text-gray-800 py-3 rounded-lg font-medium hover:bg-gray-100 transition-all flex items-center justify-center"
-          >
-            <svg className="mr-2" width="24" height="24" viewBox="0 0 24 24">
-              <path
-                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                fill="#4285F4"
-              />
-              <path
-                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53L2.18 12v2.26C3.61 17.75 7.18 20.5 12 20.5z"
-                fill="#34A853"
-              />
-              <path
-                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                fill="#FBBC05"
-              />
-              <path
-                d="M12 3.5c1.99 0 3.77.67 5.17 1.99l2.52-2.52C17.86.99 14.96 0 12 0 7.18 3.25 3.61 6 2.18 9.49L5.84 7.07c.87 2.6 3.3 4.53 6.16 4.53z"
-                fill="#EA4335"
-              />
-            </svg>
-            Sign In with Google
-          </button>
-          <button
-            onClick={() => handleSocialSignIn("facebook")}
-            disabled={loading}
-            className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-all flex items-center justify-center"
-          >
-            <svg
-              className="mr-2"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="#fff"
-            >
-              <path d="M22.675 0H1.325C.593 0 0 .593 0 1.325v21.351C0 23.407.593 24 1.325 24H12.82v-9.294H9.692v-3.622h3.128V8.413c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12V24h6.116c.73 0 1.323-.593 1.323-1.325V1.325C24 .593 23.407 0 22.675 0z" />
-            </svg>
-            Sign In with Facebook
-          </button>
-        </div>
+              {registered && (
+                <Box
+                  sx={{
+                    backgroundColor: "rgba(52, 168, 83, 0.2)",
+                    border: "1px solid rgba(52, 168, 83, 0.5)",
+                    color: "#ccffcc",
+                    p: { xs: 1.5, sm: 2 },
+                    borderRadius: 1.5,
+                    mb: { xs: 2, sm: 3 },
+                    textAlign: "left",
+                    fontSize: { xs: "0.75rem", sm: "0.8rem", md: "0.85rem" },
+                  }}
+                >
+                  Account created successfully! Please sign in.
+                </Box>
+              )}
 
-        <div className="mt-6 text-center text-gray-400 text-sm">
-          Don't have an account?{" "}
-          <a
-            href="/auth/signup"
-            className="text-purple-400 hover:text-purple-300"
-          >
-            Sign Up
-          </a>
-        </div>
-      </div>
-    </div>
+              {error && (
+                <Box
+                  sx={{
+                    backgroundColor: "rgba(239, 68, 68, 0.2)",
+                    border: "1px solid rgba(239, 68, 68, 0.5)",
+                    color: "#ffcccc",
+                    p: { xs: 1.5, sm: 2 },
+                    borderRadius: 1.5,
+                    mb: { xs: 2, sm: 3 },
+                    textAlign: "left",
+                    fontSize: { xs: "0.75rem", sm: "0.8rem", md: "0.85rem" },
+                  }}
+                >
+                  {error}
+                </Box>
+              )}
+
+              <form
+                onSubmit={handleSubmit}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "1.25rem",
+                }}
+              >
+                <TextField
+                  label="Email"
+                  variant="outlined"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Your Email"
+                  required
+                  fullWidth
+                  sx={{
+                    "& .MuiInputBase-root": {
+                      backgroundColor: "rgba(255, 255, 255, 0.1)",
+                      color: "white",
+                      borderRadius: 2,
+                      border: "1px solid rgba(255, 255, 255, 0.2)",
+                      height: { xs: "48px", sm: "52px", md: "56px" },
+                      fontSize: { xs: "0.85rem", sm: "0.9rem", md: "1rem" },
+                      "&:hover": {
+                        border: "1px solid rgba(255, 255, 255, 0.3)",
+                      },
+                      "&.Mui-focused": {
+                        border: "1px solid #ff4e53",
+                      },
+                    },
+                    "& .MuiInputLabel-root": {
+                      color: "rgba(255, 255, 255, 0.7)",
+                      fontSize: { xs: "0.85rem", sm: "0.9rem", md: "1rem" },
+                      "&.Mui-focused": {
+                        color: "#ff4e53",
+                      },
+                    },
+                    "& .MuiOutlinedInput-notchedOutline": {
+                      border: "none",
+                    },
+                  }}
+                />
+                <TextField
+                  label="Password"
+                  variant="outlined"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Your Password"
+                  required
+                  fullWidth
+                  sx={{
+                    "& .MuiInputBase-root": {
+                      backgroundColor: "rgba(255, 255, 255, 0.1)",
+                      color: "white",
+                      borderRadius: 2,
+                      border: "1px solid rgba(255, 255, 255, 0.2)",
+                      height: { xs: "48px", sm: "52px", md: "56px" },
+                      fontSize: { xs: "0.85rem", sm: "0.9rem", md: "1rem" },
+                      "&:hover": {
+                        border: "1px solid rgba(255, 255, 255, 0.3)",
+                      },
+                      "&.Mui-focused": {
+                        border: "1px solid #ff4e53",
+                      },
+                    },
+                    "& .MuiInputLabel-root": {
+                      color: "rgba(255, 255, 255, 0.7)",
+                      fontSize: { xs: "0.85rem", sm: "0.9rem", md: "1rem" },
+                      "&.Mui-focused": {
+                        color: "#ff4e53",
+                      },
+                    },
+                    "& .MuiOutlinedInput-notchedOutline": {
+                      border: "none",
+                    },
+                  }}
+                />
+                <Button
+                  type="submit"
+                  variant="contained"
+                  size="large"
+                  disabled={loading}
+                  fullWidth
+                  sx={{
+                    background: loading
+                      ? "rgba(255, 78, 83, 0.5)"
+                      : "linear-gradient(45deg, #ff4e53, #ffcc00)",
+                    padding: { xs: "10px 0", sm: "12px 0", md: "14px 0" },
+                    borderRadius: "50px",
+                    fontWeight: "bold",
+                    fontSize: { xs: "0.85rem", sm: "0.9rem", md: "1rem" },
+                    textTransform: "none",
+                    boxShadow: loading
+                      ? "none"
+                      : "0 8px 16px rgba(255, 78, 83, 0.5)",
+                    transition:
+                      "transform 0.2s, box-shadow 0.2s, background 0.2s",
+                    cursor: loading ? "not-allowed" : "pointer",
+                    "&:hover": {
+                      transform: loading ? "none" : "translateY(-2px)",
+                      boxShadow: loading
+                        ? "none"
+                        : "0 12px 20px rgba(255, 78, 83, 0.7)",
+                      background: loading
+                        ? "rgba(255, 78, 83, 0.5)"
+                        : "linear-gradient(45deg, #ffcc00, #ff4e53)",
+                    },
+                  }}
+                  startIcon={<AutoAwesome />}
+                >
+                  {loading ? "Signing In..." : "Sign In"}
+                </Button>
+              </form>
+
+              <Box
+                mt={{ xs: 2, sm: 3, md: 4 }}
+                display="flex"
+                flexDirection="column"
+                gap={{ xs: 1.5, sm: 2 }}
+              >
+                <Button
+                  variant="outlined"
+                  size="large"
+                  disabled={loading}
+                  fullWidth
+                  onClick={() => handleSocialSignIn("google")}
+                  sx={{
+                    backgroundColor: "rgba(255, 255, 255, 0.1)",
+                    border: "1px solid rgba(255, 255, 255, 0.3)",
+                    color: "white",
+                    padding: { xs: "10px 0", sm: "12px 0" },
+                    borderRadius: "50px",
+                    fontWeight: "medium",
+                    fontSize: { xs: "0.8rem", sm: "0.85rem", md: "0.9rem" },
+                    textTransform: "none",
+                    transition: "transform 0.2s, background 0.2s, border 0.2s",
+                    cursor: loading ? "not-allowed" : "pointer",
+                    "&:hover": {
+                      backgroundColor: "rgba(255, 255, 255, 0.15)",
+                      border: "1px solid rgba(255, 255, 255, 0.5)",
+                      transform: loading ? "none" : "translateY(-1px)",
+                    },
+                  }}
+                  startIcon={<Google />}
+                >
+                  Sign In with Google
+                </Button>
+                <Button
+                  variant="outlined"
+                  size="large"
+                  disabled={loading}
+                  fullWidth
+                  onClick={() => handleSocialSignIn("facebook")}
+                  sx={{
+                    backgroundColor: "rgba(255, 255, 255, 0.1)",
+                    border: "1px solid rgba(255, 255, 255, 0.3)",
+                    color: "white",
+                    padding: { xs: "10px 0", sm: "12px 0" },
+                    borderRadius: "50px",
+                    fontWeight: "medium",
+                    fontSize: { xs: "0.8rem", sm: "0.85rem", md: "0.9rem" },
+                    textTransform: "none",
+                    transition: "transform 0.2s, background 0.2s, border 0.2s",
+                    cursor: loading ? "not-allowed" : "pointer",
+                    "&:hover": {
+                      backgroundColor: "rgba(255, 255, 255, 0.15)",
+                      border: "1px solid rgba(255, 255, 255, 0.5)",
+                      transform: loading ? "none" : "translateY(-1px)",
+                    },
+                  }}
+                  startIcon={<Facebook />}
+                >
+                  Sign In with Facebook
+                </Button>
+              </Box>
+
+              <Box mt={{ xs: 2, sm: 3, md: 4 }} textAlign="center">
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: "#d0d0d0",
+                    fontSize: { xs: "0.75rem", sm: "0.8rem", md: "0.85rem" },
+                  }}
+                >
+                  Don't have an account?{" "}
+                  <a
+                    href="/auth/signup"
+                    style={{
+                      color: "#ff4e53",
+                      textDecoration: "none",
+                      transition: "color 0.2s",
+                    }}
+                    onMouseOver={(e) =>
+                      (e.currentTarget.style.color = "#ffcc00")
+                    }
+                    onMouseOut={(e) =>
+                      (e.currentTarget.style.color = "#ff4e53")
+                    }
+                  >
+                    Sign Up
+                  </a>
+                </Typography>
+              </Box>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </Box>
+    </Container>
   );
 }

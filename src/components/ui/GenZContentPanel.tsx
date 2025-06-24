@@ -1,40 +1,44 @@
-"use client"
-import { motion, AnimatePresence } from "framer-motion"
-import { useGenZContent } from "@/hooks/useGenZContent"
-import { useState } from "react"
+"use client";
+import { motion, AnimatePresence } from "framer-motion";
+import { useGenZContent } from "@/hooks/useGenZContent";
+import { useState } from "react";
 
 export default function GenZContentPanel() {
-  const { content, loading, selectedCategory, setSelectedCategory, categories } = useGenZContent()
-  const [isCollapsed, setIsCollapsed] = useState(false)
+  const {
+    content,
+    loading,
+    selectedCategory,
+    setSelectedCategory,
+    categories,
+  } = useGenZContent();
+  const [isVisible, setIsVisible] = useState(false);
 
   return (
-    <motion.div
-      initial={{ x: -300, opacity: 0 }}
-      animate={{ x: 0, opacity: 1 }}
-      className={`fixed left-0 top-20 h-[calc(100vh-5rem)] bg-gray-900 border-r border-gray-700 transition-all duration-300 z-40 ${
-        isCollapsed ? "w-12" : "w-80"
-      }`}
-    >
-      {/* Collapse/Expand Button */}
-      <button
-        onClick={() => setIsCollapsed(!isCollapsed)}
-        className="absolute -right-3 top-4 w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center text-white text-xs"
+    <div>
+      {/* Toggle Button */}
+      {/* <button
+        onClick={() => setIsVisible(!isVisible)}
+        className="fixed left-4 top-20 w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center text-white z-50"
       >
-        {isCollapsed ? "→" : "←"}
-      </button>
+        {isVisible ? "✕" : "🌟"}
+      </button> */}
 
-      <AnimatePresence>
-        {!isCollapsed && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="p-4 h-full flex flex-col"
-          >
+      {isVisible && (
+        <motion.div
+          initial={{ x: -300, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          exit={{ x: -300, opacity: 0 }}
+          className="fixed left-0 top-20 h-[calc(100vh-5rem)] bg-gray-900 border-r border-gray-700 transition-all duration-300 z-40 w-80"
+        >
+          <div className="p-4 h-full flex flex-col">
             {/* Header */}
             <div className="mb-6">
-              <h2 className="text-lg font-bold text-white mb-2">🌟 Gen-Z Vibes</h2>
-              <p className="text-sm text-gray-400">Trending culture & lifestyle</p>
+              <h2 className="text-lg font-bold text-white mb-2">
+                🌟 Gen-Z Vibes
+              </h2>
+              <p className="text-sm text-gray-400">
+                Trending culture & lifestyle....
+              </p>
             </div>
 
             {/* Category Filter */}
@@ -97,7 +101,9 @@ export default function GenZContentPanel() {
                             {item.sourceName}
                           </span>
                           <span>•</span>
-                          <span>{new Date(item.publishedAt).toLocaleDateString()}</span>
+                          <span>
+                            {new Date(item.publishedAt).toLocaleDateString()}
+                          </span>
                         </div>
                         {item.description && (
                           <p className="text-xs text-gray-500 mt-1 line-clamp-2">
@@ -131,9 +137,9 @@ export default function GenZContentPanel() {
                 Stay updated with the latest Gen-Z trends
               </p>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
-  )
+          </div>
+        </motion.div>
+      )}
+    </div>
+  );
 }

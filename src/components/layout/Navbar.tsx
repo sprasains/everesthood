@@ -1,146 +1,135 @@
-"use client"
-import { motion } from "framer-motion"
-import { useSession, signOut } from "next-auth/react"
-import Link from "next/link"
-import { useUser } from "@/hooks/useUser"
-import { useState } from "react"
+"use client";
+import { AppBar, Toolbar, Button, Typography, IconButton } from "@mui/material";
+import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+import { motion } from "framer-motion";
+import { useSession, signOut } from "next-auth/react";
+import Link from "next/link";
+import { useUser } from "@/hooks/useUser";
 
 export default function Navbar() {
-  const { data: session } = useSession()
-  const { user } = useUser()
-  const [showProfileMenu, setShowProfileMenu] = useState(false)
+  const { data: session } = useSession();
+  const { user } = useUser();
 
   return (
-    <motion.nav
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      className="fixed top-0 left-0 right-0 z-50 bg-gray-900/90 backdrop-blur border-b border-gray-700"
+    <AppBar
+      position="fixed"
+      sx={{
+        background: "linear-gradient(90deg, #6a11cb, #2575fc)",
+        boxShadow: "0 4px 20px rgba(0,0,0,0.2)",
+      }}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2">
+      <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
+        {/* Logo */}
+        <Link href="/" style={{ textDecoration: "none" }}>
+          <Typography
+            variant="h6"
+            sx={{
+              fontWeight: "bold",
+              color: "white",
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+            }}
+          >
             <motion.div
               whileHover={{ rotate: 360 }}
               transition={{ duration: 0.5 }}
-              className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center"
+              style={{
+                width: 32,
+                height: 32,
+                background: "linear-gradient(to right, #6a11cb, #2575fc)",
+                borderRadius: "50%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
             >
-              <span className="text-white font-bold text-lg">E</span>
+              <span style={{ color: "white", fontWeight: "bold" }}>E</span>
             </motion.div>
-            <span className="text-white font-bold text-xl">Everhood</span>
-          </Link>
+            Everesthood
+          </Typography>
+        </Link>
 
-          {/* Navigation Links */}
-          <div className="hidden md:flex items-center space-x-6">
-            <Link href="/news" className="text-gray-300 hover:text-white transition-colors">
+        {/* Navigation Links */}
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <Link href="/news" style={{ textDecoration: "none" }}>
+            <Button
+              variant="text"
+              sx={{ color: "white", fontWeight: "medium", textTransform: "none" }}
+            >
               📰 News
-            </Link>
-            <Link href="/dashboard" className="text-gray-300 hover:text-white transition-colors">
-              🏠 Dashboard
-            </Link>
-            {user?.subscriptionStatus === "free" && (
-              <Link 
-                href="/subscribe" 
-                className="bg-gradient-to-r from-purple-600 to-pink-600 px-4 py-2 rounded-full text-white font-medium hover:shadow-lg transition-all"
+            </Button>
+          </Link>
+          <Link href="/dashboard" style={{ textDecoration: "none" }}>
+            <Button
+              variant="text"
+              sx={{ color: "white", fontWeight: "medium", textTransform: "none" }}
+            >
+              📊 Dashboard
+            </Button>
+          </Link>
+          {user?.subscriptionStatus === "free" && (
+            <Link href="/subscribe" style={{ textDecoration: "none" }}>
+              <Button
+                variant="contained"
+                sx={{
+                  background: "linear-gradient(to right, #6a11cb, #2575fc)",
+                  color: "white",
+                  fontWeight: "medium",
+                  textTransform: "none",
+                  boxShadow: "0 4px 8px rgba(106, 17, 203, 0.3)",
+                  "&:hover": {
+                    background: "linear-gradient(to right, #2575fc, #6a11cb)",
+                  },
+                }}
               >
                 ⚡ Upgrade
-              </Link>
-            )}
-          </div>
-
-          {/* User Menu */}
-          {session ? (
-            <div className="relative">
-              <button
-                onClick={() => setShowProfileMenu(!showProfileMenu)}
-                className="flex items-center space-x-3 text-sm focus:outline-none"
+              </Button>
+            </Link>
+          )}
+          <Link href="/profile" style={{ textDecoration: "none" }}>
+            <Button
+              variant="text"
+              sx={{ color: "white", fontWeight: "medium", textTransform: "none" }}
+            >
+              👤 Profile
+            </Button>
+          </Link>
+          {user?.subscriptionStatus === "premium" ? (
+            <Link href="/billing" style={{ textDecoration: "none" }}>
+              <Button
+                variant="text"
+                sx={{ color: "white", fontWeight: "medium", textTransform: "none" }}
               >
-                <div className="flex items-center space-x-2">
-                  {/* XP and Level */}
-                  <div className="hidden sm:block text-right">
-                    <div className="text-purple-400 font-bold text-xs">Level {user?.level || 1}</div>
-                    <div className="text-gray-400 text-xs">{user?.xp || 0} XP</div>
-                  </div>
-
-                  {/* Avatar */}
-                  <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
-                    {session.user?.image ? (
-                      <img 
-                        src={session.user.image} 
-                        alt="Profile"
-                        className="w-8 h-8 rounded-full"
-                      />
-                    ) : (
-                      <span className="text-white text-sm">
-                        {session.user?.name?.[0] || '?'}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </button>
-
-              {/* Dropdown Menu */}
-              {showProfileMenu && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="absolute right-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-lg border border-gray-700 py-2"
-                >
-                  <Link 
-                    href="/profile"
-                    className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white"
-                  >
-                    👤 Profile
-                  </Link>
-                  <Link 
-                    href="/dashboard" 
-                    className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white"
-                  >
-                    📊 Dashboard
-                  </Link>
-                  {user?.subscriptionStatus === "premium" ? (
-                    <Link 
-                      href="/billing"
-                      className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white"
-                    >
-                      💳 Billing
-                    </Link>
-                  ) : (
-                    <Link 
-                      href="/subscribe"
-                      className="block px-4 py-2 text-sm text-purple-400 hover:bg-gray-700 hover:text-purple-300"
-                    >
-                      ⚡ Upgrade to Premium
-                    </Link>
-                  )}
-                  <hr className="my-2 border-gray-700" />
-                  <button
-                    onClick={() => signOut()}
-                    className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white"
-                  >
-                    🚪 Sign Out
-                  </button>
-                </motion.div>
-              )}
-            </div>
+                💳 Billing
+              </Button>
+            </Link>
           ) : (
-            <div className="flex items-center space-x-4">
-              <Link 
-                href="/auth/signin"
-                className="text-gray-300 hover:text-white transition-colors"
+            <Link href="/subscribe" style={{ textDecoration: "none" }}>
+              <Button
+                variant="text"
+                sx={{ color: "white", fontWeight: "medium", textTransform: "none" }}
               >
-                Sign In
-              </Link>
-              <Link 
-                href="/auth/signup"
-                className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-full text-white font-medium transition-colors"
-              >
-                Get Started
-              </Link>
-            </div>
+                ⚡ Upgrade to Premium
+              </Button>
+            </Link>
           )}
         </div>
-      </div>
-    </motion.nav>
-  )
+
+        {/* Sign Out Button */}
+        <IconButton
+          onClick={() => signOut()}
+          sx={{
+            color: "white",
+            background: "rgba(255,255,255,0.1)",
+            "&:hover": {
+              background: "rgba(255,255,255,0.2)",
+            },
+          }}
+        >
+          <ExitToAppIcon />
+        </IconButton>
+      </Toolbar>
+    </AppBar>
+  );
 }

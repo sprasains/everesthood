@@ -12,6 +12,13 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      authorization: {
+        params: {
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code",
+        },
+      },
     }),
     GitHubProvider({
       clientId: process.env.GITHUB_CLIENT_ID!,
@@ -55,19 +62,20 @@ export const authOptions: NextAuthOptions = {
   ],
   session: {
     strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id
+        token.id = user.id;
       }
-      return token
+      return token;
     },
     async session({ session, token }) {
-      if (token) {
-        session.user.id = token.id as string
+      if (session.user) {
+        session.user.id = token.id as string;
       }
-      return session
+      return session;
     },
     async signIn({ user, account }) {
       if (account?.provider === "google" || account?.provider === "github") {
@@ -82,14 +90,13 @@ export const authOptions: NextAuthOptions = {
               image: user.image,
               trialEndsAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
             },
-          })
+          });
         }
       }
-      return true
-    }
+      return true;
+    },
   },
   pages: {
     signIn: "/auth/signin",
-    signUp: "/auth/signup",
   },
 }

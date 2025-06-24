@@ -11,6 +11,7 @@ import {
   Card,
   CardContent,
 } from "@mui/material";
+import { Grid } from "@mui/material"; // Using latest Grid for MUI v7
 import { motion } from "framer-motion";
 import { AutoAwesome } from "@mui/icons-material";
 
@@ -70,9 +71,9 @@ export default function SignupPage() {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          maxWidth: "90%",
-          width: "450px",
-          p: { xs: 4, md: 6 },
+          width: "100%",
+          maxWidth: { xs: "90%", sm: "500px", md: "550px" },
+          p: { xs: 2, sm: 4, md: 6 },
           my: "auto",
         }}
       >
@@ -89,8 +90,8 @@ export default function SignupPage() {
               backdropFilter: "blur(15px)",
               border: "1px solid rgba(255, 255, 255, 0.1)",
               color: "white",
-              borderRadius: 4,
-              p: { xs: 4, md: 6 },
+              borderRadius: 3,
+              p: { xs: 3, sm: 5, md: 6 },
               boxShadow: "0 12px 30px rgba(0, 0, 0, 0.3)",
               textAlign: "center",
             }}
@@ -101,11 +102,11 @@ export default function SignupPage() {
                 fontWeight="bold"
                 gutterBottom
                 sx={{
-                  fontSize: { xs: "2rem", md: "2.5rem" },
+                  fontSize: { xs: "1.8rem", sm: "2.2rem", md: "2.5rem" },
                   background: "linear-gradient(45deg, #ff4e53, #ffcc00)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
-                  mb: 2,
+                  mb: { xs: 1, sm: 2 },
                 }}
               >
                 Join Everhood
@@ -114,8 +115,8 @@ export default function SignupPage() {
                 variant="body1"
                 sx={{
                   color: "#d0d0d0",
-                  mb: 4,
-                  fontSize: { xs: "0.9rem", md: "1rem" },
+                  mb: { xs: 2, sm: 3, md: 4 },
+                  fontSize: { xs: "0.85rem", sm: "0.9rem", md: "1rem" },
                 }}
               >
                 Create your account to access AI-powered insights
@@ -127,11 +128,11 @@ export default function SignupPage() {
                     backgroundColor: "rgba(239, 68, 68, 0.2)",
                     border: "1px solid rgba(239, 68, 68, 0.5)",
                     color: "#ffcccc",
-                    p: 2,
-                    borderRadius: 2,
-                    mb: 3,
+                    p: { xs: 1.5, sm: 2 },
+                    borderRadius: 1.5,
+                    mb: { xs: 2, sm: 3 },
                     textAlign: "left",
-                    fontSize: "0.85rem",
+                    fontSize: { xs: "0.75rem", sm: "0.8rem", md: "0.85rem" },
                   }}
                 >
                   {error}
@@ -143,7 +144,7 @@ export default function SignupPage() {
                 style={{
                   display: "flex",
                   flexDirection: "column",
-                  gap: "1.5rem",
+                  gap: "1.25rem",
                 }}
               >
                 <TextField
@@ -160,6 +161,8 @@ export default function SignupPage() {
                       color: "white",
                       borderRadius: 2,
                       border: "1px solid rgba(255, 255, 255, 0.2)",
+                      height: { xs: "48px", sm: "52px", md: "56px" },
+                      fontSize: { xs: "0.85rem", sm: "0.9rem", md: "1rem" },
                       "&:hover": {
                         border: "1px solid rgba(255, 255, 255, 0.3)",
                       },
@@ -169,6 +172,7 @@ export default function SignupPage() {
                     },
                     "& .MuiInputLabel-root": {
                       color: "rgba(255, 255, 255, 0.7)",
+                      fontSize: { xs: "0.85rem", sm: "0.9rem", md: "1rem" },
                       "&.Mui-focused": {
                         color: "#ff4e53",
                       },
@@ -193,6 +197,8 @@ export default function SignupPage() {
                       color: "white",
                       borderRadius: 2,
                       border: "1px solid rgba(255, 255, 255, 0.2)",
+                      height: { xs: "48px", sm: "52px", md: "56px" },
+                      fontSize: { xs: "0.85rem", sm: "0.9rem", md: "1rem" },
                       "&:hover": {
                         border: "1px solid rgba(255, 255, 255, 0.3)",
                       },
@@ -202,6 +208,7 @@ export default function SignupPage() {
                     },
                     "& .MuiInputLabel-root": {
                       color: "rgba(255, 255, 255, 0.7)",
+                      fontSize: { xs: "0.85rem", sm: "0.9rem", md: "1rem" },
                       "&.Mui-focused": {
                         color: "#ff4e53",
                       },
@@ -227,6 +234,8 @@ export default function SignupPage() {
                       color: "white",
                       borderRadius: 2,
                       border: "1px solid rgba(255, 255, 255, 0.2)",
+                      height: { xs: "48px", sm: "52px", md: "56px" },
+                      fontSize: { xs: "0.85rem", sm: "0.9rem", md: "1rem" },
                       "&:hover": {
                         border: "1px solid rgba(255, 255, 255, 0.3)",
                       },
@@ -236,6 +245,7 @@ export default function SignupPage() {
                     },
                     "& .MuiInputLabel-root": {
                       color: "rgba(255, 255, 255, 0.7)",
+                      fontSize: { xs: "0.85rem", sm: "0.9rem", md: "1rem" },
                       "&.Mui-focused": {
                         color: "#ff4e53",
                       },
@@ -255,10 +265,10 @@ export default function SignupPage() {
                     background: loading
                       ? "rgba(255, 78, 83, 0.5)"
                       : "linear-gradient(45deg, #ff4e53, #ffcc00)",
-                    padding: { xs: "12px 0", md: "14px 0" },
+                    padding: { xs: "10px 0", sm: "12px 0", md: "14px 0" },
                     borderRadius: "50px",
                     fontWeight: "bold",
-                    fontSize: { xs: "0.9rem", md: "1rem" },
+                    fontSize: { xs: "0.85rem", sm: "0.9rem", md: "1rem" },
                     textTransform: "none",
                     boxShadow: loading
                       ? "none"
@@ -282,12 +292,12 @@ export default function SignupPage() {
                 </Button>
               </form>
 
-              <Box mt={4} textAlign="center">
+              <Box mt={{ xs: 2, sm: 3, md: 4 }} textAlign="center">
                 <Typography
                   variant="body2"
                   sx={{
                     color: "#d0d0d0",
-                    fontSize: { xs: "0.8rem", md: "0.85rem" },
+                    fontSize: { xs: "0.75rem", sm: "0.8rem", md: "0.85rem" },
                   }}
                 >
                   Already have an account?{" "}
