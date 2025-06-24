@@ -11,9 +11,22 @@ import {
   Card,
   CardContent,
 } from "@mui/material";
-import { Grid } from "@mui/material"; // Using latest Grid for MUI v7
+import { styled } from "@mui/material/styles";
 import { motion } from "framer-motion";
 import { AutoAwesome } from "@mui/icons-material";
+
+const CardStyled = styled(Card)(({ theme }) => ({
+  background:
+    "linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))",
+  backdropFilter: "blur(15px)",
+  border: "1px solid rgba(255, 255, 255, 0.1)",
+  color: "white",
+  borderRadius: 3,
+  padding: theme.spacing(3),
+  boxShadow: "0 12px 30px rgba(0, 0, 0, 0.3)",
+  textAlign: "center",
+  flexGrow: 1,
+}));
 
 export default function SignupPage() {
   const [email, setEmail] = useState("");
@@ -64,6 +77,7 @@ export default function SignupPage() {
         alignItems: "center",
         padding: 0,
         overflowX: "hidden",
+        flexGrow: 1,
       }}
     >
       <Box
@@ -75,6 +89,7 @@ export default function SignupPage() {
           maxWidth: { xs: "90%", sm: "500px", md: "550px" },
           p: { xs: 2, sm: 4, md: 6 },
           my: "auto",
+          flexGrow: 1,
         }}
       >
         <motion.div
@@ -83,19 +98,7 @@ export default function SignupPage() {
           transition={{ duration: 0.8, ease: "easeOut" }}
           style={{ width: "100%" }}
         >
-          <Card
-            sx={{
-              background:
-                "linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))",
-              backdropFilter: "blur(15px)",
-              border: "1px solid rgba(255, 255, 255, 0.1)",
-              color: "white",
-              borderRadius: 3,
-              p: { xs: 3, sm: 5, md: 6 },
-              boxShadow: "0 12px 30px rgba(0, 0, 0, 0.3)",
-              textAlign: "center",
-            }}
-          >
+          <CardStyled>
             <CardContent sx={{ p: 0 }}>
               <Typography
                 variant="h3"
@@ -132,7 +135,11 @@ export default function SignupPage() {
                     borderRadius: 1.5,
                     mb: { xs: 2, sm: 3 },
                     textAlign: "left",
-                    fontSize: { xs: "0.75rem", sm: "0.8rem", md: "0.85rem" },
+                    fontSize: {
+                      xs: "0.75rem",
+                      sm: "0.8rem",
+                      md: "0.85rem",
+                    },
                   }}
                 >
                   {error}
@@ -320,7 +327,7 @@ export default function SignupPage() {
                 </Typography>
               </Box>
             </CardContent>
-          </Card>
+          </CardStyled>
         </motion.div>
       </Box>
     </Container>

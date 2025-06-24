@@ -1,28 +1,27 @@
-// This is your Prisma schema file
-// Learn more: https://pris.ly/d/prisma-schema
-
-generator client {
-  provider = "prisma-client-js"
-}
-
+// This is your full, final schema
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
+generator client {
+  provider = "prisma-client-js"
+}
+
+// AUTH MODELS
 model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
+  id                 String  @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String? @db.Text
+  access_token       String? @db.Text
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String? @db.Text
+  session_state      String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -37,6 +36,15 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// APP MODELS
 model User {
   id                 String    @id @default(cuid())
   name               String?
@@ -47,9 +55,8 @@ model User {
   stripeCustomerId   String?   @unique
   subscriptionStatus String    @default("free")
   trialEndsAt        DateTime?
-  createdAt          DateTime  @default(now())
 
-  // Gamification fields
+  // Gamification
   xp                 Int       @default(0)
   level              Int       @default(1)
   streak             Int       @default(0)
@@ -57,135 +64,178 @@ model User {
   persona            String    @default("ZenGPT")
   dailyProgress      Int       @default(0)
   weeklyGoal         Int       @default(5)
-  achievements       String[]  @default([])
 
-  // Social features
-  friends            String[]  @default([])
-  publicProfile      Boolean   @default(true)
-
-  // Analytics
-  articlesRead       Int       @default(0)
-  summariesUsed      Int       @default(0)
-  sharesCount        Int       @default(0)
-
+  // Social & Content
+  posts              Post[]
+  comments           Comment[]
+  likes              Like[]
+  commentLikes       CommentLike[]
+  favorites          Favorite[]
+  userAchievements   UserAchievement[]
   accounts           Account[]
   sessions           Session[]
-  userAchievements   UserAchievement[]
-  posts              Post[]
-  likes              Like[]    // <-- Add this line
+  commentDislikes    CommentDislike[]
+
+  // New Friendship Relations
+  sentFriendRequests     Friendship[] @relation("SentRequests")
+  receivedFriendRequests Friendship[] @relation("ReceivedRequests")
+
+  // New Circle Relations
+  ownedCircles       Circle[]
+  circleMemberships  CircleMembership[]
 
   @@map("users")
 }
 
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
-}
-
 model Article {
-  id          String   @id @default(cuid())
-  title       String
-  description String?
-  content     String?
-  sourceName  String
-  imageUrl    String?
-  publishedAt DateTime
-  url         String   @unique
-  createdAt   DateTime @default(now())
+  id                 String     @id @default(cuid())
+  url                String     @unique
+  title              String
+  description        String?
+  content            String?
+  sourceName         String
+  imageUrl           String?
+  publishedAt        DateTime
+  likeCount          Int        @default(0)
+  shares             Int        @default(0)
+  category           String?
+  tags               String[]   @default([])
+  createdAt          DateTime   @default(now())
+  favoriteCount      Int        @default(0)
 
-  // Engagement metrics
-  views       Int      @default(0)
-  likeCount   Int      @default(0) // <-- Rename this field from "likes"
-  shares      Int      @default(0)
-
-  // Categorization
-  category    String?
-  tags        String[] @default([])
-
-  likes       Like[]   // <-- Add this line
+  // Relations
+  likes              Like[]
+  favorites          Favorite[]
+  posts              Post[]
 
   @@map("articles")
 }
 
-model GenZContent {
-  id          String   @id @default(cuid())
-  title       String
-  description String?
-  content     String?
-  sourceName  String   // hypebeast, thetab, dazed, nylon, etc.
-  sourceUrl   String   @unique
-  imageUrl    String?
-  publishedAt DateTime
-  createdAt   DateTime @default(now())
+model Post {
+  id                String    @id @default(cuid())
+  content           String
+  createdAt         DateTime  @default(now())
 
-  // Content metadata
-  category    String   // fashion, culture, tech, lifestyle
-  tags        String[] @default([])
-  engagement  Int      @default(0)
+  author            User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId          String
 
-  @@map("genz_content")
+  // Link to an original article if it's a repost
+  originalArticle   Article?  @relation(fields: [originalArticleId], references: [id], onDelete: Cascade)
+  originalArticleId String?
+
+  comments          Comment[]
 }
 
+model Like {
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  articleId String
+
+  @@id([userId, articleId])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId  String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    String
+
+  parentId  String?  // For threaded replies
+  parent    Comment? @relation("CommentReplies", fields: [parentId], references: [id])
+  replies   Comment[] @relation("CommentReplies")
+
+  likes     CommentLike[]
+  dislikes  CommentDislike[]
+}
+
+model CommentLike {
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  comment   Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  commentId String
+
+  @@id([userId, commentId])
+}
+
+model CommentDislike {
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  comment   Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  commentId String
+
+  @@id([userId, commentId])
+}
+
+model Favorite {
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  articleId String
+
+  @@id([userId, articleId])
+}
+
+// GAMIFICATION MODELS
 model Achievement {
-  id           String   @id @default(cuid())
-  name         String
-  description  String
-  icon         String
-  xpReward     Int
-  rarity       String   // common, rare, epic, legendary
-  category     String   // reading, social, streak, exploration
-  requirements Json     // flexible requirements structure
-  createdAt    DateTime @default(now())
-
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  icon        String
+  xpReward    Int
+  
   userAchievements UserAchievement[]
-
   @@map("achievements")
 }
 
 model UserAchievement {
-  id            String   @id @default(cuid())
+  id            String      @id @default(cuid())
+  earnedAt      DateTime    @default(now())
+  
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId        String
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
   achievementId String
-  earnedAt      DateTime @default(now())
-
-  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  achievement Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
-
+  
   @@unique([userId, achievementId])
   @@map("user_achievements")
 }
 
-model UserActivity {
-  id          String   @id @default(cuid())
-  userId      String
-  action      String   // read_article, use_summary, share, etc.
-  entityType  String?  // article, achievement, etc.
-  entityId    String?
-  metadata    Json?    // additional data about the action
-  createdAt   DateTime @default(now())
-
-  @@map("user_activities")
-}
-
-model Post {
-  id        String   @id @default(cuid())
-  content   String
+model Friendship {
+  status    String   // PENDING, ACCEPTED, DECLINED, BLOCKED
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  
+  requester User @relation("SentRequests", fields: [requesterId], references: [id])
+  requesterId String
 
-  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  authorId String
+  receiver  User @relation("ReceivedRequests", fields: [receiverId], references: [id])
+  receiverId String
+  
+  // Is this friend a "favorite"?
+  isFavorite Boolean @default(false)
+
+  @@id([requesterId, receiverId])
 }
 
-model Like {
-  createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    String
-  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
-  articleId String
+model Circle {
+  id      String @id @default(cuid())
+  name    String
+  owner   User   @relation(fields: [ownerId], references: [id])
+  ownerId String
+  
+  members CircleMembership[]
+}
 
-  @@id([userId, articleId])
+model CircleMembership {
+  circle   Circle @relation(fields: [circleId], references: [id])
+  circleId String
+  user     User   @relation(fields: [userId], references: [id])
+  userId   String
+
+  @@id([circleId, userId])
 }

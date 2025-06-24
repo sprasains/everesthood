@@ -3,6 +3,19 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { useUser } from "@/hooks/useUser";
 import Navbar from "@/components/layout/Navbar";
+import { styled } from "@mui/material/styles";
+import Grid from "@mui/material/Grid";
+import Paper from "@mui/material/Paper";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+
+const Item = styled(Paper)(({ theme }) => ({
+  backgroundColor: "#fff",
+  ...theme.typography.body2,
+  padding: theme.spacing(1),
+  textAlign: "center",
+  color: theme.palette.text.secondary,
+}));
 
 export default function SubscribePage() {
   const { user } = useUser();
@@ -100,14 +113,19 @@ export default function SubscribePage() {
           </div>
 
           {/* Plan Comparison */}
-          <div className="grid md:grid-cols-2 gap-8 mb-12">
-            {plans.map((plan, index) => (
-              <motion.div
-                key={plan.id}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className={`
+          <Box sx={{ width: "100%" }} className="mb-12">
+            <Grid
+              container
+              rowSpacing={1}
+              columnSpacing={{ xs: 1, sm: 2, md: 3 }}
+            >
+              {plans.map((plan, index) => (
+                <Grid item xs={12} sm={6} md={4} key={plan.id} component="div">
+                  <motion.div
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className={`
                   relative rounded-2xl p-8 cursor-pointer transition-all border-2
                   ${
                     selectedPlan === plan.id
@@ -116,41 +134,41 @@ export default function SubscribePage() {
                   }
                   bg-gradient-to-br ${plan.theme}
                 `}
-                onClick={() => setSelectedPlan(plan.id)}
-              >
-                {plan.popular && (
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <span className="bg-orange-500 text-white px-4 py-1 rounded-full text-sm font-bold">
-                      🔥 Most Popular
-                    </span>
-                  </div>
-                )}
+                    onClick={() => setSelectedPlan(plan.id)}
+                  >
+                    {plan.popular && (
+                      <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                        <span className="bg-orange-500 text-white px-4 py-1 rounded-full text-sm font-bold">
+                          🔥 Most Popular
+                        </span>
+                      </div>
+                    )}
 
-                <h3 className="text-2xl font-bold text-white mb-2">
-                  {plan.name}
-                </h3>
-                <div className="text-3xl font-bold text-white mb-2">
-                  {plan.price}
-                  {plan.id !== "free" && (
-                    <span className="text-lg text-gray-300">/month</span>
-                  )}
-                </div>
-                <p className="text-gray-300 mb-6">{plan.description}</p>
+                    <h3 className="text-2xl font-bold text-white mb-2">
+                      {plan.name}
+                    </h3>
+                    <div className="text-3xl font-bold text-white mb-2">
+                      {plan.price}
+                      {plan.id !== "free" && (
+                        <span className="text-lg text-gray-300">/month</span>
+                      )}
+                    </div>
+                    <p className="text-gray-300 mb-6">{plan.description}</p>
 
-                <ul className="space-y-3 mb-8">
-                  {plan.features.map((feature, i) => (
-                    <li key={i} className="flex items-center text-white">
-                      <span className="text-green-400 mr-3">✓</span>
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
+                    <ul className="space-y-3 mb-8">
+                      {plan.features.map((feature, i) => (
+                        <li key={i} className="flex items-center text-white">
+                          <span className="text-green-400 mr-3">✓</span>
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
 
-                <motion.button
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handleSubscribe}
-                  disabled={plan.id === "free" || loading}
-                  className={`
+                    <motion.button
+                      whileTap={{ scale: 0.95 }}
+                      onClick={handleSubscribe}
+                      disabled={plan.id === "free" || loading}
+                      className={`
                     w-full py-3 rounded-lg font-bold transition-all
                     ${
                       plan.id === "free"
@@ -158,12 +176,14 @@ export default function SubscribePage() {
                         : "bg-white text-purple-600 hover:bg-gray-100"
                     }
                   `}
-                >
-                  {loading ? "Processing..." : plan.cta}
-                </motion.button>
-              </motion.div>
-            ))}
-          </div>
+                    >
+                      {loading ? "Processing..." : plan.cta}
+                    </motion.button>
+                  </motion.div>
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
 
           {/* Features Comparison */}
           <motion.div

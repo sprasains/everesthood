@@ -8,12 +8,22 @@ import {
   Card,
   CardContent,
 } from "@mui/material";
-import { Grid } from "@mui/material"; // Using the latest Grid (formerly Grid2) for MUI v7
+import { styled } from "@mui/material/styles";
+import Grid from "@mui/material/Grid";
+import Paper from "@mui/material/Paper";
 import { motion } from "framer-motion";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { AutoAwesome, Lightbulb, TrendingUp } from "@mui/icons-material";
+
+const Item = styled(Paper)(({ theme }) => ({
+  backgroundColor: "#fff",
+  ...theme.typography.body2,
+  padding: theme.spacing(1),
+  textAlign: "center",
+  color: theme.palette.text.secondary,
+}));
 
 export default function HomePage() {
   const { data: session, status } = useSession();
@@ -191,7 +201,7 @@ export default function HomePage() {
         >
           Why Everesthood?
         </Typography>
-        <Grid container spacing={{ xs: 3, md: 4 }}>
+        <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
           {[
             {
               title: "AI-Powered Summaries",
@@ -212,7 +222,7 @@ export default function HomePage() {
               icon: <TrendingUp sx={{ fontSize: 50, color: "#ff8e53" }} />,
             },
           ].map((feature, index) => (
-            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={index}>
+            <Grid item xs={12} sm={6} md={4} key={index}>
               <motion.div
                 initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}

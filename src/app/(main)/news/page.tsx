@@ -1,20 +1,29 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
-import { useUser } from "@/hooks/useUser";
+import { useState, useEffect, useRef } from "react";
 import NewsCard from "@/components/ui/NewsCard";
-import GenZContentPanel from "@/components/ui/GenZContentPanel";
 import Navbar from "@/components/layout/Navbar";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { Article } from "@/types";
-import { Container, Typography, Box, Chip, Stack, Grid } from "@mui/material";
+import {
+  Container,
+  Typography,
+  Box,
+  Chip,
+  Stack,
+  Grid,
+  TextField,
+  InputAdornment,
+  Button,
+} from "@mui/material";
 import WhatshotIcon from "@mui/icons-material/Whatshot";
 import ComputerIcon from "@mui/icons-material/Computer";
 import RocketLaunchIcon from "@mui/icons-material/RocketLaunch";
 import TheaterComedyIcon from "@mui/icons-material/TheaterComedy";
 import ScienceIcon from "@mui/icons-material/Science";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
+import SearchIcon from "@mui/icons-material/Search";
 
 // Define categories with icons
 const categories = [
@@ -27,17 +36,48 @@ const categories = [
 ];
 
 export default function NewsPage() {
-  const { user } = useUser();
+  const [search, setSearch] = useState("");
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchError, setSearchError] = useState("");
   const [articles, setArticles] = useState<Article[]>([]);
-  const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [summaryModal, setSummaryModal] = useState<{
-    show: boolean;
-    article?: Article;
-    summary?: string;
-  }>({ show: false });
+  const [loading, setLoading] = useState(true);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleSearch = async (query?: string) => {
+    setSearchLoading(true);
+    setSearchError("");
+    try {
+      const response = await fetch(
+        `/api/v1/news/search?q=${encodeURIComponent(query ?? search)}`
+      );
+      if (!response.ok) throw new Error("Search failed");
+      setArticles(await response.json());
+    } catch (e) {
+      setSearchError("No news found or error occurred.");
+    } finally {
+      setSearchLoading(false);
+    }
+  };
+
+  // Debounce search input
+  useEffect(() => {
+    if (search.trim() === "") {
+      setSearchError("");
+      return;
+    }
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      handleSearch(search);
+    }, 400);
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search]);
 
   useEffect(() => {
+    if (search.trim()) return; // Don't auto-fetch if searching
     const fetchNews = async () => {
       setLoading(true);
       try {
@@ -55,15 +95,7 @@ export default function NewsPage() {
       }
     };
     fetchNews();
-  }, [selectedCategory]);
-
-  const handleSummarize = (article: Article) => {
-    // Your existing summarize logic...
-  };
-
-  const handleShare = (article: Article) => {
-    // Your existing share logic...
-  };
+  }, [selectedCategory, search]);
 
   return (
     <Box
@@ -75,8 +107,6 @@ export default function NewsPage() {
       }}
     >
       <Navbar />
-      <GenZContentPanel />
-
       <Container maxWidth="lg" sx={{ pt: { xs: 10, md: 12 }, pb: 6 }}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -130,6 +160,60 @@ export default function NewsPage() {
           ))}
         </Stack>
 
+        <Stack
+          direction="row"
+          spacing={1}
+          flexWrap="wrap"
+          useFlexGap
+          sx={{ mb: { xs: 4, md: 6 } }}
+        >
+          <Box flex={1}>
+            <TextField
+              fullWidth
+              variant="outlined"
+              placeholder="Search news by keyword..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleSearch();
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon />
+                  </InputAdornment>
+                ),
+              }}
+              sx={{
+                bgcolor: "rgba(255,255,255,0.08)",
+                borderRadius: 2,
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": {
+                    borderColor: "rgba(255, 255, 255, 0.2)",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "rgba(255, 255, 255, 0.5)",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "rgba(255, 255, 255, 0.7)",
+                  },
+                },
+              }}
+            />
+          </Box>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => handleSearch()}
+            disabled={searchLoading || !search.trim()}
+            sx={{ minWidth: 120 }}
+            startIcon={<SearchIcon />}
+          >
+            {searchLoading ? "Searching..." : "Search"}
+          </Button>
+        </Stack>
+        {searchError && <Typography color="error">{searchError}</Typography>}
+
         {loading ? (
           <Box
             display="flex"
@@ -142,18 +226,14 @@ export default function NewsPage() {
         ) : (
           <Grid container spacing={3}>
             {articles.map((article, index) => (
-              <Grid size={{ xs: 12, sm: 6, md: 4 }} key={article.id}>
+              <Grid item xs={12} sm={6} md={4} key={article.id}>
                 <motion.div
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05, duration: 0.5 }}
                   style={{ height: "100%" }}
                 >
-                  <NewsCard
-                    article={article}
-                    onSummarize={handleSummarize}
-                    onShare={handleShare}
-                  />
+                  <NewsCard article={article as any} />
                 </motion.div>
               </Grid>
             ))}

@@ -28,21 +28,29 @@ export async function GET(request: NextRequest) {
             userId: userId || undefined, // Only include likes from the current user
           },
         },
+        favorites: {
+          where: {
+            userId: userId || undefined, // Only include favorites from the current user
+          },
+        },
       },
     });
 
-    // Remap articles to include a simple `isLiked` boolean for the frontend
-    const articlesWithLikeStatus = articles.map((article) => {
-      const { likes, ...rest } = article;
+    // Remap articles to include isLiked, isFavorited, likeCount, favoriteCount
+    const articlesWithSocial = articles.map((article) => {
+      const { likes, favorites, ...rest } = article;
       return {
         ...rest,
         isLiked: likes.length > 0, // True if the likes array is not empty
+        isFavorited: favorites.length > 0, // True if the favorites array is not empty
+        likeCount: article.likeCount,
+        favoriteCount: article.favoriteCount,
       };
     });
 
     return NextResponse.json({
-      articles: articlesWithLikeStatus,
-      count: articlesWithLikeStatus.length,
+      articles: articlesWithSocial,
+      count: articlesWithSocial.length,
     });
   } catch (error) {
     console.error("Error fetching news:", error);

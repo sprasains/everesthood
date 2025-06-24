@@ -27,6 +27,7 @@ import StyleIcon from "@mui/icons-material/Style";
 import EmojiObjectsIcon from "@mui/icons-material/EmojiObjects";
 import DevicesIcon from "@mui/icons-material/Devices";
 import GroupIcon from "@mui/icons-material/Group";
+import ThreadedComments from "@/components/ui/ThreadedComments";
 
 export default function DashboardPage() {
   const { user, loading } = useUser();
@@ -43,7 +44,7 @@ export default function DashboardPage() {
       const response = await fetch("/api/v1/achievements");
       if (response.ok) {
         const data = await response.json();
-        setAchievements(data.achievements || []);
+        setAchievements(data);
       }
     } catch (error) {
       console.error("Error fetching achievements:", error);
@@ -240,7 +241,64 @@ export default function DashboardPage() {
               }}
             >
               {/* User Status Panel */}
-              <UserStatusPanel user={user} />
+              {user && <UserStatusPanel user={user} />}
+              {/* Achievements Section */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2, duration: 0.8, ease: "easeOut" }}
+              >
+                <Card
+                  sx={{
+                    background:
+                      "linear-gradient(120deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03))",
+                    backdropFilter: "blur(12px)",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    color: "white",
+                    borderRadius: 3,
+                    p: { xs: 3, sm: 4, md: 6 },
+                    boxShadow: "0 8px 24px rgba(0,0,0,0.18)",
+                    mb: 4,
+                  }}
+                >
+                  <CardContent sx={{ p: 0 }}>
+                    <Typography
+                      variant="h6"
+                      fontWeight="bold"
+                      gutterBottom
+                      sx={{
+                        fontSize: {
+                          xs: "1.2rem",
+                          sm: "1.4rem",
+                          md: "1.6rem",
+                        },
+                        color: "#fff",
+                        mb: { xs: 2, sm: 3, md: 4 },
+                      }}
+                    >
+                      🏆 Achievements
+                    </Typography>
+                    <Grid container spacing={2}>
+                      {achievements.length === 0 && (
+                        <Grid size={12}>
+                          <Typography color="#bdbdbd">
+                            No achievements yet.
+                          </Typography>
+                        </Grid>
+                      )}
+                      {achievements.map((a: any) => (
+                        <Grid size={{ xs: 12, sm: 6, md: 4 }} key={a.id}>
+                          <AchievementCard
+                            achievement={a}
+                            earned={a.earned}
+                            progress={a.progress}
+                          />
+                        </Grid>
+                      ))}
+                    </Grid>
+                  </CardContent>
+                </Card>
+              </motion.div>
 
               {
                 <motion.div
@@ -406,6 +464,44 @@ export default function DashboardPage() {
                 </motion.div>
               }
               {/* Place your previously working bottom section code here */}
+              <Card
+                sx={{
+                  background:
+                    "linear-gradient(120deg, rgba(255,255,255,0.10), rgba(255,255,255,0.04))",
+                  backdropFilter: "blur(16px)",
+                  border: "1.5px solid rgba(255,255,255,0.13)",
+                  color: "white",
+                  borderRadius: 4,
+                  p: { xs: 3, sm: 4, md: 6 },
+                  boxShadow: "0 12px 32px rgba(0,0,0,0.18)",
+                  mt: 2,
+                  transition: "box-shadow 0.3s, border 0.3s",
+                  "&:hover": {
+                    boxShadow: "0 16px 40px rgba(0,0,0,0.22)",
+                    border: "2px solid #ff4e53",
+                  },
+                }}
+              >
+                <CardContent sx={{ p: { xs: 0.5, sm: 1, md: 2 } }}>
+                  {/* Demo: Threaded Comments for the user's first post (or demo post) */}
+                  {user?.id && (
+                    <Box
+                      sx={{
+                        px: { xs: 0, sm: 1, md: 2 },
+                        py: { xs: 1, sm: 2 },
+                        borderRadius: 3,
+                        background: "rgba(255,255,255,0.03)",
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                      }}
+                    >
+                      <ThreadedComments
+                        postId={user.id + "-dashboard-demo"}
+                        currentUserId={user.id}
+                      />
+                    </Box>
+                  )}
+                </CardContent>
+              </Card>
             </Box>
           </Grid>
           {/* Right Column - Social Feed */}
