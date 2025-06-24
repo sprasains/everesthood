@@ -71,6 +71,8 @@ model User {
   accounts           Account[]
   sessions           Session[]
   userAchievements   UserAchievement[]
+  posts              Post[]
+  likes              Like[]    // <-- Add this line
 
   @@map("users")
 }
@@ -96,12 +98,14 @@ model Article {
 
   // Engagement metrics
   views       Int      @default(0)
-  likes       Int      @default(0)
+  likeCount   Int      @default(0) // <-- Rename this field from "likes"
   shares      Int      @default(0)
 
   // Categorization
   category    String?
   tags        String[] @default([])
+
+  likes       Like[]   // <-- Add this line
 
   @@map("articles")
 }
@@ -164,4 +168,24 @@ model UserActivity {
   createdAt   DateTime @default(now())
 
   @@map("user_activities")
+}
+
+model Post {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId String
+}
+
+model Like {
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  articleId String
+
+  @@id([userId, articleId])
 }

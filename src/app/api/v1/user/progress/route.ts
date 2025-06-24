@@ -1,20 +1,18 @@
-import { NextRequest, NextResponse } from "next/server"
-import { getServerSession } from "next-auth/next"
-import { authOptions } from "@/lib/auth"
-import { prisma } from "@/lib/prisma"
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { awardAchievement } from "@/lib/achievements";
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = await request.json()
-    const { action, entityType, entityId, metadata } = body
+    const body = await request.json();
+    const { action, entityType, entityId, metadata } = body;
 
     // Record user activity
     await prisma.userActivity.create({
@@ -23,82 +21,92 @@ export async function POST(request: NextRequest) {
         action,
         entityType,
         entityId,
-        metadata
-      }
-    })
+        metadata,
+      },
+    });
 
     // Update user stats based on action
     const user = await prisma.user.findUnique({
-      where: { email: session.user.email }
-    })
+      where: { email: session.user.email },
+    });
 
     if (!user) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    let updateData: any = {}
-    let xpGain = 0
+    let updateData: any = {};
+    let xpGain = 0;
 
     switch (action) {
-      case 'read_article':
-        xpGain = 10
-        updateData.articlesRead = { increment: 1 }
-        updateData.dailyProgress = { increment: 1 }
-        break
-      case 'use_summary':
-        xpGain = 15
-        updateData.summariesUsed = { increment: 1 }
-        break
-      case 'share_content':
-        xpGain = 20
-        updateData.sharesCount = { increment: 1 }
-        break
+      case "read_article":
+        xpGain = 10;
+        updateData.articlesRead = { increment: 1 };
+        updateData.dailyProgress = { increment: 1 };
+        break;
+      case "use_summary":
+        xpGain = 15;
+        updateData.summariesUsed = { increment: 1 };
+        break;
+      case "share_content":
+        xpGain = 20;
+        updateData.sharesCount = { increment: 1 };
+        break;
       default:
-        xpGain = 5
+        xpGain = 5;
     }
 
     // Calculate new level
-    const newXP = user.xp + xpGain
-    const newLevel = Math.floor(newXP / 100) + 1
-    const leveledUp = newLevel > user.level
+    const newXP = user.xp + xpGain;
+    const newLevel = Math.floor(newXP / 100) + 1;
+    const leveledUp = newLevel > user.level;
 
-    updateData.xp = newXP
-    updateData.level = newLevel
+    updateData.xp = newXP;
+    updateData.level = newLevel;
 
     // Update streak if applicable
-    const today = new Date()
-    const lastActive = user.lastActiveDate
+    const today = new Date();
+    const lastActive = user.lastActiveDate;
 
     if (!lastActive || lastActive.toDateString() !== today.toDateString()) {
-      const yesterday = new Date(today)
-      yesterday.setDate(yesterday.getDate() - 1)
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
 
-      if (lastActive && lastActive.toDateString() === yesterday.toDateString()) {
-        updateData.streak = { increment: 1 }
+      if (
+        lastActive &&
+        lastActive.toDateString() === yesterday.toDateString()
+      ) {
+        updateData.streak = { increment: 1 };
       } else {
-        updateData.streak = 1
+        updateData.streak = 1;
       }
-      updateData.lastActiveDate = today
+      updateData.lastActiveDate = today;
     }
 
     const updatedUser = await prisma.user.update({
       where: { id: user.id },
-      data: updateData
-    })
+      data: updateData,
+    });
+
+    // Award achievements after updating user stats
+    if (action === "read_article") {
+      if (updatedUser.articlesRead === 1)
+        await awardAchievement(user.id, "FIRST_ARTICLE_READ");
+      if (updatedUser.articlesRead === 10)
+        await awardAchievement(user.id, "TEN_ARTICLES_READ");
+    }
+    if (updatedUser.streak === 7)
+      await awardAchievement(user.id, "SEVEN_DAY_STREAK");
 
     return NextResponse.json({
       user: updatedUser,
       xpGained: xpGain,
-      leveledUp
-    })
+      leveledUp,
+    });
   } catch (error) {
-    console.error('Error updating user progress:', error)
+    console.error("Error updating user progress:", error);
     return NextResponse.json(
-      { error: 'Failed to update progress' },
+      { error: "Failed to update progress" },
       { status: 500 }
-    )
+    );
   }
 }

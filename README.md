@@ -9,19 +9,22 @@
 ## 🚀 Key Features
 
 ### 🎯 **Core Platform**
+
 - ✅ **AI-Powered Summaries** - Personalized content summaries with 4 unique AI personas
 - ✅ **Gen-Z Content Curation** - Real-time feeds from Hypebeast, The Tab, Dazed, Nylon
-- ✅ **Gamified Learning** - XP system, streaks, achievements, and leaderboards  
+- ✅ **Gamified Learning** - XP system, streaks, achievements, and leaderboards
 - ✅ **Social Community** - Discord-style social features and friend systems
 - ✅ **Premium Subscription** - Stripe-powered freemium model with trials
 
 ### 🤖 **AI Personas**
+
 - **ZenGPT** 🧘‍♀️ - Calm, mindful AI guide for balanced insights
 - **HustleBot** 🔥 - High-energy startup mentor for growth focus
-- **DataDaddy** 📊 - Analytical insights master with data-driven perspectives  
+- **DataDaddy** 📊 - Analytical insights master with data-driven perspectives
 - **CoachAda** 💪 - Supportive career coach for professional development
 
 ### 🌟 **Gen-Z Integration** (NEW!)
+
 - **Left Content Panel** - Live feeds from popular Gen-Z websites
 - **Trending Culture** - Fashion, tech, lifestyle content curation
 - **Mobile-First UX** - TikTok-style interactions and gestures
@@ -29,18 +32,54 @@
 
 ---
 
+## 🆕 Major Recent Changes (2025)
+
+### Database & Backend
+
+- Added **Like** model for articles (many-to-many User <-> Article)
+- Updated `User` and `Article` models for likes, and added `likeCount` field
+- Created `/api/v1/articles/[articleId]/like` endpoint for like/unlike (with optimistic UI)
+- News API now returns `likeCount` and `isLiked` for each article
+- Community feature: `Post` model, `/api/v1/community/posts` API, and frontend page
+- All Prisma schema changes require `npx prisma generate` after migration
+- **Achievements API**: `/api/v1/achievements` returns all achievements and user's earned achievements
+- **AchievementCard** UI and `/achievements` page: visually display all achievements, earned vs. locked
+- **Achievement Service**: `src/lib/achievements.ts` awards achievements based on user actions
+- **Seeding Script**: `scripts/seedAchievements.ts` seeds 20+ achievements into the database
+- **Awarding Logic**: `/api/v1/user/progress/route.ts` now calls `awardAchievement` after stat updates (e.g., reading, streaks)
+- **Scaffolded all navigation-linked pages**: `/summaries`, `/achievements`, `/community`, `/settings`, `/api-docs`, `/privacy`, `/terms`, `/security`, `/contact`
+- **Modern MUI v7 Grid**: All grids updated to use `item` prop and breakpoint props for compatibility
+
+### Frontend & UI
+
+- News feed (`/news`) fully rebuilt with MUI v7 Grid, icon filters, and modern cards
+- NewsCard now supports like/unlike with instant feedback
+- Community page and SocialFeed now live and interactive
+- Achievements page fetches and displays all achievements, with earned/locked distinction
+- All dashboard sidebar/footer links scaffolded with placeholder pages
+- Navbar, Sidebar, and Footer navigation fully mapped to pages
+
+### DevOps & Misc
+
+- Hardened Stripe flow: 30-day free trial, webhook userId logic
+- Centralized NextAuth config, robust OAuth account linking
+- Environment variables for all keys (see `.env`)
+- **Instructions for dependency issues**: If you see MUI Grid errors, delete `node_modules` and `package-lock.json`, then run `npm install` and restart your dev server.
+
+---
+
 ## 📦 Tech Stack
 
-| Layer       | Technology Stack                              |
-|-------------|----------------------------------------------|
-| **Frontend** | Next.js 14 (App Router), TailwindCSS, Framer Motion |
-| **Backend**  | Node.js + TypeScript, Prisma ORM, RESTful APIs |
-| **AI Engine** | Google Gemini Pro, OpenAI (optional)       |
-| **Database** | PostgreSQL (via Prisma)                     |
-| **Auth**     | NextAuth.js (Google, GitHub, Email/Password) |
-| **Payments** | Stripe Subscriptions & Webhooks             |
-| **DevOps**   | Docker, Azure VM, Nginx, PM2                |
-| **PWA**      | Next-PWA, Service Workers, Offline Support  |
+| Layer         | Technology Stack                                    |
+| ------------- | --------------------------------------------------- |
+| **Frontend**  | Next.js 14 (App Router), TailwindCSS, Framer Motion |
+| **Backend**   | Node.js + TypeScript, Prisma ORM, RESTful APIs      |
+| **AI Engine** | Google Gemini Pro, OpenAI (optional)                |
+| **Database**  | PostgreSQL (via Prisma)                             |
+| **Auth**      | NextAuth.js (Google, GitHub, Email/Password)        |
+| **Payments**  | Stripe Subscriptions & Webhooks                     |
+| **DevOps**    | Docker, Azure VM, Nginx, PM2                        |
+| **PWA**       | Next-PWA, Service Workers, Offline Support          |
 
 ---
 
@@ -50,7 +89,7 @@
 everhood-platform/
 ├── src/
 │   ├── app/                    # Next.js 14 App Router
-│   │   ├── (main)/            # Main app pages  
+│   │   ├── (main)/            # Main app pages
 │   │   │   ├── dashboard/     # User dashboard
 │   │   │   ├── news/          # News feed with AI summaries
 │   │   │   ├── subscribe/     # Stripe subscription flow
@@ -119,7 +158,7 @@ docker-compose up --build
 ### 💻 **Option 2: Local Development**
 
 ```bash
-# Install dependencies  
+# Install dependencies
 npm install
 
 # Setup database
@@ -132,7 +171,7 @@ npm run dev
 # Run news aggregation (separate terminal)
 npm run cron:news
 
-# Run Gen-Z content aggregation (separate terminal)  
+# Run Gen-Z content aggregation (separate terminal)
 npm run cron:genz
 ```
 
@@ -174,18 +213,21 @@ ADMIN_EMAIL=your-admin-email@example.com
 ## 🌟 New Gen-Z Features
 
 ### 📱 **Gen-Z Content Panel**
+
 - **Live Feeds**: Real-time content from Hypebeast, The Tab, Dazed, Nylon
 - **Category Filters**: Fashion, Culture, Tech, Lifestyle, Social
 - **Engagement Metrics**: Track trending content and viral posts
 - **Mobile Optimized**: Collapsible sidebar for mobile devices
 
 ### 🎮 **Enhanced Gamification**
+
 - **XP System**: Earn points for reading, sharing, using AI summaries
 - **Streak Tracking**: Daily and weekly engagement tracking
 - **Achievements**: 20+ unlockable badges and milestones
 - **Leaderboards**: Compete with friends and community
 
 ### 🤖 **AI Persona System**
+
 - **ZenGPT**: Mindful, balanced content summaries
 - **HustleBot**: High-energy startup and growth insights
 - **DataDaddy**: Data-driven analysis with charts and metrics
@@ -237,16 +279,16 @@ docker run -p 3000:3000 --env-file .env everhood-platform
 
 ## 🧪 Scripts & Automation
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start development server |
-| `npm run build` | Build for production |
-| `npm run start` | Start production server |
-| `npm run lint` | Lint codebase |
-| `npm run cron:news` | Fetch latest news articles |
-| `npm run cron:genz` | Fetch Gen-Z content |
-| `npx prisma studio` | Open database GUI |
-| `npx prisma migrate dev` | Run database migrations |
+| Command                  | Description                |
+| ------------------------ | -------------------------- |
+| `npm run dev`            | Start development server   |
+| `npm run build`          | Build for production       |
+| `npm run start`          | Start production server    |
+| `npm run lint`           | Lint codebase              |
+| `npm run cron:news`      | Fetch latest news articles |
+| `npm run cron:genz`      | Fetch Gen-Z content        |
+| `npx prisma studio`      | Open database GUI          |
+| `npx prisma migrate dev` | Run database migrations    |
 
 ---
 
@@ -257,10 +299,10 @@ docker run -p 3000:3000 --env-file .env everhood-platform
 ```typescript
 // News & Content
 GET    /api/v1/news                    # Fetch articles
-GET    /api/v1/genz-content           # Fetch Gen-Z content  
+GET    /api/v1/genz-content           # Fetch Gen-Z content
 POST   /api/v1/ai/summarize           # Generate AI summary
 
-// User Management  
+// User Management
 GET    /api/v1/user/profile           # Get user data
 PATCH  /api/v1/user/profile           # Update user
 POST   /api/v1/user/progress          # Track user activity
@@ -277,15 +319,15 @@ POST   /api/v1/auth                   # Signup/Signin
 
 ```typescript
 // Generate AI Summary
-const response = await fetch('/api/v1/ai/summarize', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
+const response = await fetch("/api/v1/ai/summarize", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
   body: JSON.stringify({
     content: "Article content here...",
-    persona: "HustleBot"
-  })
-})
-const { summary } = await response.json()
+    persona: "HustleBot",
+  }),
+});
+const { summary } = await response.json();
 ```
 
 ---
@@ -293,13 +335,15 @@ const { summary } = await response.json()
 ## 🎯 Roadmap
 
 ### **Phase 1: Core Platform** ✅
+
 - [x] Authentication system
-- [x] AI summarization  
+- [x] AI summarization
 - [x] News aggregation
 - [x] Stripe payments
 - [x] Basic gamification
 
 ### **Phase 2: Gen-Z Features** ✅
+
 - [x] Gen-Z content panel
 - [x] Enhanced UI/UX
 - [x] Persona system
@@ -307,6 +351,7 @@ const { summary } = await response.json()
 - [x] Mobile optimization
 
 ### **Phase 3: Advanced Features** 🚧
+
 - [ ] Real-time chat/community
 - [ ] Advanced analytics dashboard
 - [ ] Custom AI training
@@ -314,6 +359,7 @@ const { summary } = await response.json()
 - [ ] Mobile app (React Native)
 
 ### **Phase 4: Scale & Growth** 📋
+
 - [ ] Multi-language support
 - [ ] Advanced personalization
 - [ ] Enterprise features
@@ -330,9 +376,10 @@ We welcome contributions from the community! Here's how to get started:
 2. **Create a feature branch**: `git checkout -b feature/amazing-feature`
 3. **Commit your changes**: `git commit -m 'Add amazing feature'`
 4. **Push to the branch**: `git push origin feature/amazing-feature`
-5. **Open a Pull Request**
+5. \*\*Open a Pull Request`
 
 ### **Development Guidelines**
+
 - Follow TypeScript best practices
 - Use TailwindCSS for styling
 - Write tests for new features

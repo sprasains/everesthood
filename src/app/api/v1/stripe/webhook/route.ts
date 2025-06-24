@@ -32,6 +32,7 @@ export async function POST(request: NextRequest) {
         const session = event.data.object as any; // Cast to access metadata
         console.log("Payment completed:", session);
 
+        // Use userId from metadata for a more reliable update
         const userId = session.metadata?.userId;
 
         if (userId) {
@@ -43,6 +44,7 @@ export async function POST(request: NextRequest) {
             },
           });
         } else if (session.customer_email) {
+          // Fallback to email if userId is not in metadata
           await prisma.user.update({
             where: { email: session.customer_email },
             data: {
@@ -57,6 +59,7 @@ export async function POST(request: NextRequest) {
         const subscription = event.data.object;
         console.log("Subscription cancelled:", subscription);
 
+        // Update user subscription status
         await prisma.user.update({
           where: { stripeCustomerId: subscription.customer as string },
           data: {
@@ -69,6 +72,7 @@ export async function POST(request: NextRequest) {
         const invoice = event.data.object;
         console.log("Payment failed:", invoice);
 
+        // Handle failed payment (e.g., send email notification)
         break;
 
       default:

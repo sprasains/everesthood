@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   Card,
   CardActionArea,
@@ -7,46 +8,63 @@ import {
   CardContent,
   CardActions,
   Typography,
+  Box,
   Button,
+  IconButton,
 } from "@mui/material";
 import Link from "next/link";
 import { Article } from "@/types";
-import { trackEngagement } from "@/lib/analytics";
 import { useUser } from "@/hooks/useUser";
-import { motion } from "framer-motion";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 
 interface NewsCardProps {
-  article: Article;
-  onSummarize?: (article: Article) => void;
-  onShare?: (article: Article) => void;
+  article: Article & { isLiked?: boolean }; // Add isLiked to the type
 }
 
-export default function NewsCard({
-  article,
-  onSummarize,
-  onShare,
-}: NewsCardProps) {
+export default function NewsCard({ article }: NewsCardProps) {
   const { user } = useUser();
-  const isSummarizeDisabled =
-    !user ||
-    (user.subscriptionStatus === "free" && (user.summariesUsed || 0) >= 3);
 
-  const handleSummarizeClick = (e: React.MouseEvent) => {
+  // State for optimistic UI updates
+  const [isLiked, setIsLiked] = useState(article.isLiked || false);
+  const [likeCount, setLikeCount] = useState(article.likeCount || 0);
+
+  const handleLikeClick = async (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
-    onSummarize?.(article);
-    trackEngagement.aiSummaryUsed(
-      user?.persona || "ZenGPT",
-      article.id,
-      user?.id
-    );
-  };
 
-  const handleShareClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-    onShare?.(article);
-    trackEngagement.socialShare("native", "article", user?.id);
+    if (!user) {
+      // Optionally prompt user to sign in
+      return;
+    }
+
+    // Optimistic UI Update
+    const originalLikedState = isLiked;
+    const originalLikeCount = likeCount;
+
+    setIsLiked(!isLiked);
+    setLikeCount(likeCount + (!isLiked ? 1 : -1));
+
+    try {
+      const response = await fetch(`/api/v1/articles/${article.id}/like`, {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        // Revert on error
+        setIsLiked(originalLikedState);
+        setLikeCount(originalLikeCount);
+      } else {
+        const data = await response.json();
+        // Sync with server state
+        setLikeCount(data.likeCount);
+      }
+    } catch (error) {
+      // Revert on network error
+      setIsLiked(originalLikedState);
+      setLikeCount(originalLikeCount);
+      console.error("Failed to like article", error);
+    }
   };
 
   return (
@@ -94,8 +112,7 @@ export default function NewsCard({
               variant="caption"
               sx={{ color: "rgba(255, 255, 255, 0.7)" }}
             >
-              {article.sourceName} •{" "}
-              {new Date(article.publishedAt).toLocaleDateString()}
+              {article.sourceName}
             </Typography>
             <Typography
               gutterBottom
@@ -127,25 +144,33 @@ export default function NewsCard({
       >
         <Button
           size="small"
-          onClick={handleSummarizeClick}
-          disabled={isSummarizeDisabled}
           sx={{
             color: "#c4b5fd",
             "&:hover": { bgcolor: "rgba(139, 92, 246, 0.2)" },
           }}
         >
-          🤖 AI Summary
+          Read More
         </Button>
-        <Button
-          size="small"
-          onClick={handleShareClick}
+        <Box
           sx={{
-            color: "#93c5fd",
-            "&:hover": { bgcolor: "rgba(59, 130, 246, 0.2)" },
+            display: "flex",
+            alignItems: "center",
+            gap: 0.5,
           }}
         >
-          Share
-        </Button>
+          <IconButton
+            onClick={handleLikeClick}
+            size="small"
+            sx={{
+              color: isLiked ? "#f43f5e" : "rgba(255,255,255,0.7)",
+            }}
+          >
+            {isLiked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+          </IconButton>
+          <Typography variant="body2" sx={{ color: "rgba(255,255,255,0.7)" }}>
+            {likeCount}
+          </Typography>
+        </Box>
       </CardActions>
     </Card>
   );
