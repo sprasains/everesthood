@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import NewsCard from "@/components/ui/NewsCard";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { Article } from "@/types";
@@ -23,6 +23,7 @@ import TheaterComedyIcon from "@mui/icons-material/TheaterComedy";
 import ScienceIcon from "@mui/icons-material/Science";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import SearchIcon from "@mui/icons-material/Search";
+import { useQuery } from "@tanstack/react-query";
 
 // Define categories with icons
 const categories = [
@@ -34,67 +35,56 @@ const categories = [
   { id: "science", name: "Science", icon: <ScienceIcon /> },
 ];
 
+const fetchNews = async (category: string) => {
+  const params = category !== "all" ? `?category=${category}` : "";
+  const res = await fetch(`/api/v1/news${params}`);
+  if (!res.ok) throw new Error("Network response was not ok");
+  return res.json();
+};
+
+const searchNews = async (query: string) => {
+  const res = await fetch(`/api/v1/news/search?q=${encodeURIComponent(query)}`);
+  if (!res.ok) throw new Error("Search failed");
+  return res.json();
+};
+
 export default function NewsPage() {
   const [search, setSearch] = useState("");
-  const [searchLoading, setSearchLoading] = useState(false);
-  const [searchError, setSearchError] = useState("");
-  const [articles, setArticles] = useState<Article[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [loading, setLoading] = useState(true);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
-  const handleSearch = async (query?: string) => {
-    setSearchLoading(true);
-    setSearchError("");
-    try {
-      const response = await fetch(
-        `/api/v1/news/search?q=${encodeURIComponent(query ?? search)}`
-      );
-      if (!response.ok) throw new Error("Search failed");
-      setArticles(await response.json());
-    } catch (e) {
-      setSearchError("No news found or error occurred.");
-    } finally {
-      setSearchLoading(false);
-    }
-  };
+  // Category-based news
+  const {
+    data: newsData,
+    isLoading: newsLoading,
+    isError: newsError,
+    refetch: refetchNews,
+  } = useQuery({
+    queryKey: ["news", selectedCategory],
+    queryFn: () => fetchNews(selectedCategory),
+    enabled: !search.trim(),
+  });
+
+  // Search-based news
+  const {
+    data: searchData,
+    isLoading: searchLoading,
+    isError: searchError,
+    refetch: refetchSearch,
+  } = useQuery({
+    queryKey: ["news-search", search],
+    queryFn: () => searchNews(search),
+    enabled: !!search.trim(),
+  });
 
   // Debounce search input
-  useEffect(() => {
-    if (search.trim() === "") {
-      setSearchError("");
-      return;
-    }
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearch(e.target.value);
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
-      handleSearch(search);
+      refetchSearch();
     }, 400);
-    return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search]);
-
-  useEffect(() => {
-    if (search.trim()) return; // Don't auto-fetch if searching
-    const fetchNews = async () => {
-      setLoading(true);
-      try {
-        const params =
-          selectedCategory !== "all" ? `?category=${selectedCategory}` : "";
-        const response = await fetch(`/api/v1/news${params}`);
-        if (response.ok) {
-          const data = await response.json();
-          setArticles(data.articles || []);
-        }
-      } catch (error) {
-        console.error("Error fetching news:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchNews();
-  }, [selectedCategory, search]);
+  };
 
   return (
     <Box
@@ -119,124 +109,55 @@ export default function NewsPage() {
               background: "linear-gradient(45deg, #ff4e53, #ffcc00)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
-              mb: 1,
             }}
           >
-            Latest AI News
+            News Feed
           </Typography>
-          <Typography
-            variant="body1"
-            sx={{ color: "#d0d0d0", mb: { xs: 4, md: 6 } }}
-          >
-            Stay ahead of the curve with AI-powered summaries.
-          </Typography>
-        </motion.div>
-
-        <Stack
-          direction="row"
-          spacing={1}
-          flexWrap="wrap"
-          useFlexGap
-          sx={{ mb: { xs: 4, md: 6 } }}
-        >
-          {categories.map((category) => (
-            <Chip
-              key={category.id}
-              icon={category.icon}
-              label={category.name}
-              onClick={() => setSelectedCategory(category.id)}
-              color={selectedCategory === category.id ? "secondary" : "default"}
-              variant={selectedCategory === category.id ? "filled" : "outlined"}
-              sx={{
-                color: "white",
-                borderColor: "rgba(255, 255, 255, 0.2)",
-                "&:hover": {
-                  backgroundColor: "rgba(255, 255, 255, 0.1)",
-                },
-              }}
-            />
-          ))}
-        </Stack>
-
-        <Stack
-          direction="row"
-          spacing={1}
-          flexWrap="wrap"
-          useFlexGap
-          sx={{ mb: { xs: 4, md: 6 } }}
-        >
-          <Box flex={1}>
-            <TextField
-              fullWidth
-              variant="outlined"
-              placeholder="Search news by keyword..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") handleSearch();
-              }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon />
-                  </InputAdornment>
-                ),
-              }}
-              sx={{
-                bgcolor: "rgba(255,255,255,0.08)",
-                borderRadius: 2,
-                "& .MuiOutlinedInput-root": {
-                  "& fieldset": {
-                    borderColor: "rgba(255, 255, 255, 0.2)",
-                  },
-                  "&:hover fieldset": {
-                    borderColor: "rgba(255, 255, 255, 0.5)",
-                  },
-                  "&.Mui-focused fieldset": {
-                    borderColor: "rgba(255, 255, 255, 0.7)",
-                  },
-                },
-              }}
-            />
-          </Box>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => handleSearch()}
-            disabled={searchLoading || !search.trim()}
-            sx={{ minWidth: 120 }}
-            startIcon={<SearchIcon />}
-          >
-            {searchLoading ? "Searching..." : "Search"}
-          </Button>
-        </Stack>
-        {searchError && <Typography color="error">{searchError}</Typography>}
-
-        {loading ? (
-          <Box
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            py={12}
-          >
-            <LoadingSpinner size="lg" />
-          </Box>
-        ) : (
-          <Grid container spacing={3}>
-            {articles.map((article, index) => (
+          <Stack direction="row" spacing={2} sx={{ mb: 3, flexWrap: "wrap" }}>
+            {categories.map((cat) => (
+              <Chip
+                key={cat.id}
+                icon={cat.icon}
+                label={cat.name}
+                color={selectedCategory === cat.id ? "primary" : "default"}
+                onClick={() => {
+                  setSelectedCategory(cat.id);
+                  setSearch("");
+                  refetchNews();
+                }}
+                sx={{ fontWeight: 600, fontSize: "1rem" }}
+              />
+            ))}
+          </Stack>
+          <TextField
+            value={search}
+            onChange={handleSearchChange}
+            placeholder="Search news..."
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
+            sx={{ mb: 4, width: { xs: "100%", md: 400 } }}
+            variant="outlined"
+            size="small"
+          />
+          {(newsLoading || searchLoading) && <LoadingSpinner />}
+          {(newsError || searchError) && (
+            <Typography color="error" sx={{ mt: 2 }}>
+              Error loading news.
+            </Typography>
+          )}
+          <Grid container spacing={3} sx={{ mt: 1 }}>
+            {(search.trim() ? searchData?.articles : newsData?.articles)?.map((article: Article) => (
               <Grid item xs={12} sm={6} md={4} key={article.id}>
-                <motion.div
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05, duration: 0.5 }}
-                  style={{ height: "100%" }}
-                >
-                  <NewsCard article={article as any} />
-                </motion.div>
+                <NewsCard article={article} />
               </Grid>
             ))}
           </Grid>
-        )}
+        </motion.div>
       </Container>
     </Box>
   );

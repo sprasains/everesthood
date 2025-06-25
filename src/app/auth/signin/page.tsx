@@ -2,115 +2,200 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
-  Container,
+  Grid,
+  Paper,
   Typography,
   Button,
-  Box,
   TextField,
-  Card,
   Alert,
+  Fade,
+  Divider,
+  Box,
+  IconButton,
 } from "@mui/material";
 import GoogleIcon from "@mui/icons-material/Google";
+import GitHubIcon from "@mui/icons-material/GitHub";
 import FacebookIcon from "@mui/icons-material/Facebook";
+import PersonIcon from "@mui/icons-material/Person";
+import { useForm } from "react-hook-form";
+import { useSnackbar } from 'notistack';
+
+const TEST_USERS = [
+  { email: "test1@example.com", password: "password123" },
+  { email: "test2@example.com", password: "password123" },
+];
 
 export default function SignInPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const { enqueueSnackbar } = useSnackbar();
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm();
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleCredentialsSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    const result = await signIn("credentials", {
+  const handleSignIn = async (data: { email: string; password: string }) => {
+    setLoading(true);
+    const res = await signIn("credentials", {
       redirect: false,
-      email,
-      password,
+      email: data.email,
+      password: data.password,
     });
-    if (result?.error) {
-      setError("Invalid email or password.");
+    setLoading(false);
+    if (res?.error) {
+      enqueueSnackbar("Invalid credentials", { variant: "error" });
     } else {
+      enqueueSnackbar("Signed in!", { variant: "success" });
       router.push("/dashboard");
     }
   };
 
+  const handleTestUser = (user: { email: string; password: string }) => {
+    setValue("email", user.email);
+    setValue("password", user.password);
+  };
+
   return (
-    <Container
-      component="main"
-      maxWidth="xs"
+    <Grid
+      container
+      justifyContent="center"
+      alignItems="center"
       sx={{
-        display: "flex",
-        alignItems: "center",
         minHeight: "100vh",
+        background:
+          "linear-gradient(135deg, #e3f2fd 0%, #ede7f6 100%)",
       }}
     >
-      <Card
-        sx={{
-          p: 4,
-          width: "100%",
-          bgcolor: "rgba(255,255,255,0.05)",
-          color: "white",
-        }}
-      >
-        <Typography component="h1" variant="h5" align="center">
-          Welcome Back
-        </Typography>
-        {error && (
-          <Alert severity="error" sx={{ mt: 2 }}>
-            {error}
-          </Alert>
-        )}
-        <Box
-          component="form"
-          onSubmit={handleCredentialsSubmit}
-          sx={{ mt: 1 }}
-        >
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            label="Email Address"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            label="Password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            sx={{ mt: 3, mb: 2 }}
+      <Fade in timeout={700}>
+        <Grid item xs={11} sm={8} md={5} lg={4}>
+          <Paper
+            elevation={8}
+            sx={{
+              p: 5,
+              borderRadius: 4,
+              position: "relative",
+              overflow: "hidden",
+            }}
           >
-            Sign In
-          </Button>
-          <Button
-            fullWidth
-            variant="outlined"
-            startIcon={<GoogleIcon />}
-            onClick={() => signIn("google")}
-          >
-            Sign In with Google
-          </Button>
-          <Button
-            fullWidth
-            variant="outlined"
-            startIcon={<FacebookIcon />}
-            sx={{ mt: 1 }}
-            onClick={() => signIn("facebook")}
-          >
-            Sign In with Facebook
-          </Button>
-        </Box>
-      </Card>
-    </Container>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: 2,
+              }}
+            >
+              <Typography
+                variant="h5"
+                fontWeight={700}
+                color="primary.main"
+              >
+                Sign In
+              </Typography>
+              <Button
+                component={Link}
+                href="/auth/signup"
+                variant="text"
+                color="secondary"
+                sx={{ fontWeight: 600 }}
+              >
+                Sign Up
+              </Button>
+            </Box>
+            <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
+              {TEST_USERS.map((user, i) => (
+                <Button
+                  key={i}
+                  size="small"
+                  variant="outlined"
+                  color="info"
+                  startIcon={<PersonIcon />}
+                  onClick={() => handleTestUser(user)}
+                  sx={{ textTransform: "none" }}
+                >
+                  Test User {i + 1}
+                </Button>
+              ))}
+            </Box>
+            <form onSubmit={handleSubmit(handleSignIn)} autoComplete="off">
+              <TextField
+                label="Email"
+                type="email"
+                fullWidth
+                margin="normal"
+                required
+                autoFocus
+                {...register("email", { required: "Email is required" })}
+                error={!!errors.email}
+                helperText={errors.email?.message as string}
+              />
+              <TextField
+                label="Password"
+                type="password"
+                fullWidth
+                margin="normal"
+                required
+                {...register("password", { required: "Password is required" })}
+                error={!!errors.password}
+                helperText={errors.password?.message as string}
+              />
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                fullWidth
+                sx={{
+                  mt: 2,
+                  py: 1.2,
+                  fontWeight: 600,
+                  fontSize: "1rem",
+                }}
+                disabled={loading}
+              >
+                {loading ? "Signing in..." : "Sign In"}
+              </Button>
+            </form>
+            <Divider sx={{ my: 3 }}>or</Divider>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={4}>
+                <Button
+                  onClick={() => signIn("google")}
+                  variant="outlined"
+                  color="inherit"
+                  fullWidth
+                  startIcon={<GoogleIcon sx={{ color: "#EA4335" }} />}
+                  sx={{ textTransform: "none", fontWeight: 500 }}
+                >
+                  Google
+                </Button>
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <Button
+                  onClick={() => signIn("github")}
+                  variant="outlined"
+                  color="inherit"
+                  fullWidth
+                  startIcon={<GitHubIcon />}
+                  sx={{ textTransform: "none", fontWeight: 500 }}
+                >
+                  GitHub
+                </Button>
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <Button
+                  onClick={() => signIn("facebook")}
+                  variant="outlined"
+                  color="inherit"
+                  fullWidth
+                  startIcon={<FacebookIcon sx={{ color: "#1877F3" }} />}
+                  sx={{ textTransform: "none", fontWeight: 500 }}
+                >
+                  Facebook
+                </Button>
+              </Grid>
+            </Grid>
+          </Paper>
+        </Grid>
+      </Fade>
+    </Grid>
   );
 }
