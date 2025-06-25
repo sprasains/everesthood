@@ -2,14 +2,32 @@
 import { motion } from "framer-motion"
 import { Persona, PersonaConfig } from "@/types"
 import { useUser } from "@/hooks/useUser"
+import { useEffect, useState } from "react"
 
 interface PersonaSelectorProps {
   onPersonaChange?: (persona: Persona) => void
   className?: string
 }
 
+interface CustomPersona {
+  id: string;
+  name: string;
+  prompt: string;
+  icon?: string;
+}
+
 export default function PersonaSelector({ onPersonaChange, className = "" }: PersonaSelectorProps) {
-  const { user, updateUser } = useUser()
+  const { user, updateUser } = useUser();
+  const [customPersonas, setCustomPersonas] = useState<CustomPersona[]>([]);
+
+  useEffect(() => {
+    // Fetch custom personas for the logged-in user
+    const fetchCustomPersonas = async () => {
+      const res = await fetch("/api/v1/personas");
+      if (res.ok) setCustomPersonas(await res.json());
+    };
+    fetchCustomPersonas();
+  }, []);
 
   const personas: PersonaConfig[] = [
     {
@@ -42,59 +60,78 @@ export default function PersonaSelector({ onPersonaChange, className = "" }: Per
     }
   ]
 
-  const handlePersonaSelect = async (persona: Persona) => {
-    if (!user) return
-
-    const selectedPersona = personas.find(p => p.id === persona)
-    if (!selectedPersona?.unlocked) return
-
-    await updateUser({ persona })
-    onPersonaChange?.(persona)
-  }
+  const handlePersonaSelect = async (personaId: string) => {
+    if (!user) return;
+    // Allow any personaId (default or custom)
+    await updateUser({ persona: personaId });
+    onPersonaChange?.(personaId as any);
+  };
 
   return (
-    <div className={`space-y-4 ${className}`}>
+    <div className={`space-y-4 ${className}`} data-testid="persona-selector">
       <div className="text-center">
         <h3 className="text-xl font-bold text-white mb-2">Choose Your AI Mentor</h3>
         <p className="text-gray-400 text-sm">Each persona offers a unique perspective and tone</p>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        {personas.map((persona) => (
-          <motion.div
-            key={persona.id}
-            whileHover={{ scale: persona.unlocked ? 1.05 : 1 }}
-            whileTap={{ scale: persona.unlocked ? 0.95 : 1 }}
-            onClick={() => persona.unlocked && handlePersonaSelect(persona.id)}
-            className={`
-              relative p-6 rounded-xl cursor-pointer transition-all
-              ${persona.unlocked ? 'opacity-100' : 'opacity-50 cursor-not-allowed'}
-              ${user?.persona === persona.id ? 'ring-2 ring-white' : ''}
-              bg-gradient-to-br ${persona.theme}
-            `}
-          >
-            <h4 className="font-bold text-white mb-2">{persona.name}</h4>
-            <p className="text-sm text-white/80">{persona.description}</p>
-
-            {!persona.unlocked && (
-              <div className="absolute inset-0 bg-black/50 rounded-xl flex items-center justify-center">
-                <div className="text-center">
-                  <span className="text-white text-sm block">🔒 Locked</span>
-                  <span className="text-white/70 text-xs">
-                    Level {Math.ceil(personas.findIndex(p => p.id === persona.id) * 2 + 3)} required
-                  </span>
+      {/* Default Personas */}
+      <div className="mb-2">
+        <h5 className="text-white/80 text-xs mb-1">Default Personas</h5>
+        <div className="grid grid-cols-2 gap-4">
+          {personas.map((persona) => (
+            <motion.div
+              key={persona.id}
+              whileHover={{ scale: persona.unlocked ? 1.05 : 1 }}
+              whileTap={{ scale: persona.unlocked ? 0.95 : 1 }}
+              onClick={() => persona.unlocked && handlePersonaSelect(persona.id)}
+              className={`
+                relative p-6 rounded-xl cursor-pointer transition-all
+                ${persona.unlocked ? 'opacity-100' : 'opacity-50 cursor-not-allowed'}
+                ${user?.persona === persona.id ? 'ring-2 ring-white' : ''}
+                bg-gradient-to-br ${persona.theme}
+              `}
+            >
+              <h4 className="font-bold text-white mb-2">{persona.name}</h4>
+              <p className="text-sm text-white/80">{persona.description}</p>
+              {user?.persona === persona.id && (
+                <div className="absolute top-2 right-2">
+                  <span className="text-white text-lg">✓</span>
                 </div>
-              </div>
-            )}
-
-            {user?.persona === persona.id && (
-              <div className="absolute top-2 right-2">
-                <span className="text-white text-lg">✓</span>
-              </div>
-            )}
-          </motion.div>
-        ))}
+              )}
+            </motion.div>
+          ))}
+        </div>
       </div>
+
+      {/* Custom Personas */}
+      {customPersonas.length > 0 && (
+        <div>
+          <h5 className="text-white/80 text-xs mb-1 mt-4">Your Personas</h5>
+          <div className="grid grid-cols-2 gap-4">
+            {customPersonas.map((persona) => (
+              <motion.div
+                key={persona.id}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => handlePersonaSelect(persona.id)}
+                className={`
+                  relative p-6 rounded-xl cursor-pointer transition-all
+                  ${user?.persona === persona.id ? 'ring-2 ring-yellow-400' : ''}
+                  bg-gradient-to-br from-yellow-400 to-orange-500
+                `}
+              >
+                <h4 className="font-bold text-white mb-2">{persona.icon || "🤖"} {persona.name}</h4>
+                <p className="text-sm text-white/80">{persona.prompt.slice(0, 60)}{persona.prompt.length > 60 ? "..." : ""}</p>
+                {user?.persona === persona.id && (
+                  <div className="absolute top-2 right-2">
+                    <span className="text-yellow-400 text-lg">✓</span>
+                  </div>
+                )}
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Persona Benefits */}
       <div className="bg-gray-800 rounded-lg p-4 mt-4">

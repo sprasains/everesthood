@@ -35,6 +35,7 @@ export default function AchievementCard({
 
   return (
     <motion.div
+      data-testid="achievement-card"
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       whileHover={{ scale: 1.05 }}

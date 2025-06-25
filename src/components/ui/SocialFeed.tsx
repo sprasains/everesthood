@@ -1,11 +1,24 @@
 "use client"
 import { motion } from "framer-motion"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useUser } from "@/hooks/useUser"
+import PollCard from "@/components/ui/PollCard"
 
 export default function SocialFeed() {
-  const { user } = useUser()
-  const [postText, setPostText] = useState("")
+  const { user } = useUser();
+  const [postText, setPostText] = useState("");
+  const [polls, setPolls] = useState([]);
+
+  useEffect(() => {
+    // Fetch polls from API
+    const fetchPolls = async () => {
+      const res = await fetch("/api/v1/polls");
+      if (res.ok) {
+        setPolls(await res.json());
+      }
+    };
+    fetchPolls();
+  }, []);
 
   // Mock leaderboard data
   const leaderboard = [
@@ -23,7 +36,7 @@ export default function SocialFeed() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="social-feed">
       {/* Create Post */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -116,6 +129,17 @@ export default function SocialFeed() {
       </motion.div>
 
       {/* Community Highlights */}
+      {polls.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="bg-gray-800 rounded-2xl p-6"
+        >
+          <h3 className="text-lg font-bold text-white mb-4">🗳️ Weekly Vibe Check</h3>
+          <PollCard pollData={polls[0]} />
+        </motion.div>
+      )}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

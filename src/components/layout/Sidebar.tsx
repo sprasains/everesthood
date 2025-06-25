@@ -49,6 +49,7 @@ export default function Sidebar() {
 
   return (
     <motion.aside
+      data-testid="sidebar"
       initial={{ x: -300 }}
       animate={{ x: 0 }}
       className="fixed left-0 top-16 h-[calc(100vh-4rem)] w-64 bg-gray-900 border-r border-gray-700 z-30 overflow-y-auto"

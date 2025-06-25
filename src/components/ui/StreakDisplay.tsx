@@ -14,6 +14,7 @@ export default function StreakDisplay({ className = "" }: StreakDisplayProps) {
 
   return (
     <motion.div
+      data-testid="streak-display"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className={`bg-gray-800 rounded-2xl p-6 ${className}`}

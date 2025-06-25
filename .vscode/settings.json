@@ -1,0 +1,9 @@
+{
+  "editor.fontSize": 10,
+  "editor.wordWrap": "on",
+  "editor.accessibilityPageSize": 200,
+  "editor.columnSelection": true,
+  "editor.defaultFormatter": "GitHub.copilot",
+  "workbench.colorTheme": "Visual Studio Light",
+  "editor.accessibilitySupport": "off"
+}

@@ -13,7 +13,11 @@
     "db:studio": "prisma studio",
     "cron:news": "ts-node scripts/fetchNews.ts",
     "cron:genz": "ts-node scripts/fetchGenZContent.ts",
-    "db:seed": "prisma db seed"
+    "db:seed": "prisma db seed",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:report": "playwright show-report"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -40,19 +44,23 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@playwright/test": "^1.53.1",
     "@types/node": "^20.8.0",
     "@types/react": "^18.2.31",
     "@types/react-dom": "^18.2.14",
     "autoprefixer": "^10.4.16",
     "eslint": "^8.51.0",
     "eslint-config-next": "14.0.0",
+    "jest": "^30.0.2",
+    "playwright": "^1.53.1",
     "postcss": "^8.4.31",
     "prisma": "^6.10.1",
+    "supertest": "^7.1.1",
     "tailwindcss": "^3.3.5",
     "ts-node": "^10.9.1",
     "typescript": "^5.2.2"
   },
   "prisma": {
-    "seed": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' prisma/seed.ts"
+    "seed": "ts-node prisma/seed.ts"
   }
 }

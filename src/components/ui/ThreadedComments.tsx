@@ -322,43 +322,45 @@ const ThreadedComments: React.FC<ThreadedCommentsProps> = ({
   };
 
   return (
-    <Box>
-      <Typography variant="h6" fontWeight="bold" mb={2}>
-        💬 Comments
-      </Typography>
-      <Box mb={2}>
-        <TextField
-          fullWidth
-          multiline
-          minRows={2}
-          value={newComment}
-          onChange={(e) => setNewComment(e.target.value)}
-          placeholder="Add a comment..."
-          sx={{ mb: 1 }}
-        />
-        <Button
-          variant="contained"
-          onClick={submitNewComment}
-          disabled={submitting}
-        >
-          Post
-        </Button>
-      </Box>
-      {loading ? (
-        <Box
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          minHeight={120}
-        >
-          <CircularProgress color="primary" />
+    <div data-testid="threaded-comments">
+      <Box>
+        <Typography variant="h6" fontWeight="bold" mb={2}>
+          💬 Comments
+        </Typography>
+        <Box mb={2}>
+          <TextField
+            fullWidth
+            multiline
+            minRows={2}
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+            placeholder="Add a comment..."
+            sx={{ mb: 1 }}
+          />
+          <Button
+            variant="contained"
+            onClick={submitNewComment}
+            disabled={submitting}
+          >
+            Post
+          </Button>
         </Box>
-      ) : comments.length === 0 ? (
-        <Typography color="#bdbdbd">No comments yet. Be the first!</Typography>
-      ) : (
-        comments.map((comment) => renderComment(comment))
-      )}
-    </Box>
+        {loading ? (
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            minHeight={120}
+          >
+            <CircularProgress color="primary" />
+          </Box>
+        ) : comments.length === 0 ? (
+          <Typography color="#bdbdbd">No comments yet. Be the first!</Typography>
+        ) : (
+          comments.map((comment) => renderComment(comment))
+        )}
+      </Box>
+    </div>
   );
 };
 

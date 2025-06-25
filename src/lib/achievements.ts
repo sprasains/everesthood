@@ -1,26 +1,48 @@
 import { prisma } from "@/lib/prisma";
+import { User } from "@prisma/client";
 
-/**
- * Awards an achievement to a user if not already earned.
- * @param userId - The user's ID
- * @param achievementType - The unique type/key for the achievement (e.g., 'FIRST_ARTICLE_READ')
- */
-export async function awardAchievement(
-  userId: string,
-  achievementType: string
-) {
-  // Find the achievement by type (assume 'type' is a unique field in the Achievement model)
-  const achievement = await prisma.achievement.findUnique({
-    where: { type: achievementType },
+// Define achievement names or IDs to avoid magic strings
+const ACHIEVEMENT_NAMES = {
+  FIRST_READ: "First Steps",
+  TEN_READS: "Curious Reader",
+  FIRST_POST: "Icebreaker",
+  THREE_DAY_STREAK: "On Fire",
+};
+
+export async function awardAchievement(userId: string, achievementName: string) {
+  const achievement = await prisma.achievement.findFirst({
+    where: { name: achievementName },
   });
   if (!achievement) return;
-  // Check if already earned
-  const alreadyEarned = await prisma.userAchievement.findUnique({
+
+  const existing = await prisma.userAchievement.findUnique({
     where: { userId_achievementId: { userId, achievementId: achievement.id } },
   });
-  if (!alreadyEarned) {
+
+  if (!existing) {
     await prisma.userAchievement.create({
       data: { userId, achievementId: achievement.id },
     });
+    // Also award XP
+    await prisma.user.update({
+      where: { id: userId },
+      data: { xp: { increment: achievement.xpReward } },
+    });
   }
+}
+
+export async function checkAndAwardAchievements(
+  userId: string,
+  updatedStats: any // fallback to any to bypass type error for dynamic fields
+) {
+  if (updatedStats["articlesRead"] && updatedStats["articlesRead"] === 1) {
+    await awardAchievement(userId, ACHIEVEMENT_NAMES.FIRST_READ);
+  }
+  if (updatedStats["articlesRead"] && updatedStats["articlesRead"] === 10) {
+    await awardAchievement(userId, ACHIEVEMENT_NAMES.TEN_READS);
+  }
+  if (updatedStats["streak"] && updatedStats["streak"] === 3) {
+    await awardAchievement(userId, ACHIEVEMENT_NAMES.THREE_DAY_STREAK);
+  }
+  // Check for first post would be done in the post creation API
 }

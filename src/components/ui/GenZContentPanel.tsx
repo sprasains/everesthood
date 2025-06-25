@@ -14,7 +14,7 @@ export default function GenZContentPanel() {
   const [isVisible, setIsVisible] = useState(false);
 
   return (
-    <div>
+    <div data-testid="genz-content-panel">
       {/* Toggle Button */}
       {/* <button
         onClick={() => setIsVisible(!isVisible)}

@@ -10,34 +10,37 @@ import AchievementCard from "@/components/ui/AchievementCard";
 import Navbar from "@/components/layout/Navbar";
 import UserStatusPanel from "./UserStatusPanel";
 import { useState, useEffect } from "react";
-import {
-  Container,
-  Typography,
-  Button,
-  Box,
-  Card,
-  CardContent,
-  Chip,
-  Stack,
-} from "@mui/material";
-import { Grid } from "@mui/material";
-import WbSunnyRoundedIcon from "@mui/icons-material/WbSunnyRounded";
+import { Box, Container, Typography, Card, CardContent, Chip, Stack, Grid, CircularProgress, Button } from "@mui/material";
 import WhatshotIcon from "@mui/icons-material/Whatshot";
 import StyleIcon from "@mui/icons-material/Style";
 import EmojiObjectsIcon from "@mui/icons-material/EmojiObjects";
 import DevicesIcon from "@mui/icons-material/Devices";
 import GroupIcon from "@mui/icons-material/Group";
-import ThreadedComments from "@/components/ui/ThreadedComments";
+import NewsCard from "@/components/ui/NewsCard";
 
 export default function DashboardPage() {
   const { user, loading } = useUser();
   const { incrementProgress } = useStreak();
   const [achievements, setAchievements] = useState([]);
   const [showPersonaSelector, setShowPersonaSelector] = useState(false);
+  const [recommendations, setRecommendations] = useState<any[]>([]);
+  const [loadingRecs, setLoadingRecs] = useState(true);
 
   useEffect(() => {
     if (user) fetchAchievements();
   }, [user]);
+
+  useEffect(() => {
+    const fetchRecs = async () => {
+      setLoadingRecs(true);
+      const res = await fetch('/api/v1/recommendations');
+      if (res.ok) {
+        setRecommendations(await res.json());
+      }
+      setLoadingRecs(false);
+    };
+    fetchRecs();
+  }, []);
 
   const fetchAchievements = async () => {
     try {
@@ -230,6 +233,21 @@ export default function DashboardPage() {
           pb: 6,
         }}
       >
+        {/* For You Feed Section */}
+        <Box mt={6}>
+          <Typography variant="h4" fontWeight="bold" sx={{ color: 'white', mb: 3 }}>
+            For You
+          </Typography>
+          {loadingRecs ? <CircularProgress /> : (
+            <Grid container spacing={3}>
+              {recommendations.map(article => (
+                <Grid item xs={12} md={6} lg={4} key={article.id}>
+                  <NewsCard article={article} />
+                </Grid>
+              ))}
+            </Grid>
+          )}
+        </Box>
         <Grid container spacing={{ xs: 3, md: 6 }}>
           {/* Left Column - Main Content */}
           <Grid size={{ xs: 12, lg: 8 }}>

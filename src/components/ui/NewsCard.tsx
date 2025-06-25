@@ -97,6 +97,7 @@ export default function NewsCard({ article }: NewsCardProps) {
 
   return (
     <Card
+      data-testid="news-card"
       sx={{
         height: "100%",
         display: "flex",

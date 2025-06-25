@@ -9,6 +9,7 @@ import PersonIcon from "@mui/icons-material/Person";
 import SettingsIcon from "@mui/icons-material/Settings";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import BarChartIcon from "@mui/icons-material/BarChart";
+import { CircularProgress } from "@mui/material";
 
 // Skeleton Loader Component
 const SkeletonLoader = () => (
@@ -38,6 +39,8 @@ export default function ProfilePage() {
     name: "",
     weeklyGoal: 5,
   });
+  // Billing: Manage Subscription Button
+  const [billingLoading, setBillingLoading] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -51,6 +54,23 @@ export default function ProfilePage() {
   const handleSave = async () => {
     await updateUser(formData);
     setIsEditing(false);
+  };
+
+  const handleManageBilling = async () => {
+    setBillingLoading(true);
+    try {
+      const res = await fetch("/api/v1/stripe/create-portal-session", {
+        method: "POST",
+      });
+      if (res.ok) {
+        const data = await res.json();
+        window.location.href = data.url;
+      } else {
+        alert("Failed to open billing portal.");
+      }
+    } finally {
+      setBillingLoading(false);
+    }
   };
 
   const tabs = [
@@ -71,7 +91,7 @@ export default function ProfilePage() {
     );
   }
 
-  // Fix type error for getPersonaIcon
+  // Fix: define getPersonaIcon and memberSince above return
   const getPersonaIcon = (persona: string | undefined) => {
     switch (persona) {
       case "ZenGPT":
@@ -84,8 +104,6 @@ export default function ProfilePage() {
         return "💪";
     }
   };
-
-  // Fix property error for createdAt
   const memberSince = user?.createdAt
     ? new Date(user.createdAt).getFullYear()
     : new Date().getFullYear();
@@ -144,6 +162,15 @@ export default function ProfilePage() {
                 className="bg-white/10 hover:bg-white/20 px-5 py-2.5 rounded-xl transition-colors font-semibold shadow-md"
               >
                 Edit Profile
+              </motion.button>
+              <motion.button
+                onClick={handleManageBilling}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="ml-4 bg-gradient-to-r from-purple-600 to-pink-600 px-5 py-2.5 rounded-xl text-white font-semibold shadow-md flex items-center justify-center"
+                disabled={billingLoading}
+              >
+                {billingLoading ? <CircularProgress size={20} color="inherit" /> : "Manage Billing"}
               </motion.button>
             </div>
           </motion.div>

@@ -12,6 +12,7 @@ export default function Navbar() {
 
   return (
     <AppBar
+      data-testid="navbar"
       position="fixed"
       sx={{
         background: "linear-gradient(90deg, #6a11cb, #2575fc)",

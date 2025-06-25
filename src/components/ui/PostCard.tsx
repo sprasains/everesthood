@@ -15,6 +15,7 @@ interface PostCardProps {
 export default function PostCard({ post }: PostCardProps) {
   return (
     <Paper
+      data-testid="post-card"
       sx={{
         p: 3,
         bgcolor: "rgba(255, 255, 255, 0.05)",

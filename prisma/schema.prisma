@@ -1,4 +1,5 @@
-// This is your full, final schema
+// Clean, deduplicated, production-optimized Prisma schema for Everhood
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -8,11 +9,62 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// AUTH MODELS
+model User {
+  id                 String    @id @default(cuid())
+  name               String?
+  email              String?   @unique
+  emailVerified      DateTime?
+  image              String?
+  password           String?
+  stripeCustomerId   String?   @unique
+  stripeSubscriptionId String?
+  stripePriceId      String?
+  stripeCurrentPeriodEnd DateTime?
+  subscriptionStatus String    @default("free")
+  subscriptionTier   SubscriptionTier @default(FREE)
+  trialEndsAt        DateTime?
+  xp                 Int       @default(0)
+  level              Int       @default(1)
+  streak             Int       @default(0)
+  lastActiveDate     DateTime?
+  persona            String    @default("ZenGPT")
+  dailyProgress      Int       @default(0)
+  weeklyGoal         Int       @default(5)
+  articlesRead       Int       @default(0)
+  summariesUsed      Int       @default(0)
+  sharesCount        Int       @default(0)
+
+  posts              Post[]
+  comments           Comment[]
+  likes              Like[]
+  favorites          Favorite[]
+  commentLikes       CommentLike[]
+  commentDislikes    CommentDislike[]
+  userAchievements   UserAchievement[]
+  accounts           Account[]
+  sessions           Session[]
+  sentFriendRequests Friendship[] @relation("SentRequests")
+  receivedFriendRequests Friendship[] @relation("ReceivedRequests")
+  ownedCircles       Circle[]
+  circleMemberships  CircleMembership[]
+  votes              Vote[]
+  activities         UserActivity[]
+  customPersonas     CustomPersona[]
+
+  company       Company?
+  applications  JobApplication[]
+
+  @@map("users")
+}
+
+enum SubscriptionTier {
+  FREE
+  PREMIUM
+}
+
 model Account {
   id                 String  @id @default(cuid())
   userId             String
-  type               String
   provider           String
   providerAccountId  String
   refresh_token      String? @db.Text
@@ -26,6 +78,7 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+  @@index([userId])
 }
 
 model Session {
@@ -34,80 +87,32 @@ model Session {
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
 
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
-}
-
-// APP MODELS
-model User {
-  id                 String    @id @default(cuid())
-  name               String?
-  email              String?   @unique
-  emailVerified      DateTime?
-  image              String?
-  password           String?
-  stripeCustomerId   String?   @unique
-  subscriptionStatus String    @default("free")
-  trialEndsAt        DateTime?
-
-  // Gamification
-  xp                 Int       @default(0)
-  level              Int       @default(1)
-  streak             Int       @default(0)
-  lastActiveDate     DateTime?
-  persona            String    @default("ZenGPT")
-  dailyProgress      Int       @default(0)
-  weeklyGoal         Int       @default(5)
-
-  // Social & Content
-  posts              Post[]
-  comments           Comment[]
-  likes              Like[]
-  commentLikes       CommentLike[]
-  favorites          Favorite[]
-  userAchievements   UserAchievement[]
-  accounts           Account[]
-  sessions           Session[]
-  commentDislikes    CommentDislike[]
-
-  // New Friendship Relations
-  sentFriendRequests     Friendship[] @relation("SentRequests")
-  receivedFriendRequests Friendship[] @relation("ReceivedRequests")
-
-  // New Circle Relations
-  ownedCircles       Circle[]
-  circleMemberships  CircleMembership[]
-
-  @@map("users")
+  @@index([userId])
 }
 
 model Article {
-  id                 String     @id @default(cuid())
-  url                String     @unique
-  title              String
-  description        String?
-  content            String?
-  sourceName         String
-  imageUrl           String?
-  publishedAt        DateTime
-  likeCount          Int        @default(0)
-  shares             Int        @default(0)
-  category           String?
-  tags               String[]   @default([])
-  createdAt          DateTime   @default(now())
-  favoriteCount      Int        @default(0)
+  id            String   @id @default(cuid())
+  url           String   @unique
+  title         String
+  description   String?
+  content       String?
+  sourceName    String
+  imageUrl      String?
+  publishedAt   DateTime
+  likeCount     Int      @default(0)
+  shares        Int      @default(0)
+  category      String?
+  tags          String[] @default([])
+  createdAt     DateTime @default(now())
+  favoriteCount Int      @default(0)
 
-  // Relations
-  likes              Like[]
-  favorites          Favorite[]
-  posts              Post[]
+  likes     Like[]
+  favorites Favorite[]
+  posts     Post[]
 
+  @@index([category])
+  @@index([publishedAt])
   @@map("articles")
 }
 
@@ -115,15 +120,32 @@ model Post {
   id                String    @id @default(cuid())
   content           String
   createdAt         DateTime  @default(now())
-
   author            User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId          String
-
-  // Link to an original article if it's a repost
   originalArticle   Article?  @relation(fields: [originalArticleId], references: [id], onDelete: Cascade)
   originalArticleId String?
-
   comments          Comment[]
+  poll              Poll?
+
+  @@index([authorId])
+  @@index([originalArticleId])
+  @@index([createdAt])
+}
+
+model Friendship {
+  status      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  requester   User   @relation("SentRequests", fields: [requesterId], references: [id])
+  requesterId String
+  receiver    User   @relation("ReceivedRequests", fields: [receiverId], references: [id])
+  receiverId  String
+  isFavorite  Boolean @default(false)
+
+  @@id([requesterId, receiverId])
+  @@index([requesterId])
+  @@index([receiverId])
+  @@index([status])
 }
 
 model Like {
@@ -133,6 +155,18 @@ model Like {
   articleId String
 
   @@id([userId, articleId])
+  @@index([articleId])
+}
+
+model Favorite {
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  articleId String
+  createdAt DateTime @default(now())
+
+  @@id([userId, articleId])
+  @@index([userId])
 }
 
 model Comment {
@@ -140,17 +174,19 @@ model Comment {
   content   String
   createdAt DateTime @default(now())
 
-  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  authorId  String
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  postId    String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId String
+  post     Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId   String
 
-  parentId  String?  // For threaded replies
-  parent    Comment? @relation("CommentReplies", fields: [parentId], references: [id])
-  replies   Comment[] @relation("CommentReplies")
+  parentId String?
+  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies  Comment[] @relation("CommentReplies")
 
-  likes     CommentLike[]
-  dislikes  CommentDislike[]
+  likes    CommentLike[]
+  dislikes CommentDislike[]
+
+  @@index([postId])
 }
 
 model CommentLike {
@@ -171,55 +207,29 @@ model CommentDislike {
   @@id([userId, commentId])
 }
 
-model Favorite {
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    String
-  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
-  articleId String
-
-  @@id([userId, articleId])
-}
-
-// GAMIFICATION MODELS
 model Achievement {
-  id          String   @id @default(cuid())
+  id          String @id @default(cuid())
   name        String
   description String
   icon        String
   xpReward    Int
-  
+
   userAchievements UserAchievement[]
+
   @@map("achievements")
 }
 
 model UserAchievement {
-  id            String      @id @default(cuid())
-  earnedAt      DateTime    @default(now())
-  
+  id       String   @id @default(cuid())
+  earnedAt DateTime @default(now())
+
   user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId        String
   achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
   achievementId String
-  
+
   @@unique([userId, achievementId])
   @@map("user_achievements")
-}
-
-model Friendship {
-  status    String   // PENDING, ACCEPTED, DECLINED, BLOCKED
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  requester User @relation("SentRequests", fields: [requesterId], references: [id])
-  requesterId String
-
-  receiver  User @relation("ReceivedRequests", fields: [receiverId], references: [id])
-  receiverId String
-  
-  // Is this friend a "favorite"?
-  isFavorite Boolean @default(false)
-
-  @@id([requesterId, receiverId])
 }
 
 model Circle {
@@ -227,7 +237,6 @@ model Circle {
   name    String
   owner   User   @relation(fields: [ownerId], references: [id])
   ownerId String
-  
   members CircleMembership[]
 }
 
@@ -238,4 +247,99 @@ model CircleMembership {
   userId   String
 
   @@id([circleId, userId])
+}
+
+model UserActivity {
+  id         String   @id @default(cuid())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
+  action     String
+  entityType String?
+  entityId   String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+}
+
+model Poll {
+  id       String       @id @default(cuid())
+  question String
+  post     Post         @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId   String       @unique
+  options  PollOption[]
+}
+
+model PollOption {
+  id     String @id @default(cuid())
+  text   String
+  poll   Poll   @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  pollId String
+  votes  Vote[]
+}
+
+model Vote {
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String
+  pollOption   PollOption @relation(fields: [pollOptionId], references: [id], onDelete: Cascade)
+  pollOptionId String
+  createdAt    DateTime   @default(now())
+
+  @@id([userId, pollOptionId])
+}
+
+model CustomPersona {
+  id        String   @id @default(cuid())
+  name      String
+  prompt    String   @db.Text // The custom instructions for the AI
+  icon      String?  // An emoji or icon character
+  createdAt DateTime @default(now())
+  
+  owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId   String
+
+  @@index([ownerId])
+}
+
+model Company {
+  id          String @id @default(cuid())
+  name        String
+  description String @db.Text
+  websiteUrl  String?
+  logoUrl     String?
+
+  jobs        Job[]
+  owner       User   @relation(fields: [ownerId], references: [id])
+  ownerId     String @unique
+}
+
+model Job {
+  id           String   @id @default(cuid())
+  title        String
+  description  String   @db.Text
+  location     String
+  type         String
+  salaryRange  String?
+  isActive     Boolean  @default(true)
+  isFeatured   Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  company      Company  @relation(fields: [companyId], references: [id])
+  companyId    String
+
+  applications JobApplication[]
+
+  @@index([companyId])
+}
+
+model JobApplication {
+  id         String   @id @default(cuid())
+  status     String   @default("SUBMITTED")
+  appliedAt  DateTime @default(now())
+
+  applicant  User     @relation(fields: [applicantId], references: [id])
+  applicantId String
+
+  job        Job      @relation(fields: [jobId], references: [id])
+  jobId      String
+
+  @@unique([applicantId, jobId])
 }

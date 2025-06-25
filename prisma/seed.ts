@@ -35,6 +35,18 @@ async function main() {
   });
   console.log("Created users.");
 
+  // Create Test User for E2E quick login
+  const testUser = await prisma.user.create({
+    data: {
+      email: "testuser@example.com",
+      name: "Test User",
+      password,
+      image: "https://i.pravatar.cc/150?u=testuser",
+      subscriptionStatus: "free",
+    },
+  });
+  console.log("Created Test User for E2E.");
+
   // Create Articles
   const now = new Date();
   const article1 = await prisma.article.create({

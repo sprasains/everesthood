@@ -3,6 +3,7 @@ import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import GoogleProvider from "next-auth/providers/google";
 import GitHubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
+import FacebookProvider from "next-auth/providers/facebook";
 import { prisma } from "./prisma";
 import bcrypt from "bcryptjs";
 
@@ -73,6 +74,11 @@ export const authOptions: NextAuthOptions = {
           name: user.name,
         };
       },
+    }),
+    FacebookProvider({
+      clientId: process.env.FACEBOOK_APP_ID!,
+      clientSecret: process.env.FACEBOOK_APP_SECRET!,
+      allowDangerousEmailAccountLinking: true,
     }),
   ],
   session: {

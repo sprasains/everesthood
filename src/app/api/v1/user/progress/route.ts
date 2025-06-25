@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { awardAchievement } from "@/lib/achievements";
+import { awardAchievement, checkAndAwardAchievements } from "@/lib/achievements";
 
 export async function POST(request: NextRequest) {
   try {
@@ -87,15 +87,8 @@ export async function POST(request: NextRequest) {
       data: updateData,
     });
 
-    // Award achievements after updating user stats
-    if (action === "read_article") {
-      if (updatedUser.articlesRead === 1)
-        await awardAchievement(user.id, "FIRST_ARTICLE_READ");
-      if (updatedUser.articlesRead === 10)
-        await awardAchievement(user.id, "TEN_ARTICLES_READ");
-    }
-    if (updatedUser.streak === 7)
-      await awardAchievement(user.id, "SEVEN_DAY_STREAK");
+    // Automatically check and award achievements
+    await checkAndAwardAchievements(user.id, updatedUser);
 
     return NextResponse.json({
       user: updatedUser,
