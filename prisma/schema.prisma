@@ -10,51 +10,55 @@ generator client {
 }
 
 model User {
-  id                 String    @id @default(cuid())
-  name               String?
-  email              String?   @unique
-  emailVerified      DateTime?
-  image              String?
-  password           String?
-  stripeCustomerId   String?   @unique
-  stripeSubscriptionId String?
-  stripePriceId      String?
+  id                     String           @id @default(cuid())
+  name                   String?
+  email                  String?          @unique
+  emailVerified          DateTime?
+  image                  String?
+  password               String?
+  stripeCustomerId       String?          @unique
+  stripeSubscriptionId   String?
+  stripePriceId          String?
   stripeCurrentPeriodEnd DateTime?
-  subscriptionStatus String    @default("free")
-  subscriptionTier   SubscriptionTier @default(FREE)
-  trialEndsAt        DateTime?
-  xp                 Int       @default(0)
-  level              Int       @default(1)
-  streak             Int       @default(0)
-  lastActiveDate     DateTime?
-  persona            String    @default("ZenGPT")
-  dailyProgress      Int       @default(0)
-  weeklyGoal         Int       @default(5)
-  articlesRead       Int       @default(0)
-  summariesUsed      Int       @default(0)
-  sharesCount        Int       @default(0)
+  subscriptionStatus     String           @default("free")
+  subscriptionTier       SubscriptionTier @default(FREE)
+  trialEndsAt            DateTime?
+  xp                     Int              @default(0)
+  level                  Int              @default(1)
+  streak                 Int              @default(0)
+  lastActiveDate         DateTime?
+  persona                String           @default("ZenGPT")
+  dailyProgress          Int              @default(0)
+  weeklyGoal             Int              @default(5)
+  articlesRead           Int              @default(0)
+  summariesUsed          Int              @default(0)
+  sharesCount            Int              @default(0)
   profileSpotlightEndsAt DateTime?
 
-  posts              Post[]
-  comments           Comment[]
-  likes              Like[]
-  favorites          Favorite[]
-  commentLikes       CommentLike[]
-  commentDislikes    CommentDislike[]
-  userAchievements   UserAchievement[]
-  accounts           Account[]
-  sessions           Session[]
-  sentFriendRequests Friendship[] @relation("SentRequests")
-  receivedFriendRequests Friendship[] @relation("ReceivedRequests")
-  ownedCircles       Circle[]
-  circleMemberships  CircleMembership[]
-  votes              Vote[]
-  activities         UserActivity[]
-  customPersonas     CustomPersona[]
-  apiKeys            ApiKey[]
+  posts                  Post[]
+  comments               Comment[]
+  likes                  Like[]
+  favorites              Favorite[]
+  commentLikes           CommentLike[]
+  commentDislikes        CommentDislike[]
+  userAchievements       UserAchievement[]
+  accounts               Account[]
+  sessions               Session[]
+  sentFriendRequests     Friendship[]       @relation("SentRequests")
+  receivedFriendRequests Friendship[]       @relation("ReceivedRequests")
+  ownedCircles           Circle[]
+  circleMemberships      CircleMembership[]
+  votes                  Vote[]
+  activities             UserActivity[]
+  customPersonas         CustomPersona[]
+  apiKeys                ApiKey[]
 
-  company       Company?
-  applications  JobApplication[]
+  company      Company?
+  applications JobApplication[]
+
+  following User[]     @relation("UserFollows")
+  followers User[]     @relation("UserFollows")
+  postLikes PostLike[]
 
   @@map("users")
 }
@@ -65,17 +69,17 @@ enum SubscriptionTier {
 }
 
 model Account {
-  id                 String  @id @default(cuid())
-  userId             String
-  provider           String
-  providerAccountId  String
-  refresh_token      String? @db.Text
-  access_token       String? @db.Text
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String? @db.Text
-  session_state      String?
+  id                String  @id @default(cuid())
+  userId            String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -119,22 +123,42 @@ model Article {
 }
 
 model Post {
-  id                String    @id @default(cuid())
+  id                String     @id @default(cuid())
+  title             String?    @default("Untitled Post") // Now optional
   content           String
-  createdAt         DateTime  @default(now())
-  author            User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  createdAt         DateTime   @default(now())
+  author            User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId          String
-  originalArticle   Article?  @relation(fields: [originalArticleId], references: [id], onDelete: Cascade)
+  originalArticle   Article?   @relation(fields: [originalArticleId], references: [id], onDelete: Cascade)
   originalArticleId String?
   comments          Comment[]
   poll              Poll?
   // Advanced post types
-  type              PostType  @default(TEXT)
+  type              PostType   @default(TEXT)
   metadata          Json?
+  resharedCount     Int        @default(0)
+  resharedFrom      Post?      @relation("Reshare", fields: [resharedFromId], references: [id])
+  resharedFromId    String?
+  resharedBy        Post[]     @relation("Reshare")
+  likeCount         Int        @default(0) // For fast popular sorting
+  likes             PostLike[]
+  mediaUrls         String[]   @default([])
 
   @@index([authorId])
   @@index([originalArticleId])
   @@index([createdAt])
+  @@index([likeCount])
+}
+
+model PostLike {
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    String
+  createdAt DateTime @default(now())
+
+  @@id([userId, postId])
+  @@index([postId])
 }
 
 enum PostType {
@@ -148,11 +172,11 @@ model Friendship {
   status      String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  requester   User   @relation("SentRequests", fields: [requesterId], references: [id])
+  requester   User     @relation("SentRequests", fields: [requesterId], references: [id])
   requesterId String
-  receiver    User   @relation("ReceivedRequests", fields: [receiverId], references: [id])
+  receiver    User     @relation("ReceivedRequests", fields: [receiverId], references: [id])
   receiverId  String
-  isFavorite  Boolean @default(false)
+  isFavorite  Boolean  @default(false)
 
   @@id([requesterId, receiverId])
   @@index([requesterId])
@@ -171,9 +195,9 @@ model Like {
 }
 
 model Favorite {
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
-  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
   articleId String
   createdAt DateTime @default(now())
 
@@ -245,9 +269,9 @@ model UserAchievement {
 }
 
 model Circle {
-  id      String @id @default(cuid())
+  id      String             @id @default(cuid())
   name    String
-  owner   User   @relation(fields: [ownerId], references: [id])
+  owner   User               @relation(fields: [ownerId], references: [id])
   ownerId String
   members CircleMembership[]
 }
@@ -302,40 +326,40 @@ model CustomPersona {
   id        String   @id @default(cuid())
   name      String
   prompt    String   @db.Text // The custom instructions for the AI
-  icon      String?  // An emoji or icon character
+  icon      String? // An emoji or icon character
   createdAt DateTime @default(now())
-  
-  owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  ownerId   String
+
+  owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId String
 
   @@index([ownerId])
 }
 
 model Company {
-  id          String @id @default(cuid())
+  id          String  @id @default(cuid())
   name        String
-  description String @db.Text
+  description String  @db.Text
   websiteUrl  String?
   logoUrl     String?
 
-  jobs        Job[]
-  owner       User   @relation(fields: [ownerId], references: [id])
-  ownerId     String @unique
+  jobs    Job[]
+  owner   User   @relation(fields: [ownerId], references: [id])
+  ownerId String @unique
 }
 
 model Job {
-  id           String   @id @default(cuid())
-  title        String
-  description  String   @db.Text
-  location     String
-  type         String
-  salaryRange  String?
-  isActive     Boolean  @default(true)
-  isFeatured   Boolean  @default(false)
-  createdAt    DateTime @default(now())
+  id          String   @id @default(cuid())
+  title       String
+  description String   @db.Text
+  location    String
+  type        String
+  salaryRange String?
+  isActive    Boolean  @default(true)
+  isFeatured  Boolean  @default(false)
+  createdAt   DateTime @default(now())
 
-  company      Company  @relation(fields: [companyId], references: [id])
-  companyId    String
+  company   Company @relation(fields: [companyId], references: [id])
+  companyId String
 
   applications JobApplication[]
 
@@ -343,15 +367,15 @@ model Job {
 }
 
 model JobApplication {
-  id         String   @id @default(cuid())
-  status     String   @default("SUBMITTED")
-  appliedAt  DateTime @default(now())
+  id        String   @id @default(cuid())
+  status    String   @default("SUBMITTED")
+  appliedAt DateTime @default(now())
 
-  applicant  User     @relation(fields: [applicantId], references: [id])
+  applicant   User   @relation(fields: [applicantId], references: [id])
   applicantId String
 
-  job        Job      @relation(fields: [jobId], references: [id])
-  jobId      String
+  job   Job    @relation(fields: [jobId], references: [id])
+  jobId String
 
   @@unique([applicantId, jobId])
 }

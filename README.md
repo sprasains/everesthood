@@ -1,8 +1,47 @@
 # 🌟 Everhood - AI Vibe Hub for Gen-Z
 
-**Everhood** is a production-grade, full-stack AI-powered platform designed for Gen-Z techies. It combines real-time AI news aggregation, LLM-based summarization, career roadmaps, and a premium freemium model — deployed on scalable cloud infrastructure using modern tools like Prisma, Next.js 14+, Stripe, and Azure.
+## 🫂 Social & Gamification Hub (Friends & Achievements)
 
-![Everhood Banner](https://img.shields.io/badge/Everhood-AI%20Vibe%20Hub-8b5cf6?style=for-the-badge&logo=react)
+### 👫 Friends System
+
+- **My Friends Page**: Manage your connections, view profiles, and unfriend users.
+- **FriendCard Component**: Shows avatar, name, “Friends since…”, and actions.
+- **Friend API Endpoints:**
+  - `GET /api/v1/friends` — List your friends (id, name, avatar, since).
+  - `DELETE /api/v1/friends/{friendId}` — Unfriend a user.
+- **News Feed Filtering**: The News Feed’s “Following” tab shows only posts from your friends (`/api/v1/community/posts?filter=following`).
+- **Seeded Social Graph**: The database is seeded with at least 10 friends for the main test user, and each friend has posts.
+
+### 🏆 Achievements & Gamification
+
+- **Achievements Page**: See all possible achievements, your unlocked ones, and progress.
+- **AchievementCard Component**: Shows icon, name, description, unlock status, and date.
+- **Gamification API Endpoints:**
+  - `GET /api/v1/achievements` — List all master achievements.
+  - `GET /api/v1/user/achievements` — List achievements unlocked by the current user.
+- **Progress Bar**: Shows how many achievements you’ve unlocked.
+- **Seeded Achievements**: At least 10 achievements exist, with 3–4 unlocked for the main user.
+
+### 🔗 API Endpoints (Extended)
+
+```typescript
+// Social (Friends)
+GET    /api/v1/friends                  # List your friends
+DELETE /api/v1/friends/{friendId}       # Unfriend a user
+
+// Community Posts
+GET    /api/v1/community/posts?filter=following   # Posts from friends only
+
+// Achievements
+GET    /api/v1/achievements             # All achievements
+GET    /api/v1/user/achievements        # User's unlocked achievements
+```
+
+### 🧩 Integration
+
+- **Dashboard**: Friends count and achievements progress are shown in widgets.
+- **News Feed**: “Following” tab is personalized to your social graph.
+- **Community**: User and friend data is deeply integrated for a vibrant, interactive experience.
 
 ---
 

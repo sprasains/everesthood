@@ -1,54 +1,45 @@
 "use client";
-import Navbar from "@/components/layout/Navbar";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
 import AchievementCard from "@/components/ui/AchievementCard";
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { motion } from "framer-motion";
+
+const fetchAchievements = async () => {
+  const res = await fetch("/api/v1/achievements");
+  if (!res.ok) throw new Error("Failed to fetch achievements");
+  return res.json();
+};
 
 export default function AchievementsPage() {
-  const [achievements, setAchievements] = useState<
-    import("@/types").Achievement[]
-  >([]);
-  const [userAchievements, setUserAchievements] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchAchievements = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch("/api/v1/achievements");
-        if (res.ok) {
-          const data = await res.json();
-          setAchievements(data.achievements);
-          setUserAchievements(data.userAchievements);
-        }
-      } catch (e) {
-        // handle error
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchAchievements();
-  }, []);
+  const { data, isLoading } = useQuery({
+    queryKey: ["achievements"],
+    queryFn: fetchAchievements,
+  });
+  const achievements = data?.achievements || [];
+  const userAchievements = data?.userAchievements || [];
 
   return (
-    <>
-      <Navbar />
-      <Container sx={{ pt: 10 }}>
+    <Container sx={{ pt: 10 }}>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7 }}
+      >
         <Typography variant="h3" fontWeight="bold" gutterBottom>
           Achievements
         </Typography>
-        {loading ? (
+        {isLoading ? (
           <Box sx={{ display: "flex", justifyContent: "center", mt: 6 }}>
             <CircularProgress />
           </Box>
         ) : (
           <Box sx={{ flexGrow: 1, mt: 4 }}>
             <Grid container spacing={3}>
-              {achievements.map((ach) => (
+              {achievements.map((ach: any) => (
                 <Grid item xs={12} sm={6} md={4} lg={3} key={ach.id}>
                   <AchievementCard
                     achievement={ach}
@@ -59,7 +50,7 @@ export default function AchievementsPage() {
             </Grid>
           </Box>
         )}
-      </Container>
-    </>
+      </motion.div>
+    </Container>
   );
 }

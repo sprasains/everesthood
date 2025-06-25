@@ -1,46 +1,55 @@
 "use client";
-import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { useSnackbar } from "notistack";
+import { useState } from "react";
 import {
-  Grid,
-  Paper,
-  Typography,
   Button,
   TextField,
+  CircularProgress,
+  Stack,
+  Typography,
+  IconButton,
+  InputAdornment,
+  Grid,
   Fade,
-  Divider,
+  Paper,
   Box,
 } from "@mui/material";
-import GoogleIcon from "@mui/icons-material/Google";
-import GitHubIcon from "@mui/icons-material/GitHub";
-import FacebookIcon from "@mui/icons-material/Facebook";
-import { useForm } from "react-hook-form";
-import { useSnackbar } from 'notistack';
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+import Link from 'next/link';
 
 export default function SignUpPage() {
-  const { enqueueSnackbar } = useSnackbar();
-  const { register, handleSubmit, formState: { errors } } = useForm();
-  const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { enqueueSnackbar } = useSnackbar();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const { register, handleSubmit, formState: { errors } } = useForm();
 
-  const handleSignUp = async (data: { name: string; email: string; password: string }) => {
-    setLoading(true);
+  const onSubmit = async (data: { name: string; email: string; password: string }) => {
+    setIsSubmitting(true);
     try {
-      const res = await fetch("/api/v1/auth", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const res = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
-      if (!res.ok) throw new Error("Sign up failed");
-      await signIn("credentials", { email: data.email, password: data.password, redirect: false });
-      enqueueSnackbar("Account created!", { variant: "success" });
-      router.push("/dashboard");
-    } catch (err) {
-      enqueueSnackbar("Sign up failed. Try a different email.", { variant: "error" });
+      if (res.ok) {
+        enqueueSnackbar('Registration successful! Signing you in...', { variant: 'success' });
+        await signIn('credentials', {
+          email: data.email,
+          password: data.password,
+          callbackUrl: '/dashboard',
+        });
+      } else {
+        const errorData = await res.json().catch(() => ({}));
+        enqueueSnackbar(errorData.message || 'Registration failed', { variant: 'error' });
+      }
+    } catch (error) {
+      enqueueSnackbar('An unexpected error occurred.', { variant: 'error' });
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -66,118 +75,56 @@ export default function SignUpPage() {
               overflow: "hidden",
             }}
           >
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                mb: 2,
-              }}
-            >
-              <Typography
-                variant="h5"
-                fontWeight={700}
-                color="primary.main"
-              >
-                Sign Up
-              </Typography>
-              <Button
-                component={Link}
-                href="/auth/signin"
-                variant="text"
-                color="secondary"
-                sx={{ fontWeight: 600 }}
-              >
-                Sign In
-              </Button>
-            </Box>
-            <form onSubmit={handleSubmit(handleSignUp)} autoComplete="off">
-              <TextField
-                label="Name"
-                type="text"
-                fullWidth
-                margin="normal"
-                required
-                autoFocus
-                {...register("name", { required: "Name is required" })}
-                error={!!errors.name}
-                helperText={errors.name?.message as string}
-              />
-              <TextField
-                label="Email"
-                type="email"
-                fullWidth
-                margin="normal"
-                required
-                {...register("email", { required: "Email is required" })}
-                error={!!errors.email}
-                helperText={errors.email?.message as string}
-              />
-              <TextField
-                label="Password"
-                type="password"
-                fullWidth
-                margin="normal"
-                required
-                {...register("password", { required: "Password is required" })}
-                error={!!errors.password}
-                helperText={errors.password?.message as string}
-              />
-              <Button
-                type="submit"
-                variant="contained"
-                color="primary"
-                fullWidth
-                sx={{
-                  mt: 2,
-                  py: 1.2,
-                  fontWeight: 600,
-                  fontSize: "1rem",
-                }}
-                disabled={loading}
-              >
-                {loading ? "Signing up..." : "Sign Up"}
-              </Button>
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <Stack spacing={2} sx={{ width: '100%' }}>
+                <Typography variant="h4">Sign Up</Typography>
+                <TextField
+                  label="Name"
+                  {...register('name', { required: 'Name is required' })}
+                  error={!!errors.name}
+                  helperText={errors.name?.message as string}
+                  disabled={isSubmitting}
+                  fullWidth
+                />
+                <TextField
+                  label="Email"
+                  {...register('email', { required: 'Email is required' })}
+                  error={!!errors.email}
+                  helperText={errors.email?.message as string}
+                  disabled={isSubmitting}
+                  fullWidth
+                />
+                <TextField
+                  label="Password"
+                  type={showPassword ? 'text' : 'password'}
+                  {...register('password', { required: 'Password is required' })}
+                  error={!!errors.password}
+                  helperText={errors.password?.message as string}
+                  disabled={isSubmitting}
+                  fullWidth
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+                <Button type="submit" variant="contained" disabled={isSubmitting} fullWidth>
+                  {isSubmitting ? <CircularProgress size={24} /> : 'Sign Up'}
+                </Button>
+              </Stack>
             </form>
-            <Divider sx={{ my: 3 }}>or</Divider>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={4}>
-                <Button
-                  onClick={() => signIn("google")}
-                  variant="outlined"
-                  color="inherit"
-                  fullWidth
-                  startIcon={<GoogleIcon sx={{ color: "#EA4335" }} />}
-                  sx={{ textTransform: "none", fontWeight: 500 }}
-                >
-                  Google
-                </Button>
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Button
-                  onClick={() => signIn("github")}
-                  variant="outlined"
-                  color="inherit"
-                  fullWidth
-                  startIcon={<GitHubIcon />}
-                  sx={{ textTransform: "none", fontWeight: 500 }}
-                >
-                  GitHub
-                </Button>
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Button
-                  onClick={() => signIn("facebook")}
-                  variant="outlined"
-                  color="inherit"
-                  fullWidth
-                  startIcon={<FacebookIcon sx={{ color: "#1877F3" }} />}
-                  sx={{ textTransform: "none", fontWeight: 500 }}
-                >
-                  Facebook
-                </Button>
-              </Grid>
-            </Grid>
+            <Stack direction="row" justifyContent="center" sx={{ mt: 2 }}>
+              <Typography variant="body2" color="text.secondary">
+                Already have an account?{' '}
+                <Link href="/auth/signin" style={{ color: '#8b5cf6', textDecoration: 'underline', fontWeight: 500 }}>
+                  Sign in
+                </Link>
+              </Typography>
+            </Stack>
           </Paper>
         </Grid>
       </Fade>

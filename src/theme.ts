@@ -28,7 +28,7 @@ const theme = createTheme({
     },
     h4: {
       fontWeight: 'bold',
-    }
+    },
   },
   components: {
     MuiButton: {
@@ -45,6 +45,7 @@ const theme = createTheme({
           borderRadius: 16,
           backdropFilter: 'blur(10px)',
           border: '1px solid rgba(255, 255, 255, 0.1)',
+          boxShadow: '0 4px 24px 0 rgba(0,0,0,0.15)',
         },
       },
     },

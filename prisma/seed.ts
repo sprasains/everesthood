@@ -95,9 +95,33 @@ async function main() {
 
   const post1 = await prisma.post.create({
     data: {
+      title: "AI and the Future of Design",
       content: "This is a fascinating read on the future of design!",
       authorId: user1.id,
       originalArticleId: article1.id,
+    },
+  });
+  // Add more posts for test user
+  const post2 = await prisma.post.create({
+    data: {
+      title: "My First Post",
+      content: "Excited to join Everhood!",
+      authorId: testUser.id,
+    },
+  });
+  const post3 = await prisma.post.create({
+    data: {
+      title: "Gen-Z and Tech",
+      content: "How Gen-Z is shaping the future of technology.",
+      authorId: testUser.id,
+    },
+  });
+  const post4 = await prisma.post.create({
+    data: {
+      title: "Fashion Trends 2025",
+      content: "Virtual runways are the new normal.",
+      authorId: testUser.id,
+      originalArticleId: article2.id,
     },
   });
   console.log("Created social interactions.");
@@ -140,6 +164,40 @@ async function main() {
 
   // Seed Achievements
   await seedAchievements();
+
+  // Seed UserActivity for test user
+  await prisma.userActivity.createMany({
+    data: [
+      { userId: testUser.id, action: "read_article", entityType: "article", entityId: article1.id },
+      { userId: testUser.id, action: "like_post", entityType: "post", entityId: post2.id },
+      { userId: testUser.id, action: "comment", entityType: "post", entityId: post3.id },
+    ]
+  });
+
+  // Seed Friendships (at least 10 friends for test user)
+  const allUsers = await prisma.user.findMany({ where: { id: { not: testUser.id } } });
+  let friendCount = 0;
+  for (const friend of allUsers) {
+    if (friendCount >= 10) break;
+    await prisma.friendship.upsert({
+      where: { requesterId_receiverId: { requesterId: testUser.id, receiverId: friend.id } },
+      update: {},
+      create: { requesterId: testUser.id, receiverId: friend.id, status: "ACCEPTED" },
+    });
+    await prisma.friendship.upsert({
+      where: { requesterId_receiverId: { requesterId: friend.id, receiverId: testUser.id } },
+      update: {},
+      create: { requesterId: friend.id, receiverId: testUser.id, status: "ACCEPTED" },
+    });
+    // Ensure each friend has at least one post
+    await prisma.post.create({
+      data: {
+        content: `This is ${friend.name}'s post for the community!`,
+        authorId: friend.id,
+      },
+    });
+    friendCount++;
+  }
 
   console.log("Seeding finished.");
 }
