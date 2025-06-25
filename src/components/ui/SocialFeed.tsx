@@ -9,6 +9,12 @@ export default function SocialFeed() {
   const [postText, setPostText] = useState("");
   const [polls, setPolls] = useState([]);
 
+  // Add post type selection and metadata UI
+  const [postType, setPostType] = useState<'TEXT' | 'POLL' | 'LINK' | 'PREDICTION'>('TEXT');
+  const [pollOptions, setPollOptions] = useState<string[]>(['', '']);
+  const [linkUrl, setLinkUrl] = useState('');
+  const [prediction, setPrediction] = useState('');
+
   useEffect(() => {
     // Fetch polls from API
     const fetchPolls = async () => {
@@ -20,6 +26,35 @@ export default function SocialFeed() {
     fetchPolls();
   }, []);
 
+  const handlePost = async () => {
+    if (postType === 'TEXT' && !postText.trim()) return;
+    if (postType === 'POLL' && pollOptions.filter(opt => opt.trim()).length < 2) return;
+    if (postType === 'LINK' && !linkUrl.trim()) return;
+    if (postType === 'PREDICTION' && !prediction.trim()) return;
+
+    let metadata: any = {};
+    if (postType === 'POLL') metadata.options = pollOptions.filter(opt => opt.trim());
+    if (postType === 'LINK') metadata.url = linkUrl;
+    if (postType === 'PREDICTION') metadata.prediction = prediction;
+
+    const res = await fetch('/api/v1/community/posts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        content: postType === 'TEXT' ? postText : '',
+        type: postType,
+        metadata,
+      }),
+    });
+    if (res.ok) {
+      setPostText('');
+      setPollOptions(['', '']);
+      setLinkUrl('');
+      setPrediction('');
+      setPostType('TEXT');
+    }
+  }
+
   // Mock leaderboard data
   const leaderboard = [
     { rank: 1, name: "Alex Chen", xp: 1247, avatar: "🦄" },
@@ -27,13 +62,6 @@ export default function SocialFeed() {
     { rank: 3, name: "Jordan Kim", xp: 1089, avatar: "⚡" },
     { rank: 4, name: user?.name || "You", xp: user?.xp || 0, avatar: "🌟" },
   ]
-
-  const handlePost = () => {
-    if (!postText.trim()) return
-    // Handle post submission
-    console.log("Posting:", postText)
-    setPostText("")
-  }
 
   return (
     <div className="space-y-6" data-testid="social-feed">
@@ -57,17 +85,21 @@ export default function SocialFeed() {
             />
             <div className="flex justify-between items-center mt-4">
               <div className="flex space-x-4">
-                <button className="text-purple-400 hover:text-purple-300 text-sm flex items-center space-x-1">
+                <button className={`text-purple-400 hover:text-purple-300 text-sm flex items-center space-x-1 ${postType === 'POLL' ? 'font-bold underline' : ''}`} onClick={() => setPostType('POLL')}>
                   <span>📊</span>
                   <span>Poll</span>
                 </button>
-                <button className="text-blue-400 hover:text-blue-300 text-sm flex items-center space-x-1">
+                <button className={`text-blue-400 hover:text-blue-300 text-sm flex items-center space-x-1 ${postType === 'LINK' ? 'font-bold underline' : ''}`} onClick={() => setPostType('LINK')}>
                   <span>🔗</span>
                   <span>Link</span>
                 </button>
-                <button className="text-green-400 hover:text-green-300 text-sm flex items-center space-x-1">
+                <button className={`text-green-400 hover:text-green-300 text-sm flex items-center space-x-1 ${postType === 'PREDICTION' ? 'font-bold underline' : ''}`} onClick={() => setPostType('PREDICTION')}>
                   <span>💡</span>
                   <span>Prediction</span>
+                </button>
+                <button className={`text-gray-400 hover:text-white text-sm flex items-center space-x-1 ${postType === 'TEXT' ? 'font-bold underline' : ''}`} onClick={() => setPostType('TEXT')}>
+                  <span>📝</span>
+                  <span>Text</span>
                 </button>
               </div>
               <motion.button
@@ -79,6 +111,38 @@ export default function SocialFeed() {
                 Share +25 XP
               </motion.button>
             </div>
+
+            {/* Post type specific UI */}
+            {postType === 'POLL' && (
+              <div className="mt-2 space-y-2">
+                {pollOptions.map((opt, idx) => (
+                  <input
+                    key={idx}
+                    value={opt}
+                    onChange={e => setPollOptions(opts => opts.map((o, i) => i === idx ? e.target.value : o))}
+                    placeholder={`Option ${idx + 1}`}
+                    className="w-full bg-gray-700 rounded px-3 py-2 text-white placeholder-gray-400"
+                  />
+                ))}
+                <button type="button" className="text-xs text-purple-300 mt-1" onClick={() => setPollOptions(opts => [...opts, ''])}>+ Add Option</button>
+              </div>
+            )}
+            {postType === 'LINK' && (
+              <input
+                value={linkUrl}
+                onChange={e => setLinkUrl(e.target.value)}
+                placeholder="Paste a link (https://...)"
+                className="w-full bg-gray-700 rounded px-3 py-2 text-white placeholder-gray-400 mt-2"
+              />
+            )}
+            {postType === 'PREDICTION' && (
+              <input
+                value={prediction}
+                onChange={e => setPrediction(e.target.value)}
+                placeholder="Your prediction..."
+                className="w-full bg-gray-700 rounded px-3 py-2 text-white placeholder-gray-400 mt-2"
+              />
+            )}
           </div>
         </div>
       </motion.div>

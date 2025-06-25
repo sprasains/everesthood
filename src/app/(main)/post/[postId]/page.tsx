@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { useUser } from "@/hooks/useUser";
-import Navbar from "@/components/layout/Navbar";
 import {
   Box,
   Container,
@@ -123,7 +122,6 @@ export default function PostDetailPage() {
         color: "white",
       }}
     >
-      <Navbar />
       <Container maxWidth="md" sx={{ pt: { xs: 10, md: 12 }, pb: 6 }}>
         <Paper
           elevation={3}

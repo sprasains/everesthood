@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { priceId, successUrl, cancelUrl } = body;
+    const { priceId, successUrl, cancelUrl, purchaseType } = body;
 
     if (!priceId) {
       return NextResponse.json(
@@ -20,8 +20,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const isSpotlight = purchaseType === "spotlight";
     const checkoutSession = await stripe.checkout.sessions.create({
-      mode: "subscription",
+      mode: isSpotlight ? "payment" : "subscription",
       customer_email: session.user.email,
       line_items: [
         {
@@ -29,15 +30,16 @@ export async function POST(request: NextRequest) {
           quantity: 1,
         },
       ],
-      subscription_data: {
-        trial_period_days: 30,
-      },
+      ...(isSpotlight
+        ? {}
+        : { subscription_data: { trial_period_days: 30 } }),
       success_url:
         successUrl ||
         `${process.env.NEXTAUTH_URL}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: cancelUrl || `${process.env.NEXTAUTH_URL}/subscribe`,
       metadata: {
         userId: session.user.id || session.user.email,
+        purchaseType: purchaseType || "subscription",
       },
     });
 

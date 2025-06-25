@@ -19,6 +19,16 @@ export async function POST(req: NextRequest) {
   
   // Handle the checkout.session.completed event
   if (event.type === "checkout.session.completed") {
+    // Handle spotlight purchase
+    if (session.metadata?.purchaseType === 'spotlight') {
+      const weekFromNow = new Date();
+      weekFromNow.setDate(weekFromNow.getDate() + 7);
+      await prisma.user.update({
+        where: { id: session.metadata.userId },
+        data: { profileSpotlightEndsAt: weekFromNow }
+      });
+      return new NextResponse(null, { status: 200 });
+    }
     const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
     const customerId = session.customer as string;
 

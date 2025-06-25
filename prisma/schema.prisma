@@ -33,6 +33,7 @@ model User {
   articlesRead       Int       @default(0)
   summariesUsed      Int       @default(0)
   sharesCount        Int       @default(0)
+  profileSpotlightEndsAt DateTime?
 
   posts              Post[]
   comments           Comment[]
@@ -50,6 +51,7 @@ model User {
   votes              Vote[]
   activities         UserActivity[]
   customPersonas     CustomPersona[]
+  apiKeys            ApiKey[]
 
   company       Company?
   applications  JobApplication[]
@@ -126,10 +128,20 @@ model Post {
   originalArticleId String?
   comments          Comment[]
   poll              Poll?
+  // Advanced post types
+  type              PostType  @default(TEXT)
+  metadata          Json?
 
   @@index([authorId])
   @@index([originalArticleId])
   @@index([createdAt])
+}
+
+enum PostType {
+  TEXT
+  POLL
+  LINK
+  PREDICTION
 }
 
 model Friendship {
@@ -342,4 +354,12 @@ model JobApplication {
   jobId      String
 
   @@unique([applicantId, jobId])
+}
+
+model ApiKey {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
 }

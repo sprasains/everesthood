@@ -44,6 +44,18 @@ export default function Sidebar() {
       label: "Settings", 
       href: "/settings",
       description: "Customize your experience"
+    },
+    { 
+      icon: "🔑", 
+      label: "Creator API", 
+      href: "/settings/api",
+      description: "Manage your API keys"
+    },
+    {
+      icon: "📄",
+      label: "Resume Vibe Check",
+      href: "/tools/resume-checker",
+      description: "AI-powered resume feedback"
     }
   ]
 
@@ -68,20 +80,20 @@ export default function Sidebar() {
               </div>
               <div>
                 <h3 className="text-white font-semibold">{user.name || "AI Explorer"}</h3>
-                <p className="text-white/80 text-sm">Level {user.level}</p>
+                <p className="text-white/80 text-sm">Level {user.level ?? 1}</p>
               </div>
             </div>
 
             {/* XP Progress */}
             <div className="mt-3">
               <div className="flex justify-between text-white/80 text-xs mb-1">
-                <span>{user.xp} XP</span>
-                <span>{(user.level * 100)} XP</span>
+                <span>{user.xp ?? 0} XP</span>
+                <span>{(user.level ?? 1) * 100} XP</span>
               </div>
               <div className="bg-white/20 rounded-full h-2">
                 <div 
                   className="bg-white rounded-full h-2 transition-all duration-500"
-                  style={{ width: `${((user.xp % 100) / 100) * 100}%` }}
+                  style={{ width: `${(((user.xp ?? 0) % 100) / 100) * 100}%` }}
                 />
               </div>
             </div>

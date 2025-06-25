@@ -34,37 +34,31 @@
 
 ## 🆕 Major Recent Changes (2025)
 
-### Database & Backend
+#### Database & Backend
 
-- Added **Like** model for articles (many-to-many User <-> Article)
-- Updated `User` and `Article` models for likes, and added `likeCount` field
-- Created `/api/v1/articles/[articleId]/like` endpoint for like/unlike (with optimistic UI)
-- News API now returns `likeCount` and `isLiked` for each article
-- Community feature: `Post` model, `/api/v1/community/posts` API, and frontend page
-- All Prisma schema changes require `npx prisma generate` after migration
-- **Achievements API**: `/api/v1/achievements` returns all achievements and user's earned achievements
-- **AchievementCard** UI and `/achievements` page: visually display all achievements, earned vs. locked
-- **Achievement Service**: `src/lib/achievements.ts` awards achievements based on user actions
-- **Seeding Script**: `scripts/seedAchievements.ts` seeds 20+ achievements into the database
-- **Awarding Logic**: `/api/v1/user/progress/route.ts` now calls `awardAchievement` after stat updates (e.g., reading, streaks)
-- **Scaffolded all navigation-linked pages**: `/summaries`, `/achievements`, `/community`, `/settings`, `/api-docs`, `/privacy`, `/terms`, `/security`, `/contact`
-- **Modern MUI v7 Grid**: All grids updated to use `item` prop and breakpoint props for compatibility
+- **Tipping System**: Added `isVerifiedCreator`, `tippingBalance`, and `creatorBalance` fields to `User` model.
+  - Created `/api/v1/posts/[postId]/tip` endpoint for tipping functionality.
+  - Updated Prisma schema and migrations for tipping system.
+- **Profile Spotlight Microtransaction**: Added `profileSpotlightEndsAt` to `User` model.
+  - Stripe integration for spotlight purchases.
+  - Webhook logic to update spotlight status.
+- **Resume Vibe Check**: Backend API scaffold at `/api/v1/resume/analyze` for AI resume analysis.
+  - Frontend UI for uploading resumes and displaying feedback.
 
-### Frontend & UI
+#### Frontend & UI
 
-- News feed (`/news`) fully rebuilt with MUI v7 Grid, icon filters, and modern cards
-- NewsCard now supports like/unlike with instant feedback
-- Community page and SocialFeed now live and interactive
-- Achievements page fetches and displays all achievements, with earned/locked distinction
-- All dashboard sidebar/footer links scaffolded with placeholder pages
-- Navbar, Sidebar, and Footer navigation fully mapped to pages
+- **AppSidebar**: Unified navigation hub for all features.
+  - Includes links to `/careers`, `/exclusive`, `/friends`, and more.
+- **Dashboard Revamp**: Transformed into a dynamic "Command Center".
+  - Added widgets for community feed, opportunities, and streak display.
+- **Tipping UI**: Integrated tipping functionality into `PostCard`.
+  - Placeholder button for tipping creators.
+- **Profile Spotlight UI**: Placeholder UI for purchasing and viewing spotlight status.
 
-### DevOps & Misc
+#### DevOps & Misc
 
-- Hardened Stripe flow: 30-day free trial, webhook userId logic
-- Centralized NextAuth config, robust OAuth account linking
-- Environment variables for all keys (see `.env`)
-- **Instructions for dependency issues**: If you see MUI Grid errors, delete `node_modules` and `package-lock.json`, then run `npm install` and restart your dev server.
+- Prisma migrations for tipping system and spotlight microtransactions.
+- Hardened Stripe webhook logic for spotlight purchases.
 
 ---
 

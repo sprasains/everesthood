@@ -3,7 +3,6 @@
 import { motion } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 import NewsCard from "@/components/ui/NewsCard";
-import Navbar from "@/components/layout/Navbar";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { Article } from "@/types";
 import {
@@ -106,7 +105,6 @@ export default function NewsPage() {
         overflowX: "hidden",
       }}
     >
-      <Navbar />
       <Container maxWidth="lg" sx={{ pt: { xs: 10, md: 12 }, pb: 6 }}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
