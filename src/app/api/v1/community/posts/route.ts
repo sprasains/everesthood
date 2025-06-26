@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+// GET: List, filter, paginate posts
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -17,7 +18,6 @@ export async function GET(request: NextRequest) {
     let orderBy: any = { createdAt: "desc" };
 
     if (filter === "following" && userId) {
-      // Get IDs of users the current user follows (friends)
       const friends = await prisma.friendship.findMany({
         where: {
           status: "ACCEPTED",
@@ -44,6 +44,8 @@ export async function GET(request: NextRequest) {
           author: { select: { id: true, name: true, image: true } },
           likes: userId ? { where: { userId } } : false,
           _count: { select: { likes: true } },
+          originalArticle: true,
+          reshares: true,
         },
       }),
       prisma.post.count({ where }),
@@ -69,6 +71,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
+// POST: Create a new post
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -76,7 +79,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     const body = await request.json();
-    const { title, content, type = "TEXT", metadata } = body;
+    const { title, content, type = "TEXT", metadata, mediaUrls, originalArticleId, resharedFromId } = body;
     if (!content) {
       return NextResponse.json({ error: "Content is required" }, { status: 400 });
     }
@@ -87,11 +90,51 @@ export async function POST(request: NextRequest) {
         authorId: session.user.id,
         type,
         metadata,
+        mediaUrls,
+        originalArticleId,
+        resharedFromId,
       },
     });
     return NextResponse.json({ post });
   } catch (error) {
     console.error("POST /api/v1/community/posts error:", error);
     return NextResponse.json({ error: "Failed to create post" }, { status: 500 });
+  }
+}
+
+// PUT: Edit a post
+export async function PUT(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    const body = await request.json();
+    const { id, title, content, metadata, mediaUrls } = body;
+    if (!id) return NextResponse.json({ error: "Post ID required" }, { status: 400 });
+    const post = await prisma.post.update({
+      where: { id, authorId: session.user.id },
+      data: { title, content, metadata, mediaUrls },
+    });
+    return NextResponse.json({ post });
+  } catch (error) {
+    return NextResponse.json({ error: "Failed to update post" }, { status: 500 });
+  }
+}
+
+// DELETE: Remove a post
+export async function DELETE(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+    if (!id) return NextResponse.json({ error: "Post ID required" }, { status: 400 });
+    await prisma.post.delete({ where: { id, authorId: session.user.id } });
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    return NextResponse.json({ error: "Failed to delete post" }, { status: 500 });
   }
 }

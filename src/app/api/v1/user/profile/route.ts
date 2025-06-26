@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { z } from "zod"
 
 export async function GET(request: NextRequest) {
   try {
@@ -54,7 +55,22 @@ export async function PATCH(request: NextRequest) {
       )
     }
 
-    const body = await request.json()
+    // Zod schema for profile update
+    const profileUpdateSchema = z.object({
+      name: z.string().min(1).max(100).optional(),
+      bio: z.string().max(500).optional(),
+      profilePicture: z.string().url().optional(),
+      coverPicture: z.string().url().optional(),
+    });
+
+    let body;
+    try {
+      body = await request.json();
+      profileUpdateSchema.parse(body);
+    } catch (err) {
+      return NextResponse.json({ error: "Invalid profile data", details: err instanceof z.ZodError ? err.errors : err }, { status: 400 });
+    }
+
     const allowedFields = [
       'name', 'persona', 'weeklyGoal', 'publicProfile', 
       'xp', 'level', 'streak', 'dailyProgress', 'lastActiveDate'

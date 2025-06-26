@@ -1,69 +1,149 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
-import Navbar from "@/components/layout/Navbar";
-import { Box, Container, Typography, CircularProgress, Paper, Avatar, Stack, Divider } from "@mui/material";
-import PostCard from "@/components/ui/PostCard"; // Assumes PostCard component exists
+import { Container, Paper, Avatar, Typography, Box, Button, Grid, Divider } from "@mui/material";
+import PostCard from "@/components/ui/PostCard";
+import AddReactionIcon from '@mui/icons-material/AddReaction';
+import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
+import ProfileHeaderSkeleton from "@/components/ui/ProfileHeaderSkeleton";
+import PostCardSkeleton from "@/components/ui/PostCardSkeleton";
+
+const fetchUserProfile = async (userId: string) => {
+  const res = await fetch(`/api/v1/users/${userId}`);
+  if (!res.ok) throw new Error("User not found");
+  return res.json();
+};
+
+const fetchUserPosts = async (userId: string) => {
+  const res = await fetch(`/api/v1/posts?authorId=${userId}`);
+  if (!res.ok) throw new Error("Failed to fetch user's posts");
+  return res.json();
+};
+
+const fetchUserAchievements = async (userId: string) => {
+  const res = await fetch(`/api/v1/users/${userId}/achievements`);
+  if (!res.ok) throw new Error("Failed to fetch achievements");
+  return res.json();
+};
 
 export default function UserProfilePage() {
-    const params = useParams();
-    const userId = params.userId as string;
-    const [profileData, setProfileData] = useState(null);
-    const [loading, setLoading] = useState(true);
+  const params = useParams();
+  const userId = params.userId as string;
 
-    useEffect(() => {
-        if (userId) {
-            const fetchProfile = async () => {
-                setLoading(true);
-                const res = await fetch(`/api/v1/users/${userId}/profile`);
-                if (res.ok) {
-                    setProfileData(await res.json());
-                }
-                setLoading(false);
-            };
-            fetchProfile();
-        }
-    }, [userId]);
+  const { data: user, isLoading: isUserLoading, error: userError } = useQuery({
+    queryKey: ["userProfile", userId],
+    queryFn: () => fetchUserProfile(userId),
+    enabled: !!userId,
+  });
 
-    if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 20 }}><CircularProgress /></Box>;
-    if (!profileData) return <Typography>User not found.</Typography>;
+  const { data: postsData, isLoading: arePostsLoading } = useQuery({
+    queryKey: ["userPosts", userId],
+    queryFn: () => fetchUserPosts(userId),
+    enabled: !!userId,
+  });
 
-    const { user, posts, friendCount } = profileData;
+  const { data: achievementsData, isLoading: areAchievementsLoading } = useQuery({
+    queryKey: ["userAchievements", userId],
+    queryFn: () => fetchUserAchievements(userId),
+    enabled: !!userId,
+  });
 
-    return (
-        <Box sx={{ minHeight: "100vh", bgcolor: "#0f2027", color: "white" }}>
-            <Navbar />
-            <Container maxWidth="md" sx={{ pt: 12, pb: 6 }}>
-                <Paper sx={{ p: 4, bgcolor: 'rgba(255,255,255,0.05)', borderRadius: 4 }}>
-                    <Stack direction="row" spacing={4} alignItems="center">
-                        <Avatar src={user.image} sx={{ width: 100, height: 100 }} />
-                        <Box>
-                            <Typography variant="h4" fontWeight="bold">{user.name}</Typography>
-                            <Stack direction="row" spacing={3} sx={{ mt: 1 }} divider={<Divider orientation="vertical" flexItem />}>
-                                <Box textAlign="center">
-                                    <Typography fontWeight="bold">{posts.length}</Typography>
-                                    <Typography variant="caption" color="text.secondary">Posts</Typography>
-                                </Box>
-                                <Box textAlign="center">
-                                    <Typography fontWeight="bold">{friendCount}</Typography>
-                                    <Typography variant="caption" color="text.secondary">Friends</Typography>
-                                </Box>
-                                <Box textAlign="center">
-                                    <Typography fontWeight="bold">Level {user.level}</Typography>
-                                    <Typography variant="caption" color="text.secondary">{user.xp} XP</Typography>
-                                </Box>
-                            </Stack>
-                        </Box>
-                    </Stack>
-                </Paper>
+  if (isUserLoading) {
+    return <ProfileHeaderSkeleton />;
+  }
 
-                <Box mt={4}>
-                    <Typography variant="h5" fontWeight="bold" sx={{ mb: 2 }}>Feed</Typography>
-                    {posts.map(post => (
-                        <PostCard key={post.id} post={post} />
-                    ))}
+  if (userError) {
+    return <Typography color="error" textAlign="center" p={5}>Could not load profile. Please try again later.</Typography>;
+  }
+
+  return (
+    <Box>
+      <Paper 
+        elevation={2} 
+        sx={{ 
+          height: '300px', 
+          backgroundImage: `url(${user.coverPicture || '/default-cover.jpg'})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          borderRadius: 0,
+        }} 
+      />
+      <Container maxWidth="md" sx={{ mt: -10 }}>
+        <Paper elevation={4} sx={{ p: 3, borderRadius: 4 }}>
+            <Box display="flex" flexDirection={{ xs: 'column', md: 'row' }} alignItems="center" gap={3}>
+              <Avatar
+                src={user.profilePicture || undefined}
+                alt={user.name}
+                sx={{ width: 160, height: 160, border: '4px solid white' }}
+              />
+              <Box flexGrow={1}>
+                <Typography variant="h4" fontWeight="bold">{user.name}</Typography>
+                <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>{user.bio}</Typography>
+                <Divider sx={{ my: 2 }}/>
+                <Box display="flex" gap={3}>
+                    <Typography><strong>{user.postCount}</strong> Posts</Typography>
+                    <Typography><strong>{user.friendCount}</strong> Friends</Typography>
                 </Box>
-            </Container>
+              </Box>
+              <Box>
+                {/* Friendship button logic would go here */}
+                {user.friendshipStatus === 'NONE' && <Button variant="contained" startIcon={<AddReactionIcon />}>Add Friend</Button>}
+                {user.friendshipStatus === 'PENDING' && <Button variant="outlined" disabled>Request Sent</Button>}
+                {user.friendshipStatus === 'ACCEPTED' && <Button variant="outlined" startIcon={<PersonRemoveIcon />}>Remove Friend</Button>}
+              </Box>
+            </Box>
+        </Paper>
+
+        <Typography variant="h5" fontWeight="bold" sx={{ mt: 4, mb: 2 }}>
+            Posts by {user.name}
+        </Typography>
+
+        {arePostsLoading ? (
+            <Box>
+              {Array.from(new Array(3)).map((_, i) => (
+                <PostCardSkeleton key={i} />
+              ))}
+            </Box>
+        ) : postsData && postsData.posts.length > 0 ? (
+            <Grid container spacing={2}>
+            {postsData.posts.map((post: any) => (
+                <Grid item xs={12} key={post.id}>
+                    <PostCard post={post} />
+                </Grid>
+            ))}
+            </Grid>
+        ) : (
+            <Typography>This user hasn't posted anything yet.</Typography>
+        )}
+
+        {/* Achievements Section */}
+        <Box>
+          <Typography variant="h5" fontWeight="bold" sx={{ mt: 4, mb: 2 }}>
+              Achievements
+          </Typography>
+          {areAchievementsLoading ? (
+              <Box>
+                {Array.from(new Array(3)).map((_, i) => (
+                  <PostCardSkeleton key={i} />
+                ))}
+              </Box>
+          ) : achievementsData && achievementsData.achievements.length > 0 ? (
+              <Grid container spacing={2}>
+                  {achievementsData.achievements.map((ach: any) => (
+                      <Grid item xs={12} sm={6} md={4} key={ach.id}>
+                          <Paper sx={{ p: 2, textAlign: 'center' }}>
+                              <Typography variant="h4">{ach.icon}</Typography>
+                              <Typography fontWeight="bold">{ach.name}</Typography>
+                              <Typography variant="body2" color="text.secondary">{ach.description}</Typography>
+                          </Paper>
+                      </Grid>
+                  ))}
+              </Grid>
+          ) : (
+              <Typography>This user has not earned any achievements yet.</Typography>
+          )}
         </Box>
-    );
+      </Container>
+    </Box>
+  );
 }

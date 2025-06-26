@@ -3,9 +3,10 @@ import { Box, Card, CardContent, Typography, Avatar, Button, CircularProgress } 
 import { Suspense } from "react";
 import CommentList from "@/components/ui/CommentList";
 import CommentForm from "@/components/ui/CommentForm";
+import PostPageSkeleton from "@/components/ui/PostPageSkeleton";
 
 async function fetchPost(id: string) {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/v1/community/posts/${id}`);
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/v1/posts/${id}`);
   if (!res.ok) return null;
   return res.json();
 }
@@ -46,8 +47,8 @@ export default async function PostPage({ params }: { params: { id: string } }) {
           )}
         </CardContent>
       </Card>
-      <Suspense fallback={<CircularProgress />}>
-        <CommentForm postId={post.id} />
+      <Suspense fallback={<PostPageSkeleton />}>
+        <CommentForm postId={post.id} onComment={() => {}} />
         <CommentList postId={post.id} />
       </Suspense>
     </Box>

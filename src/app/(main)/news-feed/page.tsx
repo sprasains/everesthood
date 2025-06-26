@@ -39,7 +39,7 @@ export default function NewsFeedPage() {
   } = useInfiniteQuery<PostPage, Error>({
     queryKey: ["news-feed", filter],
     queryFn: async ({ pageParam = 1 }) => {
-      const res = await fetch(`/api/v1/community/posts?page=${pageParam}&limit=${PAGE_SIZE}&filter=${filter}`);
+      const res = await fetch(`/api/v1/posts?page=${pageParam}&limit=${PAGE_SIZE}&filter=${filter}`);
       if (!res.ok) throw new Error("Failed to fetch posts");
       return res.json();
     },

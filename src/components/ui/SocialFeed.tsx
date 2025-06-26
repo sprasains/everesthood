@@ -37,7 +37,7 @@ export default function SocialFeed() {
     if (postType === 'LINK') metadata.url = linkUrl;
     if (postType === 'PREDICTION') metadata.prediction = prediction;
 
-    const res = await fetch('/api/v1/community/posts', {
+    const res = await fetch('/api/v1/posts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

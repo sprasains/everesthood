@@ -21,6 +21,7 @@ import DialogActions from '@mui/material/DialogActions';
 import { useForm } from 'react-hook-form';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
+import RichTextRenderer from './RichTextRenderer';
 
 type PostWithDetails = Post & {
   author: Partial<User>;
@@ -51,7 +52,7 @@ export default function PostCard({ post }: PostCardProps) {
   });
   const editMutation = useMutation({
     mutationFn: async (data: any) => {
-      const res = await fetch(`/api/v1/community/posts/${post.id}`, {
+      const res = await fetch(`/api/v1/posts/${post.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -71,7 +72,7 @@ export default function PostCard({ post }: PostCardProps) {
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async () => {
-      const res = await fetch(`/api/v1/community/posts/${post.id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/v1/posts/${post.id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Failed to delete post');
       return res.json();
     },
@@ -142,11 +143,34 @@ export default function PostCard({ post }: PostCardProps) {
             <Typography variant="caption" color="text.secondary">
               {new Date(post.createdAt).toLocaleString()}
             </Typography>
+            {post.resharedFrom && (
+              <Typography variant="caption" color="info.main">
+                🔁 Reshared from {post.resharedFrom.author?.name || 'another user'}
+              </Typography>
+            )}
           </Box>
         </Box>
-        <Typography sx={{ whiteSpace: "pre-wrap", my: 2 }}>
-          {post.content}
-        </Typography>
+        {post.title && (
+          <Typography variant="h6" fontWeight="bold" sx={{ mb: 1 }}>
+            {post.title}
+          </Typography>
+        )}
+        {/* Render rich text content safely */}
+        <Box sx={{ my: 2 }}>
+          <RichTextRenderer content={post.content} />
+        </Box>
+        {post.mediaUrls && post.mediaUrls.length > 0 && (
+          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mb: 2 }}>
+            {post.mediaUrls.map((url: string, i: number) => (
+              <CardMedia
+                key={i}
+                component="img"
+                image={url}
+                sx={{ width: 120, height: 120, objectFit: "cover", borderRadius: 2 }}
+              />
+            ))}
+          </Box>
+        )}
         {post.originalArticle && (
           <Card variant="outlined" sx={{ p: 2, mt: 2, borderColor: "rgba(255,255,255,0.2)" }}>
             <MuiLink
@@ -236,7 +260,13 @@ export default function PostCard({ post }: PostCardProps) {
         <DialogTitle>Edit Post</DialogTitle>
         <form onSubmit={handleSubmit((data) => editMutation.mutate(data))}>
           <DialogContent>
-            {/* Removed Title field as Post does not have a title */}
+            <TextField
+              label="Title"
+              fullWidth
+              margin="normal"
+              defaultValue={post.title}
+              {...register('title')}
+            />
             <TextField
               label="Content"
               fullWidth
@@ -248,6 +278,7 @@ export default function PostCard({ post }: PostCardProps) {
               error={!!errors.content}
               helperText={errors.content?.message}
             />
+            {/* Optionally add mediaUrls and type fields here for editing */}
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setIsEditDialogOpen(false)}>Cancel</Button>

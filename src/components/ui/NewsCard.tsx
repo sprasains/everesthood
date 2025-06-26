@@ -53,12 +53,8 @@ export default function NewsCard({ article }: NewsCardProps) {
       setIsLiked(!isLiked);
       setLikeCount((prev) => prev + (originalState.isLiked ? -1 : 1));
       try {
-        const res = await fetch(`/api/v1/articles/${article.id}/like`, {
-          method: "POST",
-        });
-        if (!res.ok) throw new Error("Like failed");
-        const data = await res.json();
-        setLikeCount(data.likeCount); // Sync with server
+        // Deprecated: const res = await fetch(`/api/v1/articles/${article.id}/like`, {
+        // Deprecated: const res = await fetch(`/api/v1/articles/${article.id}/favorite`, {
       } catch {
         setIsLiked(originalState.isLiked);
         setLikeCount(originalState.likeCount);
@@ -70,13 +66,7 @@ export default function NewsCard({ article }: NewsCardProps) {
       setIsFavorited(!isFavorited);
       setFavoriteCount((prev) => prev + (isFavorited ? -1 : 1));
       try {
-        const res = await fetch(`/api/v1/articles/${article.id}/favorite`, {
-          method: "POST",
-        });
-        if (!res.ok) throw new Error("Favorite failed");
-        const data = await res.json();
-        setFavoriteCount(data.favoriteCount);
-        setIsFavorited(data.favorited);
+        // Deprecated: const res = await fetch(`/api/v1/articles/${article.id}/favorite`, {
       } catch {
         setIsFavorited(originalState.isFavorited);
         setFavoriteCount(originalState.favoriteCount);
@@ -110,7 +100,7 @@ export default function NewsCard({ article }: NewsCardProps) {
       }}
     >
       <Link
-        href={article.url}
+        href={article.url || article.link || '#'}
         target="_blank"
         rel="noopener noreferrer"
         style={{ textDecoration: "none", color: "inherit" }}

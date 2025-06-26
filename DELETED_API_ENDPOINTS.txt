@@ -1,0 +1,12 @@
+The following deprecated API endpoints were removed as part of the post/article consolidation:
+
+- src/app/api/v1/community/posts/route.ts
+- src/app/api/v1/community/posts/[postId]/route.ts
+- src/app/api/v1/articles/[articleId]/favorite.ts
+- src/app/api/v1/articles/[articleId]/favorite/route.ts
+- src/app/api/v1/articles/[articleId]/like.ts
+- src/app/api/v1/articles/[articleId]/like/route.ts
+- src/app/api/v1/articles/[articleId]/repost.ts
+- src/app/api/v1/articles/[articleId]/repost/route.ts
+- src/app/api/v1/news/route.ts
+- src/app/api/v1/news/search/route.ts

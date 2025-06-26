@@ -331,7 +331,7 @@ docker run -p 3000:3000 --env-file .env everhood-platform
 
 ```typescript
 // News & Content
-GET    /api/v1/news                    # Fetch articles
+GET    /api/v1/posts                    # Fetch posts (consolidated, replaces /news and /community/posts)
 GET    /api/v1/genz-content           # Fetch Gen-Z content
 POST   /api/v1/ai/summarize           # Generate AI summary
 
@@ -347,6 +347,8 @@ POST   /api/v1/stripe/webhook                  # Handle webhooks
 // Authentication
 POST   /api/v1/auth                   # Signup/Signin
 ```
+
+**Note:** Deprecated endpoints such as `/api/v1/news`, `/api/v1/community/posts`, `/api/v1/articles/[articleId]/like`, `/favorite`, `/repost` have been removed. Use `/api/v1/posts` for all post/article actions.
 
 ### **Example API Usage**
 

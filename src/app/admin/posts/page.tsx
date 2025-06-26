@@ -25,7 +25,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 function fetchPosts() {
-  return fetch("/api/v1/community/posts").then((res) => res.json());
+  return fetch("/api/v1/posts").then((res) => res.json());
 }
 
 export default function AdminPostsPage() {
@@ -46,7 +46,7 @@ export default function AdminPostsPage() {
 
   const handleSave = async () => {
     setSaving(true);
-    await fetch(`/api/v1/community/posts/${editPost.id}`, {
+    await fetch(`/api/v1/posts/${editPost.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(editValues),

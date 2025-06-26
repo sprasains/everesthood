@@ -1,28 +1,48 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
+import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { FriendshipStatus } from "@prisma/client";
 
-// Get all accepted friends
-export async function GET(req: NextRequest) {
+export async function GET(request: NextRequest) {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.id)
-    return new NextResponse("Unauthorized", { status: 401 });
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  const userId = session.user.id;
 
-  const friendships = await prisma.friendship.findMany({
-    where: {
-      status: "ACCEPTED",
-      OR: [{ requesterId: session.user.id }, { receiverId: session.user.id }],
-    },
-    include: {
-      requester: { select: { id: true, name: true, image: true } },
-      receiver: { select: { id: true, name: true, image: true } },
-    },
-  });
+  const [accepted, pendingReceived, pendingSent] = await Promise.all([
+    prisma.friendship.findMany({
+      where: {
+        status: FriendshipStatus.ACCEPTED,
+        OR: [{ requesterId: userId }, { receiverId: userId }],
+      },
+      include: {
+        requester: { select: { id: true, name: true, profilePicture: true } },
+        receiver: { select: { id: true, name: true, profilePicture: true } },
+      },
+    }),
+    prisma.friendship.findMany({
+      where: { receiverId: userId, status: FriendshipStatus.PENDING },
+      include: {
+        requester: { select: { id: true, name: true, profilePicture: true } },
+      },
+    }),
+    prisma.friendship.findMany({
+      where: { requesterId: userId, status: FriendshipStatus.PENDING },
+      include: {
+        receiver: { select: { id: true, name: true, profilePicture: true } },
+      },
+    }),
+  ]);
 
-  const friends = friendships.map((f) =>
-    f.requesterId === session.user.id ? f.receiver : f.requester
+  const friends = accepted.map((f) =>
+    f.requesterId === userId ? f.receiver : f.requester
   );
 
-  return NextResponse.json(friends);
+  return NextResponse.json({
+    friends,
+    pendingReceived,
+    pendingSent,
+  });
 }

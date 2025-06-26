@@ -1,61 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    const userId = session?.user?.id;
-
     const { searchParams } = new URL(request.url);
-    const category = searchParams.get("category");
     const limit = parseInt(searchParams.get("limit") || "20");
-
-    const where =
-      category && category !== "all"
-        ? { category: { contains: category, mode: "insensitive" as const } }
-        : {};
-
-    const articles = await prisma.article.findMany({
-      where,
+    const articles = await prisma.newsArticle.findMany({
       orderBy: { publishedAt: "desc" },
       take: limit,
-      include: {
-        // Include the likes relation to check if the current user has liked it
-        likes: {
-          where: {
-            userId: userId || undefined, // Only include likes from the current user
-          },
-        },
-        favorites: {
-          where: {
-            userId: userId || undefined, // Only include favorites from the current user
-          },
-        },
-      },
     });
-
-    // Remap articles to include isLiked, isFavorited, likeCount, favoriteCount
-    const articlesWithSocial = articles.map((article) => {
-      const { likes, favorites, ...rest } = article;
-      return {
-        ...rest,
-        isLiked: likes.length > 0, // True if the likes array is not empty
-        isFavorited: favorites.length > 0, // True if the favorites array is not empty
-        likeCount: article.likeCount,
-        favoriteCount: article.favoriteCount,
-      };
-    });
-
-    return NextResponse.json({
-      articles: articlesWithSocial,
-      count: articlesWithSocial.length,
-    });
+    return NextResponse.json(articles);
   } catch (error) {
-    console.error("Error fetching news:", error);
+    console.error("[NEWS API ERROR]", error);
     return NextResponse.json(
-      { error: "Failed to fetch news" },
+      { error: "Failed to fetch news articles.", details: String(error) },
       { status: 500 }
     );
   }
@@ -76,7 +34,7 @@ export async function POST(request: NextRequest) {
       tags,
     } = body;
 
-    const article = await prisma.article.create({
+    const article = await prisma.newsArticle.create({
       data: {
         title,
         description,

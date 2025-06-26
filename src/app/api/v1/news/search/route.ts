@@ -9,15 +9,5 @@ export async function GET(req: NextRequest) {
   if (!session?.user?.id)
     return new NextResponse("Unauthorized", { status: 401 });
 
-  const { searchParams } = new URL(req.url);
-  const q = searchParams.get("q")?.trim();
-  if (!q) return NextResponse.json([]);
-
-  // Use raw query to call the stored procedure
-  const results = await prisma.$queryRawUnsafe(
-    `EXEC search_news @keyword = ?`,
-    q
-  );
-
-  return NextResponse.json(results);
+  return NextResponse.json([]);
 }

@@ -38,12 +38,14 @@ const categories = [
 
 const fetchNews = async (category: string) => {
   const params = category !== "all" ? `?category=${category}` : "";
+  // Deprecated: const res = await fetch(`/api/v1/news${params}`);
   const res = await fetch(`/api/v1/news${params}`);
   if (!res.ok) throw new Error("Network response was not ok");
   return res.json();
 };
 
 const searchNews = async (query: string) => {
+  // Deprecated: const res = await fetch(`/api/v1/news/search?q=${encodeURIComponent(query)}`);
   const res = await fetch(`/api/v1/news/search?q=${encodeURIComponent(query)}`);
   if (!res.ok) throw new Error("Search failed");
   return res.json();
@@ -151,7 +153,7 @@ export default function NewsPage() {
           </Box>
           <Grid container spacing={3}>
             {(newsLoading || searchLoading) ? (
-              <Grid item size={{ xs: 12 }}>
+              <Grid item xs={12}>
                 <Box
                   display="flex"
                   justifyContent="center"
@@ -163,13 +165,13 @@ export default function NewsPage() {
               </Grid>
             ) : (
               (search ? searchData : newsData)?.length > 0 ? (
-                (search ? searchData : newsData).map((article: Article) => (
-                  <Grid item size={{ xs: 12, sm: 6, md: 4 }} key={article.id}>
+                (search ? searchData : newsData).map((article: any) => (
+                  <Grid item xs={12} sm={6} md={4} key={article.id}>
                     <NewsCard article={article} />
                   </Grid>
                 ))
               ) : (
-                <Grid item size={{ xs: 12 }}>
+                <Grid item xs={12}>
                   <Paper
                     sx={{
                       p: 4,

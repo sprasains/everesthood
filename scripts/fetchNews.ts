@@ -44,23 +44,18 @@ async function fetchNews() {
           if (!item.title || !item.url) continue;
 
           try {
-            await prisma.article.upsert({
-              where: { url: item.url },
-              update: {
-                views: { increment: 1 },
-              },
+            await prisma.newsArticle.upsert({
+              where: { link: item.url },
+              update: {},
               create: {
                 title: item.title,
+                link: item.url,
                 description: item.description || "",
-                content: item.content || "",
-                sourceName: item.source?.name || "Unknown",
                 imageUrl: item.urlToImage || "",
                 publishedAt: item.publishedAt
                   ? new Date(item.publishedAt)
                   : new Date(),
-                url: item.url,
-                category,
-                tags: [query.replace(" ", "-")],
+                sourceName: item.source?.name || "Unknown",
               },
             });
           } catch (error) {

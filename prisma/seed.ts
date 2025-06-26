@@ -1,205 +1,236 @@
-import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcryptjs";
-import seedAchievements from "./seed-achievements";
+import { PrismaClient, User, PostType } from '@prisma/client';
+import bcrypt from 'bcrypt';
+import { faker } from '@faker-js/faker';
 
 const prisma = new PrismaClient();
 
+// Helper function to create rich text JSON content
+const createRichTextContent = () => ({
+  type: 'doc',
+  content: [
+    { type: 'paragraph', content: [{ type: 'text', text: faker.lorem.sentences(2) }] },
+    {
+      type: 'bulletList',
+      content: [
+        {
+          type: 'listItem',
+          content: [{ type: 'paragraph', content: [{ type: 'text', text: faker.hacker.phrase() }] }],
+        },
+        {
+          type: 'listItem',
+          content: [{ type: 'paragraph', content: [{ type: 'text', text: faker.hacker.phrase() }] }],
+        },
+      ],
+    },
+  ],
+});
+
+// *** ADD THIS NEW FUNCTION ***
+async function seedPostsForUsers(users: User[], prisma: PrismaClient) {
+  console.log(`✍️  Seeding additional posts for ${users.length} specific users...`);
+  let postsCreated = 0;
+  for (const user of users) {
+    // Each user gets between 5 and 15 new posts
+    const postCount = faker.number.int({ min: 5, max: 15 });
+    for (let i = 0; i < postCount; i++) {
+      await prisma.post.create({
+        data: {
+          authorId: user.id,
+          title: faker.lorem.sentence(7),
+          content: createRichTextContent(),
+          type: PostType.TEXT,
+        },
+      });
+      postsCreated++;
+    }
+  }
+  console.log(`✅  Successfully created ${postsCreated} additional posts.`);
+}
+
 async function main() {
-  console.log("Start seeding...");
-
-  // Clean up existing data
-  await prisma.like.deleteMany();
-  await prisma.favorite.deleteMany();
+  console.log('🧹 Clearing old data...');
+  // await prisma.appnotification.deleteMany(); // Remove or comment out, as this model does not exist
+  await prisma.userAchievement.deleteMany();
+  await prisma.achievement.deleteMany();
   await prisma.comment.deleteMany();
+  await prisma.postLike.deleteMany();
   await prisma.post.deleteMany();
-  await prisma.article.deleteMany();
+  await prisma.friendship.deleteMany();
   await prisma.user.deleteMany();
+  await prisma.notification.deleteMany(); // Remove all notification model variants, use only prisma.notification
 
-  // Create Users
-  const password = await bcrypt.hash("password123", 10);
-  const user1 = await prisma.user.create({
-    data: {
-      email: "alice@everhood.ai",
-      name: "Alice",
-      password,
-      image: "https://i.pravatar.cc/150?u=alice",
-    },
-  });
-  const user2 = await prisma.user.create({
-    data: {
-      email: "bob@everhood.ai",
-      name: "Bob",
-      password,
-      image: "https://i.pravatar.cc/150?u=bob",
-    },
-  });
-  console.log("Created users.");
-
-  // Create Test User for E2E quick login
-  const testUser = await prisma.user.create({
-    data: {
-      email: "testuser@example.com",
-      name: "Test User",
-      password,
-      image: "https://i.pravatar.cc/150?u=testuser",
-      subscriptionStatus: "free",
-    },
-  });
-  console.log("Created Test User for E2E.");
-
-  // Create Articles
-  const now = new Date();
-  const article1 = await prisma.article.create({
-    data: {
-      title: "The Rise of Generative AI",
-      description: "Exploring how AI tools are changing creative industries.",
-      url: "https://example.com/article-ai",
-      sourceName: "TechCrunch",
-      category: "ai",
-      imageUrl: "https://source.unsplash.com/random/400x300/?ai",
-      publishedAt: now,
-    },
-  });
-  const article2 = await prisma.article.create({
-    data: {
-      title: "Next-Gen Fashion Tech",
-      description: "From smart fabrics to virtual runway shows.",
-      url: "https://example.com/article-fashion",
-      sourceName: "Hypebeast",
-      category: "fashion",
-      imageUrl: "https://source.unsplash.com/random/400x300/?fashion",
-      publishedAt: now,
-    },
-  });
-  console.log("Created articles.");
-
-  // Create Likes, Favorites, and Reposts
-  await prisma.like.create({
-    data: { userId: user1.id, articleId: article2.id },
-  });
-  await prisma.like.create({
-    data: { userId: user2.id, articleId: article1.id },
-  });
-  await prisma.article.update({
-    where: { id: article1.id },
-    data: { likeCount: { increment: 1 } },
-  });
-  await prisma.article.update({
-    where: { id: article2.id },
-    data: { likeCount: { increment: 1 } },
-  });
-
-  await prisma.favorite.create({
-    data: { userId: user1.id, articleId: article1.id },
-  });
-
-  const post1 = await prisma.post.create({
-    data: {
-      title: "AI and the Future of Design",
-      content: "This is a fascinating read on the future of design!",
-      authorId: user1.id,
-      originalArticleId: article1.id,
-    },
-  });
-  // Add more posts for test user
-  const post2 = await prisma.post.create({
-    data: {
-      title: "My First Post",
-      content: "Excited to join Everhood!",
-      authorId: testUser.id,
-    },
-  });
-  const post3 = await prisma.post.create({
-    data: {
-      title: "Gen-Z and Tech",
-      content: "How Gen-Z is shaping the future of technology.",
-      authorId: testUser.id,
-    },
-  });
-  const post4 = await prisma.post.create({
-    data: {
-      title: "Fashion Trends 2025",
-      content: "Virtual runways are the new normal.",
-      authorId: testUser.id,
-      originalArticleId: article2.id,
-    },
-  });
-  console.log("Created social interactions.");
-
-  // Create Comments (threaded, likes/dislikes, replies)
-  const comment1 = await prisma.comment.create({
-    data: {
-      content: "This is a fascinating read on the future of design!",
-      authorId: user1.id,
-      postId: post1.id,
-    },
-  });
-  const comment2 = await prisma.comment.create({
-    data: {
-      content: "I totally agree! The potential is limitless.",
-      authorId: user2.id,
-      postId: post1.id,
-      parentId: comment1.id,
-    },
-  });
-  // Add more replies (up to 5 per comment)
-  for (let i = 0; i < 3; i++) {
-    await prisma.comment.create({
+  // --- Predictable Test Users ---
+  console.log('👤 Creating predictable test users...');
+  const testUserCount = 5;
+  const testUsers = [];
+  const hashedPassword = await bcrypt.hash('password123', 10);
+  for (let i = 0; i < testUserCount; i++) {
+    const user = await prisma.user.create({
       data: {
-        content: `Reply ${i + 1} to comment 1`,
-        authorId: user1.id,
-        postId: post1.id,
-        parentId: comment1.id,
+        name: `Test User ${i}`,
+        email: `test${i}@example.com`,
+        password: hashedPassword,
+        bio: 'I am a test user for the Everesthood beta!',
+        profilePicture: faker.image.avatarGitHub(),
+        coverPicture: faker.image.urlLoremFlickr({ category: 'technics' }),
       },
     });
+    testUsers.push(user);
   }
-  // Likes/dislikes
-  await prisma.commentLike.create({
-    data: { userId: user2.id, commentId: comment1.id },
-  });
-  await prisma.commentDislike.create({
-    data: { userId: user1.id, commentId: comment2.id },
-  });
-  console.log("Created threaded comments, likes, dislikes.");
+  console.log(`👤 Created ${testUsers.length} test users (e.g., test0@example.com).`);
 
-  // Seed Achievements
-  await seedAchievements();
+  // *** CALL THE NEW FUNCTION HERE ***
+  if (testUsers.length > 0) {
+    await seedPostsForUsers(testUsers, prisma);
+  }
 
-  // Seed UserActivity for test user
-  await prisma.userActivity.createMany({
-    data: [
-      { userId: testUser.id, action: "read_article", entityType: "article", entityId: article1.id },
-      { userId: testUser.id, action: "like_post", entityType: "post", entityId: post2.id },
-      { userId: testUser.id, action: "comment", entityType: "post", entityId: post3.id },
-    ]
-  });
-
-  // Seed Friendships (at least 10 friends for test user)
-  const allUsers = await prisma.user.findMany({ where: { id: { not: testUser.id } } });
-  let friendCount = 0;
-  for (const friend of allUsers) {
-    if (friendCount >= 10) break;
-    await prisma.friendship.upsert({
-      where: { requesterId_receiverId: { requesterId: testUser.id, receiverId: friend.id } },
-      update: {},
-      create: { requesterId: testUser.id, receiverId: friend.id, status: "ACCEPTED" },
-    });
-    await prisma.friendship.upsert({
-      where: { requesterId_receiverId: { requesterId: friend.id, receiverId: testUser.id } },
-      update: {},
-      create: { requesterId: friend.id, receiverId: testUser.id, status: "ACCEPTED" },
-    });
-    // Ensure each friend has at least one post
-    await prisma.post.create({
+  // --- Random Users ---
+  const userCount = 20;
+  const users = [...testUsers];
+  for (let i = testUserCount; i < userCount + testUserCount; i++) {
+    const user = await prisma.user.create({
       data: {
-        content: `This is ${friend.name}'s post for the community!`,
-        authorId: friend.id,
+        name: faker.person.fullName(),
+        email: faker.internet.email(),
+        password: hashedPassword,
+        bio: faker.lorem.sentence(),
+        profilePicture: faker.image.avatarGitHub(),
+        coverPicture: faker.image.urlLoremFlickr({ category: 'nature' }),
       },
     });
-    friendCount++;
+    users.push(user);
+  }
+  console.log(`👤 Created ${users.length} users.`);
+
+  // --- Friendships ---
+  console.log('🤝 Creating friendships...');
+  for (let i = 0; i < users.length; i++) {
+    for (let j = i + 1; j < users.length; j++) {
+      if (Math.random() < 0.2) {
+        await prisma.friendship.create({
+          data: {
+            requesterId: users[i].id,
+            receiverId: users[j].id,
+            status: 'ACCEPTED',
+          },
+        });
+      }
+    }
   }
 
-  console.log("Seeding finished.");
+  // --- Posts ---
+  console.log('📝 Creating posts...');
+  const postCount = 100;
+  const posts = [];
+  for (let i = 0; i < postCount; i++) {
+    const author = users[Math.floor(Math.random() * users.length)];
+    const contentJson = {
+      type: 'doc',
+      content: [
+        { type: 'paragraph', content: [{ type: 'text', text: faker.lorem.sentences(2) }] },
+        {
+          type: 'bulletList',
+          content: [
+            {
+              type: 'listItem',
+              content: [{ type: 'paragraph', content: [{ type: 'text', text: faker.hacker.phrase() }] }],
+            },
+            {
+              type: 'listItem',
+              content: [{ type: 'paragraph', content: [{ type: 'text', text: faker.hacker.phrase() }] }],
+            },
+          ],
+        },
+      ],
+    };
+    const post = await prisma.post.create({
+      data: {
+        title: faker.lorem.words(5),
+        content: contentJson,
+        authorId: author.id,
+        createdAt: faker.date.recent({ days: 30 }),
+      },
+    });
+    posts.push(post);
+  }
+  console.log(`📝 Created ${posts.length} posts.`);
+
+  // --- Comments ---
+  console.log('💬 Creating comments...');
+  for (const post of posts) {
+    const commentCount = Math.floor(Math.random() * 5);
+    for (let i = 0; i < commentCount; i++) {
+      const user = users[Math.floor(Math.random() * users.length)];
+      await prisma.comment.create({
+        data: {
+          content: faker.lorem.sentence(),
+          postId: post.id,
+          authorId: user.id,
+        },
+      });
+    }
+  }
+
+  // --- Likes ---
+  console.log('👍 Creating likes...');
+  for (const post of posts) {
+    for (const user of users) {
+      if (Math.random() < 0.1) {
+        await prisma.postLike.create({
+          data: {
+            postId: post.id,
+            userId: user.id,
+          },
+        });
+      }
+    }
+  }
+
+  // --- Achievements & UserAchievements ---
+  console.log('🏆 Creating achievements...');
+  const achievementTypes = [
+    { name: 'First Post', description: 'Created your first post!', icon: '🥇', xpReward: 100 },
+    { name: 'Commenter', description: 'Left 10 comments!', icon: '💬', xpReward: 50 },
+    { name: 'Popular', description: 'Received 10 likes!', icon: '🔥', xpReward: 200 },
+  ];
+  const achievements = [];
+  for (const ach of achievementTypes) {
+    const a = await prisma.achievement.create({ data: ach });
+    achievements.push(a);
+  }
+  for (const user of users) {
+    if (Math.random() < 0.3) {
+      const achievement = achievements[Math.floor(Math.random() * achievements.length)];
+      await prisma.userAchievement.create({
+        data: {
+          userId: user.id,
+          achievementId: achievement.id,
+          earnedAt: new Date(),
+        },
+      });
+    }
+  }
+
+  // --- Notifications ---
+  console.log('🔔 Creating notifications...');
+  for (const user of users) {
+    if (Math.random() < 0.5) {
+      const actor = users[Math.floor(Math.random() * users.length)];
+      if (actor.id === user.id) continue;
+      await prisma.notification.create({
+        data: {
+          recipientId: user.id,
+          actorId: actor.id,
+          type: 'NEW_COMMENT',
+          entityId: posts[Math.floor(Math.random() * posts.length)].id,
+          isRead: false,
+          createdAt: new Date(),
+        },
+      });
+    }
+  }
+
+  console.log('🌱 Seeding complete!');
 }
 
 main()

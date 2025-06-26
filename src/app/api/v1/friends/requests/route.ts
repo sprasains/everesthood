@@ -1,26 +1,50 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
+import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { FriendshipStatus } from "@prisma/client";
 
 // Send a friend request
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.id)
-    return new NextResponse("Unauthorized", { status: 401 });
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  const requesterId = session.user.id;
 
-  const { receiverId } = await req.json();
-  if (session.user.id === receiverId) {
-    return new NextResponse("Cannot add yourself as a friend.", {
-      status: 400,
-    });
+  const { receiverId } = await request.json();
+
+  if (!receiverId) {
+    return NextResponse.json({ error: "Receiver ID is required" }, { status: 400 });
+  }
+  
+  if (requesterId === receiverId) {
+    return NextResponse.json({ error: "You cannot send a friend request to yourself" }, { status: 400 });
   }
 
-  const newRequest = await prisma.friendship.create({
-    data: { requesterId: session.user.id, receiverId, status: "PENDING" },
+  // Check if a friendship already exists
+  const existingFriendship = await prisma.friendship.findFirst({
+      where: {
+          OR: [
+              { requesterId: requesterId, receiverId: receiverId },
+              { requesterId: receiverId, receiverId: requesterId },
+          ]
+      }
   });
 
-  return NextResponse.json(newRequest);
+  if (existingFriendship) {
+      return NextResponse.json({ error: "A friendship request already exists or has been accepted.", status: 409 });
+  }
+
+  const newFriendship = await prisma.friendship.create({
+    data: {
+      requesterId,
+      receiverId,
+      status: FriendshipStatus.PENDING,
+    },
+  });
+
+  return NextResponse.json(newFriendship, { status: 201 });
 }
 
 // Get incoming friend requests

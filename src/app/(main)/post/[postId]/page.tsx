@@ -64,7 +64,7 @@ export default function PostDetailPage() {
         setLoading(true);
         try {
           // Fetch the main post
-          const postRes = await fetch(`/api/v1/community/posts/${postId}`);
+          const postRes = await fetch(`/api/v1/posts/${postId}`);
           if (postRes.ok) setPost(await postRes.json());
 
           // Fetch the comments

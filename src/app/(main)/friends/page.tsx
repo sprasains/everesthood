@@ -1,174 +1,92 @@
 "use client";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Container, Typography, Box, Grid, Paper, Avatar, Button, CircularProgress, Tabs, Tab } from "@mui/material";
+import Link from 'next/link';
+import { useState } from 'react';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
 
-import { useState, useRef } from "react";
-import {
-  Box,
-  Container,
-  Typography,
-  CircularProgress,
-  Paper,
-  Tabs,
-  Tab,
-  Button,
-  Avatar,
-  List,
-  ListItem,
-  ListItemAvatar,
-  ListItemText,
-  Divider,
-  TextField,
-  InputAdornment,
-  Stack,
-} from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
-import { useQuery } from "@tanstack/react-query";
-import { motion } from "framer-motion";
-
-const fetchFriends = async () => {
-  const res = await fetch("/api/v1/friends");
-  if (!res.ok) throw new Error("Failed to fetch friends");
+const fetchFriendsData = async () => {
+  const res = await fetch('/api/v1/friends');
+  if (!res.ok) throw new Error("Could not load friends");
   return res.json();
 };
-const fetchRequests = async () => {
-  const res = await fetch("/api/v1/friends/requests");
-  if (!res.ok) throw new Error("Failed to fetch requests");
-  return res.json();
-};
-const searchUsers = async (query: string) => {
-  const res = await fetch(`/api/v1/users/search?q=${encodeURIComponent(query)}`);
-  if (!res.ok) throw new Error("Search failed");
-  return res.json();
+
+const handleFriendRequest = async ({ userId, action }: { userId: string, action: 'accept' | 'decline' }) => {
+    const res = await fetch(`/api/v1/friends/requests/${userId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action }),
+    });
+    if (!res.ok) throw new Error('Action failed');
+    return res.json();
 };
 
 export default function FriendsPage() {
-  const [tab, setTab] = useState(0);
-  const [search, setSearch] = useState("");
-  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+    const queryClient = useQueryClient();
+    const [tab, setTab] = useState(0);
+    const { data, isLoading, error } = useQuery({
+        queryKey: ['friends'],
+        queryFn: fetchFriendsData
+    });
 
-  const { data: friends, isLoading: friendsLoading } = useQuery({
-    queryKey: ["friends"],
-    queryFn: fetchFriends,
-    enabled: tab === 0,
-  });
-  const { data: requests, isLoading: requestsLoading } = useQuery({
-    queryKey: ["friend-requests"],
-    queryFn: fetchRequests,
-    enabled: tab === 1,
-  });
-  const { data: searchResults, isLoading: searchLoading, isError: searchError, refetch: refetchSearch } = useQuery({
-    queryKey: ["user-search", search],
-    queryFn: () => searchUsers(search),
-    enabled: !!search.trim() && tab === 2,
-  });
+    const mutation = useMutation({
+        mutationFn: handleFriendRequest,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['friends'] });
+        }
+    });
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearch(e.target.value);
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => {
-      refetchSearch();
-    }, 400);
-  };
+    const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+        setTab(newValue);
+    };
+    
+    if (isLoading) return <CircularProgress />;
+    if (error) return <Typography color="error">Could not load your friends.</Typography>
 
-  return (
-    <Box sx={{ minHeight: "100vh", bgcolor: "#0f2027", color: "white" }}>
-      <Container maxWidth="md" sx={{ pt: 12 }}>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
-        >
-          <Paper elevation={4} sx={{ p: { xs: 2, md: 4 }, mb: 4, bgcolor: 'background.paper', borderRadius: 4 }}>
-            <Typography variant="h3" fontWeight="bold" gutterBottom sx={{ color: 'primary.main', textAlign: 'center' }}>
-              Friends & Community
-            </Typography>
-            <Tabs value={tab} onChange={(_, v) => setTab(v)} centered sx={{ mb: 3 }}>
-              <Tab label="My Friends" />
-              <Tab label="Requests" />
-              <Tab label="Find Users" />
-            </Tabs>
+    return (
+        <Container maxWidth="lg" sx={{ py: 4 }}>
+            <Typography variant="h4" fontWeight="bold" gutterBottom>Your Network</Typography>
+            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                <Tabs value={tab} onChange={handleTabChange}>
+                    <Tab label={`All Friends (${data.friends.length})`} />
+                    <Tab label={`Pending Requests (${data.pendingReceived.length})`} />
+                </Tabs>
+            </Box>
             {tab === 0 && (
-              <Paper elevation={2} sx={{ p: 2, mb: 2, bgcolor: 'background.default', borderRadius: 3 }}>
-                {friendsLoading ? (
-                  <Box display="flex" justifyContent="center" alignItems="center" minHeight={120}>
-                    <CircularProgress />
-                  </Box>
-                ) : (
-                  <List>
-                    {friends?.map((friend: any) => (
-                      <ListItem key={friend.id} divider>
-                        <ListItemAvatar>
-                          <Avatar src={friend.avatarUrl} />
-                        </ListItemAvatar>
-                        <ListItemText primary={friend.name} secondary={friend.email} />
-                      </ListItem>
+                 <Grid container spacing={2} sx={{ mt: 2 }}>
+                    {data.friends.map((friend: any) => (
+                        <Grid key={friend.id} size={{ xs: 12, sm: 6, md: 4 }}>
+                            <Paper sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
+                                <Avatar src={friend.profilePicture} />
+                                <Typography fontWeight="bold" component={Link} href={`/profile/${friend.id}`} sx={{ textDecoration: 'none', color: 'inherit' }}>{friend.name}</Typography>
+                            </Paper>
+                        </Grid>
                     ))}
-                  </List>
-                )}
-              </Paper>
+                 </Grid>
             )}
             {tab === 1 && (
-              <Paper elevation={2} sx={{ p: 2, mb: 2, bgcolor: 'background.default', borderRadius: 3 }}>
-                {requestsLoading ? (
-                  <Box display="flex" justifyContent="center" alignItems="center" minHeight={120}>
-                    <CircularProgress />
-                  </Box>
-                ) : (
-                  <List>
-                    {requests?.map((req: any) => (
-                      <ListItem key={req.id} divider>
-                        <ListItemAvatar>
-                          <Avatar src={req.avatarUrl} />
-                        </ListItemAvatar>
-                        <ListItemText primary={req.name} secondary={req.email} />
-                        <Button variant="contained" color="primary" sx={{ borderRadius: 3 }}>
-                          Accept
-                        </Button>
-                      </ListItem>
-                    ))}
-                  </List>
-                )}
-              </Paper>
+                <Grid container spacing={2} sx={{ mt: 2 }}>
+                    {data.pendingReceived.length > 0 ? data.pendingReceived.map((req: any) => (
+                        <Grid key={req.requester.id} size={{ xs: 12, sm: 6, md: 4 }}>
+                             <Paper sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2}}>
+                                    <Avatar src={req.requester.profilePicture} />
+                                    <Typography fontWeight="bold">{req.requester.name}</Typography>
+                                </Box>
+                                <Box>
+                                    <Button size="small" color="success" onClick={() => mutation.mutate({ userId: req.requester.id, action: 'accept' })}>
+                                        <CheckCircleIcon />
+                                    </Button>
+                                    <Button size="small" color="error" onClick={() => mutation.mutate({ userId: req.requester.id, action: 'decline' })}>
+                                        <CancelIcon />
+                                    </Button>
+                                </Box>
+                            </Paper>
+                        </Grid>
+                    )) : <Typography sx={{ mt: 3, width: '100%', textAlign: 'center' }}>No new friend requests.</Typography>}
+                </Grid>
             )}
-            {tab === 2 && (
-              <Paper elevation={2} sx={{ p: 2, mb: 2, bgcolor: 'background.default', borderRadius: 3 }}>
-                <TextField
-                  variant="outlined"
-                  placeholder="Search users..."
-                  value={search}
-                  onChange={handleSearchChange}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <SearchIcon />
-                      </InputAdornment>
-                    ),
-                  }}
-                  sx={{ width: { xs: '100%', sm: 400 }, mb: 2 }}
-                />
-                {searchLoading ? (
-                  <Box display="flex" justifyContent="center" alignItems="center" minHeight={120}>
-                    <CircularProgress />
-                  </Box>
-                ) : (
-                  <List>
-                    {searchResults?.map((user: any) => (
-                      <ListItem key={user.id} divider>
-                        <ListItemAvatar>
-                          <Avatar src={user.avatarUrl} />
-                        </ListItemAvatar>
-                        <ListItemText primary={user.name} secondary={user.email} />
-                        <Button variant="contained" color="primary" sx={{ borderRadius: 3 }}>
-                          Add Friend
-                        </Button>
-                      </ListItem>
-                    ))}
-                  </List>
-                )}
-              </Paper>
-            )}
-          </Paper>
-        </motion.div>
-      </Container>
-    </Box>
-  );
+        </Container>
+    );
 }
