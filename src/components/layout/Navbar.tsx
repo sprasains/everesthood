@@ -1,10 +1,12 @@
 "use client";
-import { AppBar, Toolbar, Button, Typography, IconButton } from "@mui/material";
+import { AppBar, Toolbar, Button, Typography, IconButton, Avatar, Box } from "@mui/material";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import { motion } from "framer-motion";
 import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 import { useUser } from "@/hooks/useUser";
+import NotificationsIcon from "@mui/icons-material/Notifications";
+import MailOutlineIcon from "@mui/icons-material/MailOutline";
 
 export default function Navbar() {
   const { data: session } = useSession();
@@ -20,46 +22,36 @@ export default function Navbar() {
       }}
     >
       <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-        {/* Logo */}
-        <Link href="/" style={{ textDecoration: "none" }}>
-          <Typography
-            variant="h6"
-            sx={{
-              fontWeight: "bold",
-              color: "white",
-              display: "flex",
-              alignItems: "center",
-              gap: 1,
-            }}
-          >
-            <motion.div
-              whileHover={{ rotate: 360 }}
-              transition={{ duration: 0.5 }}
-              style={{
-                width: 32,
-                height: 32,
-                background: "linear-gradient(to right, #6a11cb, #2575fc)",
-                borderRadius: "50%",
+        {/* Logo and Dashboard Link */}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          <Link href="/" style={{ textDecoration: "none" }}>
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: "bold",
+                color: "white",
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "center",
+                gap: 1,
               }}
             >
-              <span style={{ color: "white", fontWeight: "bold" }}>E</span>
-            </motion.div>
-            Everesthood
-          </Typography>
-        </Link>
-
-        {/* Navigation Links */}
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <Link href="/news" style={{ textDecoration: "none" }}>
-            <Button
-              variant="text"
-              sx={{ color: "white", fontWeight: "medium", textTransform: "none" }}
-            >
-              📰 News
-            </Button>
+              <motion.div
+                whileHover={{ rotate: 360 }}
+                transition={{ duration: 0.5 }}
+                style={{
+                  width: 32,
+                  height: 32,
+                  background: "linear-gradient(to right, #6a11cb, #2575fc)",
+                  borderRadius: "50%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <span style={{ color: "white", fontWeight: "bold" }}>E</span>
+              </motion.div>
+              Everesthood
+            </Typography>
           </Link>
           <Link href="/dashboard" style={{ textDecoration: "none" }}>
             <Button
@@ -69,6 +61,9 @@ export default function Navbar() {
               📊 Dashboard
             </Button>
           </Link>
+        </Box>
+        {/* Right-aligned icons, upgrade, avatar, logout */}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
           {user?.subscriptionStatus === "free" && (
             <Link href="/subscribe" style={{ textDecoration: "none" }}>
               <Button
@@ -88,15 +83,7 @@ export default function Navbar() {
               </Button>
             </Link>
           )}
-          <Link href="/profile" style={{ textDecoration: "none" }}>
-            <Button
-              variant="text"
-              sx={{ color: "white", fontWeight: "medium", textTransform: "none" }}
-            >
-              👤 Profile
-            </Button>
-          </Link>
-          {user?.subscriptionStatus === "premium" ? (
+          {user?.subscriptionStatus === "premium" && (
             <Link href="/billing" style={{ textDecoration: "none" }}>
               <Button
                 variant="text"
@@ -105,31 +92,27 @@ export default function Navbar() {
                 💳 Billing
               </Button>
             </Link>
-          ) : (
-            <Link href="/subscribe" style={{ textDecoration: "none" }}>
-              <Button
-                variant="text"
-                sx={{ color: "white", fontWeight: "medium", textTransform: "none" }}
-              >
-                ⚡ Upgrade to Premium
-              </Button>
-            </Link>
           )}
-        </div>
-
-        {/* Sign Out Button */}
-        <IconButton
-          onClick={() => signOut()}
-          sx={{
-            color: "white",
-            background: "rgba(255,255,255,0.1)",
-            "&:hover": {
-              background: "rgba(255,255,255,0.2)",
-            },
-          }}
-        >
-          <ExitToAppIcon />
-        </IconButton>
+          <IconButton color="inherit">
+            <NotificationsIcon />
+          </IconButton>
+          <IconButton color="inherit">
+            <MailOutlineIcon />
+          </IconButton>
+          <Avatar src={user?.image || undefined} alt={user?.name || ""} sx={{ width: 36, height: 36, ml: 1 }} />
+          <IconButton
+            onClick={() => signOut()}
+            sx={{
+              color: "white",
+              background: "rgba(255,255,255,0.1)",
+              "&:hover": {
+                background: "rgba(255,255,255,0.2)",
+              },
+            }}
+          >
+            <ExitToAppIcon />
+          </IconButton>
+        </Box>
       </Toolbar>
     </AppBar>
   );

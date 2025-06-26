@@ -15,6 +15,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import PersonIcon from '@mui/icons-material/Person';
 import StarIcon from '@mui/icons-material/Star';
+import OpportunityColumn from './OpportunityColumn';
 
 // Add logical section headers and new features
 type NavSection = { header?: string; items: { text: string; icon: React.ReactElement; href: string; }[] };
@@ -111,6 +112,8 @@ export default function AppSidebar() {
           {idx < navSections.length - 1 && <Divider sx={{ my: 1, borderColor: 'rgba(255, 255, 255, 0.1)' }} />}
         </React.Fragment>
       ))}
+      <Divider sx={{ my: 2, borderColor: 'rgba(255, 255, 255, 0.1)' }} />
+      <OpportunityColumn />
     </Box>
   );
 }

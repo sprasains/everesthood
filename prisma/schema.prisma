@@ -238,15 +238,22 @@ model Company {
 model Job {
   id           String         @id @default(cuid())
   title        String
-  description  String
+  description  String         @db.Text // Ensure description is Text for long postings
   location     String
   type         String
   salaryRange  String?
   isActive     Boolean        @default(true)
   isFeatured   Boolean        @default(false)
   createdAt    DateTime       @default(now())
-  companyId    String
-  company      Company        @relation(fields: [companyId], references: [id])
+  
+  // --- MODIFICATIONS & ADDITIONS ---
+  companyId    String?        // Make this optional
+  companyName  String         // Add a field to store the company name directly
+  externalUrl  String?        @unique // The direct link to the job post, must be unique
+  source       String?        // e.g., "Stack Overflow Jobs"
+  publishedAt  DateTime?
+  // Keep the relation, but it's now optional
+  company      Company?       @relation(fields: [companyId], references: [id])
   applications JobApplication[]
 
   @@index([companyId])

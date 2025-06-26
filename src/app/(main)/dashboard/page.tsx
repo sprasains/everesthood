@@ -1,12 +1,10 @@
 "use client";
-import { Box, Container, Typography, Grid, Paper, Button, CircularProgress, Stack, Avatar, IconButton } from "@mui/material";
+import { Box, Container, Typography, Grid, Paper, Button, CircularProgress, Stack, Avatar } from "@mui/material";
 import PostCard from "@/components/ui/PostCard";
 import Link from "next/link";
 import { useUser } from "@/hooks/useUser";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import NotificationsIcon from '@mui/icons-material/Notifications';
-import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import EditIcon from '@mui/icons-material/Edit';
 import { useTheme } from '@mui/material/styles';
 import { useMemo } from 'react';
@@ -55,7 +53,7 @@ export default function DashboardPage() {
     { id: 2, text: "Bet! You just got a W with that post." },
   ], []);
   // Use image or fallback
-  const avatar = (user && 'image' in user) ? user.image : undefined || "https://i.pravatar.cc/150?u=everhood";
+  const avatar = user?.image || "https://i.pravatar.cc/150?u=everhood";
 
   return (
     <>
@@ -64,47 +62,6 @@ export default function DashboardPage() {
         <NewsTicker />
       </Box>
       <Container maxWidth="xl" sx={{ pt: { xs: 4, md: 6 }, pb: 6 }}>
-        {/* Unified Top Navbar with Explorer Panel */}
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-          <Paper elevation={6} sx={{ p: 2, mb: 4, borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', bgcolor: 'background.paper' }}>
-            {/* Explorer panel merged with nav */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Avatar src={typeof avatar === 'string' ? avatar : undefined} alt={user?.name || ""} sx={{ width: 48, height: 48 }} />
-              <Box>
-                <Typography fontWeight="bold" variant="h6">{user?.name || 'Explorer'}</Typography>
-                <Typography variant="body2" color="text.secondary">{user?.email}</Typography>
-              </Box>
-            </Box>
-            {/* Nav buttons and icons */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-              <Button component={Link} href="/dashboard" color="primary" variant="text">Dashboard</Button>
-              <Button component={Link} href="/friends" color="primary" variant="text">Friends</Button>
-              <Button component={Link} href="/settings" color="primary" variant="text">Settings</Button>
-              <IconButton color="primary">
-                <NotificationsIcon />
-              </IconButton>
-              <IconButton color="primary">
-                <MailOutlineIcon />
-              </IconButton>
-            </Box>
-          </Paper>
-        </motion.div>
-
-        {/* Animated Notifications/Message Bar */}
-        <motion.div initial={{ opacity: 0, x: -40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7 }}>
-          <Paper elevation={2} sx={{ mb: 4, p: 1.5, borderRadius: 3, overflowX: 'auto', bgcolor: theme.palette.mode === 'dark' ? 'rgba(30,41,59,0.7)' : 'grey.100' }}>
-            <Box sx={{ display: 'flex', gap: 3, minHeight: 40 }}>
-              {notifications.map((notif, idx) => (
-                <motion.div key={notif.id} initial={{ x: 60 }} animate={{ x: 0 }} transition={{ delay: 0.2 + idx * 0.15 }}>
-                  <Paper sx={{ px: 2, py: 1, borderRadius: 2, bgcolor: 'primary.light', color: 'primary.contrastText', fontWeight: 500, boxShadow: 2, minWidth: 180 }}>
-                    {notif.text}
-                  </Paper>
-                </motion.div>
-              ))}
-            </Box>
-          </Paper>
-        </motion.div>
-
         {/* Main Dashboard Widgets */}
         <Grid container spacing={4}>
           {/* Main Content Area */}

@@ -13,6 +13,7 @@
     "db:studio": "prisma studio",
     "cron:news": "ts-node scripts/fetchNews.ts",
     "cron:genz": "ts-node scripts/fetchGenZContent.ts",
+    "cron:jobs": "ts-node scripts/fetchJobs.ts",
     "db:seed": "prisma db seed",
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",

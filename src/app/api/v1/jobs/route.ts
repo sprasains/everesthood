@@ -7,10 +7,13 @@ import { authOptions } from "@/lib/auth";
 export async function GET(req: NextRequest) {
     const jobs = await prisma.job.findMany({
         where: { isActive: true },
-        include: { company: true },
-        orderBy: { createdAt: 'desc' }
+        orderBy: [
+          { publishedAt: 'desc' },
+          { createdAt: 'desc' }
+        ],
+        take: 50,
     });
-    return NextResponse.json(jobs);
+    return NextResponse.json({ jobs });
 }
 
 // POST a new job (protected, requires a company profile)

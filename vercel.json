@@ -2,7 +2,15 @@
   "crons": [
     {
       "path": "/api/v1/cron/fetch-news",
-      "schedule": "0 * * * *"
+      "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/v1/cron/fetch-genz",
+      "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/v1/cron/fetch-jobs",
+      "schedule": "*/5 * * * *"
     }
   ]
 }
