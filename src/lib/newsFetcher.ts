@@ -33,6 +33,18 @@ export async function fetchAndStoreNews() {
             sourceName: feed.name,
           },
         });
+        // Create NEWS notification for all users
+        const users = await prisma.user.findMany({ select: { id: true } });
+        for (const user of users) {
+          await prisma.notification.create({
+            data: {
+              recipientId: user.id,
+              actorId: users[0].id, // Use first user as system or replace with a real system user id
+              type: 'NEWS',
+              entityId: item.link, // You may want to use the news article id
+            },
+          });
+        }
       }
       console.log(`Successfully processed feed: ${feed.name}`);
     } catch (error) {

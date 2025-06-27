@@ -28,6 +28,25 @@ export async function awardAchievement(userId: string, achievementName: string) 
       where: { id: userId },
       data: { xp: { increment: achievement.xpReward } },
     });
+    // Notify user of achievement
+    await prisma.notification.create({
+      data: {
+        recipientId: userId,
+        actorId: userId,
+        type: 'ACHIEVEMENT',
+        entityId: achievement.id,
+      },
+    });
+    try {
+      // @ts-ignore
+      if (globalThis.io) {
+        globalThis.io.to(userId).emit('notification', {
+          type: 'ACHIEVEMENT',
+          achievementId: achievement.id,
+          actorId: userId,
+        });
+      }
+    } catch (e) { /* ignore */ }
   }
 }
 

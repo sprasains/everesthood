@@ -56,6 +56,7 @@ async function main() {
   await prisma.postLike.deleteMany();
   await prisma.post.deleteMany();
   await prisma.friendship.deleteMany();
+  await prisma.newsArticleLike.deleteMany();
   await prisma.user.deleteMany();
   await prisma.notification.deleteMany(); // Remove all notification model variants, use only prisma.notification
 

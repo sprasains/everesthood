@@ -1,6 +1,7 @@
 "use client";
 import { Card, CardMedia, CardContent, Typography, Box, Button, Link as MuiLink } from '@mui/material';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import NewsLikeButton from './NewsLikeButton';
 
 interface NewsCardListProps {
   article: {
@@ -10,6 +11,8 @@ interface NewsCardListProps {
     imageUrl?: string | null;
     sourceName: string;
     description?: string | null;
+    isLiked: boolean;
+    likeCount: number;
   };
 }
 
@@ -55,7 +58,8 @@ export default function NewsCardList({ article }: NewsCardListProps) {
             {article.description}
           </Typography>
         </CardContent>
-        <Box sx={{ display: 'flex', alignItems: 'center', pl: 0, pb: 0, mt: 'auto' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', pl: 0, pb: 0, mt: 'auto', gap: 1 }}>
+          <NewsLikeButton articleId={article.id} isLiked={article.isLiked} likeCount={article.likeCount} />
           <Button
             component={MuiLink}
             href={article.link}

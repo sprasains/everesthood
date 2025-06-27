@@ -1,15 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 
 export async function GET(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    const userId = session?.user?.id;
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get("limit") || "20");
     const articles = await prisma.newsArticle.findMany({
       orderBy: { publishedAt: "desc" },
       take: limit,
+      include: {
+        likes: userId ? { where: { userId } } : false,
+        _count: { select: { likes: true } },
+      },
     });
-    return NextResponse.json(articles);
+    const result = articles.map((article: any) => ({
+      ...article,
+      likeCount: article._count.likes,
+      isLiked: userId ? (article.likes && article.likes.length > 0) : false,
+      likes: undefined,
+      _count: undefined,
+    }));
+    return NextResponse.json(result);
   } catch (error) {
     console.error("[NEWS API ERROR]", error);
     return NextResponse.json(

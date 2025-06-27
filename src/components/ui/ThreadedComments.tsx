@@ -1,3 +1,4 @@
+"use client";
 import React, { useEffect, useState } from "react";
 import {
   Box,
@@ -20,6 +21,8 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import CommentForm from './CommentForm';
+import { v4 as uuidv4 } from 'uuid';
 
 // Types
 interface Comment {
@@ -35,6 +38,7 @@ interface Comment {
   parentId?: string;
   canEdit?: boolean;
   canDelete?: boolean;
+  pending?: boolean;
 }
 
 interface ThreadedCommentsProps {
@@ -49,6 +53,7 @@ const ThreadedComments: React.FC<ThreadedCommentsProps> = ({
   currentUserId,
 }) => {
   const [comments, setComments] = useState<Comment[]>([]);
+  const [pendingComments, setPendingComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyContent, setReplyContent] = useState("");
@@ -56,22 +61,76 @@ const ThreadedComments: React.FC<ThreadedCommentsProps> = ({
   const [editing, setEditing] = useState<string | null>(null);
   const [editContent, setEditContent] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   useEffect(() => {
-    fetchComments();
+    fetchInitialComments();
   }, [postId]);
 
-  const fetchComments = async () => {
+  const fetchInitialComments = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/v1/comments?postId=${postId}`);
+      const res = await fetch(`/api/v1/comments?postId=${postId}&limit=10`);
       if (res.ok) {
         const data = await res.json();
-        setComments(data);
+        setComments(data.comments);
+        setNextCursor(data.nextCursor);
       }
     } finally {
       setLoading(false);
     }
+  };
+
+  const loadMoreComments = async () => {
+    if (!nextCursor) return;
+    setLoadingMore(true);
+    try {
+      const res = await fetch(`/api/v1/comments?postId=${postId}&limit=10&cursor=${nextCursor}`);
+      if (res.ok) {
+        const data = await res.json();
+        setComments((prev) => [...prev, ...data.comments]);
+        setNextCursor(data.nextCursor);
+      }
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
+  const optimisticAddComment = (content: string, parentId?: string) => {
+    const tempId = uuidv4();
+    const pending: Comment = {
+      id: tempId,
+      content,
+      user: { id: currentUserId, name: "You" },
+      createdAt: new Date().toISOString(),
+      likeCount: 0,
+      dislikeCount: 0,
+      isLiked: false,
+      isDisliked: false,
+      replies: [],
+      parentId,
+      canEdit: true,
+      canDelete: true,
+      pending: true,
+    };
+    if (parentId) {
+      setComments((prev) =>
+        prev.map((c) =>
+          c.id === parentId
+            ? { ...c, replies: [...c.replies, pending] }
+            : c
+        )
+      );
+    } else {
+      setComments((prev) => [...prev, pending]);
+    }
+    setPendingComments((prev) => [...prev, pending]);
+  };
+
+  const fetchCommentsWithCleanup = async () => {
+    await fetchInitialComments();
+    setPendingComments([]);
   };
 
   const handleExpand = (id: string) => {
@@ -90,18 +149,18 @@ const ThreadedComments: React.FC<ThreadedCommentsProps> = ({
 
   const handleLike = async (comment: Comment) => {
     await fetch(`/api/v1/comments/${comment.id}/like`, { method: "POST" });
-    fetchComments();
+    fetchInitialComments();
   };
 
   const handleDislike = async (comment: Comment) => {
     await fetch(`/api/v1/comments/${comment.id}/dislike`, { method: "POST" });
-    fetchComments();
+    fetchInitialComments();
   };
 
   const handleDelete = async (comment: Comment) => {
     if (!window.confirm("Delete this comment?")) return;
     await fetch(`/api/v1/comments/${comment.id}`, { method: "DELETE" });
-    fetchComments();
+    fetchInitialComments();
   };
 
   const submitReply = async (parentId: string) => {
@@ -115,7 +174,7 @@ const ThreadedComments: React.FC<ThreadedCommentsProps> = ({
     setReplyingTo(null);
     setReplyContent("");
     setSubmitting(false);
-    fetchComments();
+    fetchInitialComments();
   };
 
   const submitEdit = async (commentId: string) => {
@@ -129,7 +188,7 @@ const ThreadedComments: React.FC<ThreadedCommentsProps> = ({
     setEditing(null);
     setEditContent("");
     setSubmitting(false);
-    fetchComments();
+    fetchInitialComments();
   };
 
   const renderComment = (comment: Comment, depth: number = 0) => {
@@ -142,6 +201,7 @@ const ThreadedComments: React.FC<ThreadedCommentsProps> = ({
             borderRadius: 2,
             boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
             mb: 1,
+            opacity: comment.pending ? 0.5 : 1,
           }}
         >
           <CardContent sx={{ p: 2 }}>
@@ -207,9 +267,14 @@ const ThreadedComments: React.FC<ThreadedCommentsProps> = ({
                 </Stack>
               </Box>
             ) : (
-              <Typography mt={2} fontSize="1.05rem">
-                {comment.content}
-              </Typography>
+              <Box display="flex" alignItems="center" mt={2}>
+                <Typography fontSize="1.05rem" sx={{ flex: 1 }}>
+                  {comment.content}
+                </Typography>
+                {comment.pending && (
+                  <CircularProgress size={18} sx={{ ml: 1 }} />
+                )}
+              </Box>
             )}
             <Stack direction="row" spacing={1} alignItems="center" mt={2}>
               <Tooltip title="Like">
@@ -262,34 +327,15 @@ const ThreadedComments: React.FC<ThreadedCommentsProps> = ({
               )}
             </Stack>
             {replyingTo === comment.id && (
-              <Box mt={2}>
-                <TextField
-                  fullWidth
-                  multiline
-                  minRows={2}
-                  value={replyContent}
-                  onChange={(e) => setReplyContent(e.target.value)}
-                  placeholder="Write your reply..."
-                  sx={{ mb: 1 }}
-                />
-                <Stack direction="row" spacing={1}>
-                  <Button
-                    size="small"
-                    variant="contained"
-                    onClick={() => submitReply(comment.id)}
-                    disabled={submitting}
-                  >
-                    Reply
-                  </Button>
-                  <Button
-                    size="small"
-                    variant="outlined"
-                    onClick={() => setReplyingTo(null)}
-                  >
-                    Cancel
-                  </Button>
-                </Stack>
-              </Box>
+              <CommentForm
+                postId={postId}
+                parentId={comment.id}
+                onComment={(content: string) => {
+                  optimisticAddComment(content, comment.id);
+                  fetchCommentsWithCleanup();
+                  setReplyingTo(null);
+                }}
+              />
             )}
             {comment.replies.length > 0 && (
               <Collapse in={expanded[comment.id]} timeout="auto" unmountOnExit>
@@ -306,21 +352,6 @@ const ThreadedComments: React.FC<ThreadedCommentsProps> = ({
     );
   };
 
-  // Top-level comment form
-  const [newComment, setNewComment] = useState("");
-  const submitNewComment = async () => {
-    if (!newComment.trim()) return;
-    setSubmitting(true);
-    await fetch(`/api/v1/comments`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ postId, content: newComment }),
-    });
-    setNewComment("");
-    setSubmitting(false);
-    fetchComments();
-  };
-
   return (
     <div data-testid="threaded-comments">
       <Box>
@@ -328,22 +359,13 @@ const ThreadedComments: React.FC<ThreadedCommentsProps> = ({
           💬 Comments
         </Typography>
         <Box mb={2}>
-          <TextField
-            fullWidth
-            multiline
-            minRows={2}
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            placeholder="Add a comment..."
-            sx={{ mb: 1 }}
+          <CommentForm
+            postId={postId}
+            onComment={(content: string) => {
+              optimisticAddComment(content);
+              fetchCommentsWithCleanup();
+            }}
           />
-          <Button
-            variant="contained"
-            onClick={submitNewComment}
-            disabled={submitting}
-          >
-            Post
-          </Button>
         </Box>
         {loading ? (
           <Box
@@ -357,7 +379,16 @@ const ThreadedComments: React.FC<ThreadedCommentsProps> = ({
         ) : comments.length === 0 ? (
           <Typography color="#bdbdbd">No comments yet. Be the first!</Typography>
         ) : (
-          comments.map((comment) => renderComment(comment))
+          <>
+            {comments.map((comment) => renderComment(comment))}
+            {nextCursor && (
+              <Box display="flex" justifyContent="center" mt={2}>
+                <Button onClick={loadMoreComments} disabled={loadingMore} variant="outlined">
+                  {loadingMore ? <CircularProgress size={20} /> : "Load More"}
+                </Button>
+              </Box>
+            )}
+          </>
         )}
       </Box>
     </div>

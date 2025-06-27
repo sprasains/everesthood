@@ -42,6 +42,8 @@ model User {
   votes                  Vote[]
   notifications          Notification[]     @relation("notifications")
   triggeredNotifications Notification[]     @relation("triggeredNotifications")
+  newsArticleLikes       NewsArticleLike[]
+  mentionedInPosts       Post[]            @relation("PostMentions")
 
   // Monetization Fields
   stripeCustomerId       String?           @unique
@@ -106,6 +108,7 @@ model Post {
   resharedFromId String?
   resharedFrom   Post?      @relation("Reshares", fields: [resharedFromId], references: [id], onDelete: Restrict, onUpdate: Restrict)
   reshares       Post[]     @relation("Reshares")
+  mentionedUsers User[]     @relation("PostMentions")
 
   @@index([authorId])
   @@index([createdAt])
@@ -319,8 +322,36 @@ model NewsArticle {
   category     String?   // e.g. 'ai', 'startup', 'culture', etc.
   tags         String[]  // Array of tags/keywords
   content      String?   @db.Text // Full article content if available
+  likes        NewsArticleLike[]
 
   @@index([publishedAt])
+}
+
+model NewsArticleLike {
+  userId String
+  newsArticleId String
+  createdAt DateTime @default(now())
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  newsArticle NewsArticle @relation(fields: [newsArticleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, newsArticleId])
+  @@index([newsArticleId])
+}
+
+model GenZContent {
+  id          String   @id @default(cuid())
+  title       String
+  content     String
+  description String?
+  sourceUrl   String   @unique
+  engagement  Int      @default(0)
+  sourceName  String?
+  imageUrl    String?
+  publishedAt DateTime?
+  category    String?
+  tags        String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 // Enums
@@ -350,5 +381,12 @@ enum NotificationType {
   FRIEND_REQUEST
   FRIEND_ACCEPT
   POST_LIKE
+  COMMENT_LIKE
   NEW_COMMENT
+  REPLY
+  NEW_POST
+  NEWS
+  MENTION
+  ACHIEVEMENT
+  SYSTEM
 }

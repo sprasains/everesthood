@@ -48,6 +48,28 @@ export async function POST(
     );
   }
 
+  if (status === FriendshipStatus.ACCEPTED) {
+    // Notify the original requester
+    await prisma.notification.create({
+      data: {
+        recipientId: requesterId,
+        actorId: loggedInUserId,
+        type: 'FRIEND_ACCEPT',
+        entityId: requesterId,
+      },
+    });
+    // Emit websocket event
+    try {
+      // @ts-ignore
+      if (globalThis.io) {
+        globalThis.io.to(requesterId).emit('notification', {
+          type: 'FRIEND_ACCEPT',
+          actorId: loggedInUserId,
+        });
+      }
+    } catch (e) { /* ignore */ }
+  }
+
   return NextResponse.json(updatedFriendship);
 }
 

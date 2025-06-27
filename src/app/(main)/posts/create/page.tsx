@@ -5,6 +5,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSnackbar } from "notistack";
 import { useState } from "react";
 import MenuItem from "@mui/material/MenuItem";
+import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 
 const POST_TYPES = [
   { label: "Text", value: "TEXT" },
@@ -13,6 +15,8 @@ const POST_TYPES = [
   { label: "Prediction", value: "PREDICTION" },
 ];
 
+const RichTextEditor = dynamic(() => import("@/components/ui/RichTextEditor"), { ssr: false });
+
 export default function CreatePostPage() {
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
@@ -20,20 +24,36 @@ export default function CreatePostPage() {
   const [mediaUrls, setMediaUrls] = useState<string[]>([]);
   const [mediaInput, setMediaInput] = useState("");
   const [type, setType] = useState("TEXT");
+  const router = useRouter();
+  const [editorContent, setEditorContent] = useState<any>(null);
 
   const { mutate, status } = useMutation({
     mutationFn: async (data: any) => {
+      const mentions: any[] = [];
+      const findMentions = (node: any) => {
+        if (node?.type === "mention" && node.attrs?.id) {
+          mentions.push(node.attrs.id);
+        }
+        if (node?.content) {
+          node.content.forEach(findMentions);
+        }
+      };
+      findMentions(editorContent);
+      const mentionedUserIds = [...new Set(mentions)];
       const res = await fetch("/api/v1/posts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...data, type, mediaUrls }),
+        body: JSON.stringify({ ...data, type, mediaUrls, content: editorContent, mentionedUserIds }),
       });
       if (!res.ok) throw new Error("Failed to create post");
       return res.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       enqueueSnackbar("Post created successfully!", { variant: "success" });
       queryClient.invalidateQueries({ queryKey: ["community-posts"] });
+      if (data?.post?.id) {
+        router.push(`/posts/${data.post.id}`);
+      }
       reset();
     },
     onError: () => {
@@ -67,16 +87,9 @@ export default function CreatePostPage() {
               error={!!errors.title}
               helperText={errors.title?.message?.toString()}
             />
-            <TextField
-              label="Content"
-              fullWidth
-              margin="normal"
-              multiline
-              minRows={4}
-              {...register("content", { required: "Content is required" })}
-              error={!!errors.content}
-              helperText={errors.content?.message?.toString()}
-            />
+            <Box sx={{ my: 2 }}>
+              <RichTextEditor value={editorContent} onChange={setEditorContent} />
+            </Box>
             <TextField
               select
               label="Type"

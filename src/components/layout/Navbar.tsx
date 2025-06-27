@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useUser } from "@/hooks/useUser";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import MailOutlineIcon from "@mui/icons-material/MailOutline";
+import NotificationDropdown from '@/components/ui/NotificationDropdown';
 
 export default function Navbar() {
   const { data: session } = useSession();
@@ -61,6 +62,14 @@ export default function Navbar() {
               📊 Dashboard
             </Button>
           </Link>
+          <Link href="/genz" style={{ textDecoration: "none" }}>
+            <Button
+              variant="text"
+              sx={{ color: "white", fontWeight: "medium", textTransform: "none" }}
+            >
+              🌟 Gen-Z Content
+            </Button>
+          </Link>
         </Box>
         {/* Right-aligned icons, upgrade, avatar, logout */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -93,13 +102,11 @@ export default function Navbar() {
               </Button>
             </Link>
           )}
-          <IconButton color="inherit">
-            <NotificationsIcon />
-          </IconButton>
+          <NotificationDropdown />
           <IconButton color="inherit">
             <MailOutlineIcon />
           </IconButton>
-          <Avatar src={user?.image || undefined} alt={user?.name || ""} sx={{ width: 36, height: 36, ml: 1 }} />
+          <Avatar src={user?.profilePicture || user?.image || undefined} alt={user?.name || ""} sx={{ width: 36, height: 36, ml: 1 }} />
           <IconButton
             onClick={() => signOut()}
             sx={{

@@ -1,6 +1,7 @@
 "use client";
 import { Card, CardActionArea, CardMedia, CardContent, Typography } from '@mui/material';
 import { motion } from 'framer-motion';
+import NewsLikeButton from './NewsLikeButton';
 
 interface NewsCardGridProps {
   article: {
@@ -10,6 +11,8 @@ interface NewsCardGridProps {
     imageUrl?: string | null;
     sourceName: string;
     description?: string | null;
+    isLiked: boolean;
+    likeCount: number;
   };
 }
 
@@ -54,6 +57,7 @@ export default function NewsCardGrid({ article }: NewsCardGridProps) {
             }}>
               {article.description}
             </Typography>
+            <NewsLikeButton articleId={article.id} isLiked={article.isLiked} likeCount={article.likeCount} />
           </CardContent>
         </CardActionArea>
       </Card>

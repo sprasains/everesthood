@@ -7,15 +7,16 @@ import {
   Box,
   Card,
   CardContent,
+  Paper,
+  Stack,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import Grid from "@mui/material/Grid";
-import Paper from "@mui/material/Paper";
 import { motion } from "framer-motion";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { AutoAwesome, Lightbulb, TrendingUp } from "@mui/icons-material";
+import AuthForm from "@/components/ui/AuthForm";
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: "#fff",
@@ -27,6 +28,7 @@ const Item = styled(Paper)(({ theme }) => ({
 
 export default function HomePage() {
   const { data: session, status } = useSession();
+  const [showSignUp, setShowSignUp] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -34,10 +36,6 @@ export default function HomePage() {
       console.log("User is logged in, but no automatic redirection.");
     }
   }, [session]);
-
-  const handleSignupRedirect = () => {
-    router.push("/auth/signup");
-  };
 
   if (status === "loading") {
     return (
@@ -82,98 +80,143 @@ export default function HomePage() {
         overflowX: "hidden",
       }}
     >
-      {/* Hero Section */}
       <Box
         sx={{
-          textAlign: "center",
-          py: { xs: 8, md: 12 },
-          px: { xs: 2, md: 4 },
-          background: "rgba(0, 0, 0, 0.3)",
-          backdropFilter: "blur(10px)",
-          borderRadius: 4,
-          maxWidth: "90%",
-          width: "1200px",
-          marginTop: { xs: 4, md: 8 },
+          display: 'flex',
+          flexDirection: { xs: 'column', md: 'row' },
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '100%',
+          minHeight: '100vh',
+          gap: { xs: 4, md: 6 },
+          py: 8,
         }}
       >
-        <motion.div
-          initial={{ opacity: 0, y: -50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, ease: "easeOut" }}
+        {/* Hero Section */}
+        <Box
+          sx={{
+            textAlign: 'center',
+            py: { xs: 6, md: 8 },
+            px: { xs: 2, md: 4 },
+            background: 'rgba(0, 0, 0, 0.3)',
+            backdropFilter: 'blur(10px)',
+            borderRadius: 4,
+            maxWidth: 600,
+            width: '100%',
+            flexShrink: 0,
+          }}
         >
-          <Typography
-            variant="h1"
-            fontWeight="bold"
-            gutterBottom
-            sx={{
-              fontSize: { xs: "2.8rem", md: "5rem" },
-              background: "linear-gradient(45deg, #ff4e53, #ffcc00)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              letterSpacing: "-1px",
-              marginBottom: 2,
-            }}
-          >
-            Welcome to Everhood
-          </Typography>
-          <Typography
-            variant="h5"
-            gutterBottom
-            sx={{
-              fontSize: { xs: "1.2rem", md: "1.8rem" },
-              color: "#f0f0f0",
-              fontWeight: 300,
-              marginBottom: 3,
-            }}
-          >
-            The AI Vibe Hub for Gen-Z
-          </Typography>
-          <Typography
-            variant="body1"
-            sx={{
-              maxWidth: "700px",
-              margin: "0 auto",
-              color: "#d0d0d0",
-              fontSize: { xs: "1rem", md: "1.1rem" },
-              lineHeight: 1.7,
-              padding: { xs: 1, md: 2 },
-            }}
-          >
-            Discover the latest in AI, tech, and culture with personalized
-            summaries, gamified learning, and a community that gets you.
-          </Typography>
-        </motion.div>
-
-        <Box mt={6}>
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.7, delay: 0.4, ease: "easeOut" }}
+            initial={{ opacity: 0, y: -50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, ease: 'easeOut' }}
           >
-            <Button
-              variant="contained"
-              size="large"
+            <Typography
+              variant="h1"
+              fontWeight="bold"
+              gutterBottom
               sx={{
-                background: "linear-gradient(45deg, #ff4e53, #ffcc00)",
-                padding: { xs: "14px 28px", md: "16px 32px" },
-                borderRadius: "50px",
-                fontWeight: "bold",
-                fontSize: { xs: "1rem", md: "1.1rem" },
-                textTransform: "none",
-                boxShadow: "0 10px 20px rgba(255, 78, 83, 0.5)",
-                transition: "transform 0.3s, box-shadow 0.3s",
-                "&:hover": {
-                  transform: "translateY(-3px)",
-                  boxShadow: "0 14px 28px rgba(255, 78, 83, 0.7)",
-                  background: "linear-gradient(45deg, #ffcc00, #ff4e53)",
-                },
+                fontSize: { xs: '2.8rem', md: '3.5rem' },
+                background: 'linear-gradient(45deg, #ff4e53, #ffcc00)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                letterSpacing: '-1px',
+                marginBottom: 2,
               }}
-              onClick={handleSignupRedirect}
-              startIcon={<AutoAwesome />}
             >
-              Get Started Free ✨
-            </Button>
+              Welcome to Everhood
+            </Typography>
+            <Typography
+              variant="h5"
+              gutterBottom
+              sx={{
+                fontSize: { xs: '1.2rem', md: '1.8rem' },
+                color: '#f0f0f0',
+                fontWeight: 300,
+                marginBottom: 3,
+              }}
+            >
+              The AI Vibe Hub for Gen-Z
+            </Typography>
+            <Typography
+              variant="body1"
+              sx={{
+                maxWidth: 700,
+                margin: '0 auto',
+                color: '#d0d0d0',
+                fontSize: { xs: '1rem', md: '1.1rem' },
+                lineHeight: 1.7,
+                padding: { xs: 1, md: 2 },
+              }}
+            >
+              Discover the latest in AI, tech, and culture with personalized
+              summaries, gamified learning, and a community that gets you.
+            </Typography>
           </motion.div>
+          <Box mt={6}>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.7, delay: 0.4, ease: 'easeOut' }}
+            >
+              <Button
+                variant="contained"
+                size="large"
+                sx={{
+                  background: 'linear-gradient(45deg, #ff4e53, #ffcc00)',
+                  padding: { xs: '14px 28px', md: '16px 32px' },
+                  borderRadius: '50px',
+                  fontWeight: 'bold',
+                  fontSize: { xs: '1rem', md: '1.1rem' },
+                  textTransform: 'none',
+                  boxShadow: '0 10px 20px rgba(255, 78, 83, 0.5)',
+                  transition: 'transform 0.3s, box-shadow 0.3s',
+                  '&:hover': {
+                    transform: 'translateY(-3px)',
+                    boxShadow: '0 14px 28px rgba(255, 78, 83, 0.7)',
+                    background: 'linear-gradient(45deg, #ffcc00, #ff4e53)',
+                  },
+                }}
+                onClick={() => {
+                  const signUpBox = document.getElementById('signup-box');
+                  if (signUpBox) signUpBox.scrollIntoView({ behavior: 'smooth' });
+                }}
+                startIcon={<AutoAwesome />}
+              >
+                Get Started Free ✨
+              </Button>
+            </motion.div>
+          </Box>
+        </Box>
+        {/* Auth Form Toggleable */}
+        <Box sx={{ width: '100%', maxWidth: 400, mx: 'auto' }}>
+          {showSignUp ? (
+            <Paper id="signup-box" elevation={16} sx={{ p: 4, borderRadius: 4, background: 'rgba(255,255,255,0.05)' }}>
+              <Typography variant="h4" fontWeight="bold" mb={2} align="center">
+                Create an Account
+              </Typography>
+              <AuthForm isSignUp />
+              <Typography variant="body2" sx={{ mt: 2, textAlign: 'center' }}>
+                Already have an account?{' '}
+                <Button variant="text" onClick={() => setShowSignUp(false)} sx={{ textTransform: 'none' }}>
+                  Sign In
+                </Button>
+              </Typography>
+            </Paper>
+          ) : (
+            <Paper elevation={16} sx={{ p: 4, borderRadius: 4, background: 'rgba(255,255,255,0.05)' }}>
+              <Typography variant="h4" fontWeight="bold" mb={2} align="center">
+                Sign In
+              </Typography>
+              <AuthForm />
+              <Typography variant="body2" sx={{ mt: 2, textAlign: 'center' }}>
+                Don't have an account?{' '}
+                <Button variant="text" onClick={() => setShowSignUp(true)} sx={{ textTransform: 'none' }}>
+                  Create an Account
+                </Button>
+              </Typography>
+            </Paper>
+          )}
         </Box>
       </Box>
 
@@ -201,7 +244,7 @@ export default function HomePage() {
         >
           Why Everesthood?
         </Typography>
-        <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
+        <Stack spacing={2}>
           {[
             {
               title: "AI-Powered Summaries",
@@ -222,7 +265,7 @@ export default function HomePage() {
               icon: <TrendingUp sx={{ fontSize: 50, color: "#ff8e53" }} />,
             },
           ].map((feature, index) => (
-            <Grid item xs={12} sm={6} md={4} key={index}>
+            <Box key={index}>
               <motion.div
                 initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -282,9 +325,9 @@ export default function HomePage() {
                   </CardContent>
                 </Card>
               </motion.div>
-            </Grid>
+            </Box>
           ))}
-        </Grid>
+        </Stack>
       </Box>
     </Container>
   );

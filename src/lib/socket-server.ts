@@ -12,6 +12,15 @@ export function getSocketServer(server: any) {
         methods: ["GET", "POST"]
       }
     });
+    io.on("connection", (socket) => {
+      // Expect client to emit 'join_user' with their userId
+      socket.on("join_user", (userId: string) => {
+        socket.join(userId);
+      });
+      socket.on("leave_user", (userId: string) => {
+        socket.leave(userId);
+      });
+    });
   }
   return io;
 }

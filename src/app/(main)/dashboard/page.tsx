@@ -10,6 +10,7 @@ import { useTheme } from '@mui/material/styles';
 import { useMemo } from 'react';
 import Skeleton from "@mui/material/Skeleton";
 import NewsTicker from '@/components/ui/NewsTicker';
+import AiContentHub from '@/components/ui/AiContentHub';
 
 const fetchUserPosts = async (userId: string) => {
   const res = await fetch(`/api/v1/posts?authorId=${userId}`);
@@ -62,6 +63,10 @@ export default function DashboardPage() {
         <NewsTicker />
       </Box>
       <Container maxWidth="xl" sx={{ pt: { xs: 4, md: 6 }, pb: 6 }}>
+        {/* AI Content Hub at the top of dashboard */}
+        <Box sx={{ mb: 4 }}>
+          <AiContentHub />
+        </Box>
         {/* Main Dashboard Widgets */}
         <Grid container spacing={4}>
           {/* Main Content Area */}

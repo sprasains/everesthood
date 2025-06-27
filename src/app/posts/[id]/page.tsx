@@ -4,6 +4,9 @@ import { Suspense } from "react";
 import CommentList from "@/components/ui/CommentList";
 import CommentForm from "@/components/ui/CommentForm";
 import PostPageSkeleton from "@/components/ui/PostPageSkeleton";
+import dynamic from "next/dynamic";
+import ThreadedComments from '@/components/ui/ThreadedComments';
+const EditPostButton = dynamic(() => import("@/components/ui/EditPostButton"), { ssr: false });
 
 async function fetchPost(id: string) {
   const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/v1/posts/${id}`);
@@ -45,11 +48,11 @@ export default async function PostPage({ params }: { params: { id: string } }) {
               </a>
             </Card>
           )}
+          <EditPostButton postId={post.id} authorId={post.author?.id} />
         </CardContent>
       </Card>
       <Suspense fallback={<PostPageSkeleton />}>
-        <CommentForm postId={post.id} onComment={() => {}} />
-        <CommentList postId={post.id} />
+        <ThreadedComments postId={post.id} currentUserId={user?.id || ''} />
       </Suspense>
     </Box>
   );

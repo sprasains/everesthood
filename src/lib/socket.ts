@@ -11,3 +11,13 @@ export function getSocket() {
   }
   return socket;
 }
+
+export function joinUserRoom(userId: string) {
+  const s = getSocket();
+  s.emit('join_user', userId);
+}
+
+export function leaveUserRoom(userId: string) {
+  const s = getSocket();
+  s.emit('leave_user', userId);
+}

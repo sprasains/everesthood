@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const notifications = await prisma.notification.findMany({
+  let notifications = await prisma.notification.findMany({
     where: { recipientId: session.user.id },
     include: {
       actor: { select: { id: true, name: true, profilePicture: true } },
@@ -18,6 +18,19 @@ export async function GET(request: NextRequest) {
     orderBy: { createdAt: 'desc' },
     take: 20,
   });
+
+  // Attach post/news title for NEW_POST and NEWS
+  notifications = await Promise.all(notifications.map(async (n) => {
+    if (n.type === 'NEW_POST' && n.entityId) {
+      const post = await prisma.post.findUnique({ where: { id: n.entityId } });
+      return { ...n, title: post?.title || '' };
+    }
+    if (n.type === 'NEWS' && n.entityId) {
+      const news = await prisma.newsArticle.findUnique({ where: { id: n.entityId } });
+      return { ...n, title: news?.title || '', actor: null };
+    }
+    return n;
+  }));
 
   return NextResponse.json(notifications);
 }
@@ -28,16 +41,39 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // No body expected for mark as read, but if you add options in the future, validate here
-    // Example: const markSchema = z.object({ ids: z.array(z.string()).optional() });
-    // let body;
-    // try {
-    //   body = await request.json();
-    //   markSchema.parse(body);
-    // } catch (err) {
-    //   return NextResponse.json({ error: "Invalid notification data", details: err instanceof z.ZodError ? err.errors : err }, { status: 400 });
-    // }
+    // If admin/system notification
+    const body = await request.json().catch(() => null);
+    if (body && body.type === 'SYSTEM' && body.message) {
+      // Only allow admin (add your admin check here)
+      if (session.user.email !== process.env.ADMIN_EMAIL) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      }
+      const users = await prisma.user.findMany({ select: { id: true } });
+      for (const user of users) {
+        await prisma.notification.create({
+          data: {
+            recipientId: user.id,
+            actorId: session.user.id,
+            type: 'SYSTEM',
+            entityId: null,
+            snippet: body.message,
+          },
+        });
+        try {
+          // @ts-ignore
+          if (globalThis.io) {
+            globalThis.io.to(user.id).emit('notification', {
+              type: 'SYSTEM',
+              message: body.message,
+              actorId: session.user.id,
+            });
+          }
+        } catch (e) { /* ignore */ }
+      }
+      return NextResponse.json({ message: 'System notification sent.' });
+    }
 
+    // Mark all as read (default behavior)
     await prisma.notification.updateMany({
         where: { recipientId: session.user.id, isRead: false },
         data: { isRead: true },

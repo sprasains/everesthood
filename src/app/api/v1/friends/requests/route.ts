@@ -44,6 +44,26 @@ export async function POST(request: NextRequest) {
     },
   });
 
+  // Notify the receiver
+  await prisma.notification.create({
+    data: {
+      recipientId: receiverId,
+      actorId: requesterId,
+      type: 'FRIEND_REQUEST',
+      entityId: newFriendship.requesterId,
+    },
+  });
+  // Emit websocket event
+  try {
+    // @ts-ignore
+    if (globalThis.io) {
+      globalThis.io.to(receiverId).emit('notification', {
+        type: 'FRIEND_REQUEST',
+        actorId: requesterId,
+      });
+    }
+  } catch (e) { /* ignore */ }
+
   return NextResponse.json(newFriendship, { status: 201 });
 }
 
