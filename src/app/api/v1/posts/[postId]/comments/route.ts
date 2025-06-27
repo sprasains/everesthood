@@ -39,14 +39,20 @@ export async function POST(
     if (!session?.user?.id)
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const { content } = await request.json();
+    const { content, mentionedUserIds = [] } = await request.json();
     const { postId } = params;
 
     const post = await prisma.post.findUnique({ where: { id: postId } });
     if (!post) return NextResponse.json({ error: "Post not found" }, { status: 404 });
 
     const newComment = await prisma.comment.create({
-      data: { content, postId, authorId: session.user.id },
+      data: {
+        content,
+        postId,
+        authorId: session.user.id,
+        // Connect mentioned users if any (assuming you add a relation in the schema)
+        // mentionedUsers: mentionedUserIds.length > 0 ? { connect: mentionedUserIds.map((id: string) => ({ id })) } : undefined,
+      },
       include: { author: { select: { name: true, image: true, id: true } } },
     });
 
@@ -60,6 +66,27 @@ export async function POST(
           entityId: postId,
         },
       });
+    }
+    // Mention notifications for each mentioned user
+    for (const mentionedId of mentionedUserIds.filter((id: string) => id !== session.user.id)) {
+      await prisma.notification.create({
+        data: {
+          recipientId: mentionedId,
+          actorId: session.user.id,
+          type: 'MENTION',
+          entityId: postId,
+        },
+      });
+      try {
+        // @ts-ignore
+        if (globalThis.io) {
+          globalThis.io.to(mentionedId).emit('notification', {
+            type: 'MENTION',
+            postId: postId,
+            actorId: session.user.id,
+          });
+        }
+      } catch (e) { /* ignore */ }
     }
     emitCommentUpdate(postId);
     return NextResponse.json(newComment, { status: 201 });

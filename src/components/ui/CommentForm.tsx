@@ -3,9 +3,12 @@ import { useState } from "react";
 import { Box, TextField, Button, CircularProgress } from "@mui/material";
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
+import dynamic from "next/dynamic";
+
+const RichTextEditor = dynamic(() => import("@/components/ui/RichTextEditor"), { ssr: false });
 
 export default function CommentForm({ postId, onComment, parentId }: { postId: string; onComment: (content: string) => void; parentId?: string }) {
-  const [content, setContent] = useState("");
+  const [editorContent, setEditorContent] = useState<any>(null);
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const mutation = useMutation({
@@ -18,7 +21,7 @@ export default function CommentForm({ postId, onComment, parentId }: { postId: s
       if (!res.ok) throw new Error('Failed to post comment');
     },
     onSuccess: (_data, variables) => {
-      setContent("");
+      setEditorContent(null);
       queryClient.invalidateQueries({ queryKey: ['comments', postId] });
       onComment(variables);
       enqueueSnackbar('Comment posted!', { variant: 'success' });
@@ -28,22 +31,28 @@ export default function CommentForm({ postId, onComment, parentId }: { postId: s
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    mutation.mutate(content);
+    const mentions: any[] = [];
+    const findMentions = (node: any) => {
+      if (node?.type === "mention" && node.attrs?.id) {
+        mentions.push(node.attrs.id);
+      }
+      if (node?.content) {
+        node.content.forEach(findMentions);
+      }
+    };
+    findMentions(editorContent);
+    const mentionedUserIds = [...new Set(mentions)];
+    mutation.mutate(editorContent);
   };
 
   return (
     <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2, mb: 2, display: 'flex', gap: 2 }}>
-      <TextField
-        value={content}
-        onChange={e => setContent(e.target.value)}
-        label="Add a comment"
-        size="small"
-        fullWidth
-        required
-      />
-      <Button type="submit" variant="contained" disabled={mutation.status === 'pending' || !content.trim()}>
+      <Box sx={{ my: 2 }}>
+        <RichTextEditor value={editorContent} onChange={setEditorContent} />
+      </Box>
+      <Button type="submit" variant="contained" disabled={mutation.status === 'pending' || !editorContent}>
         {mutation.status === 'pending' ? <CircularProgress size={18} /> : "Post"}
       </Button>
     </Box>

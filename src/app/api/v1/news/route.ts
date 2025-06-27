@@ -13,14 +13,14 @@ export async function GET(request: NextRequest) {
       orderBy: { publishedAt: "desc" },
       take: limit,
       include: {
-        likes: userId ? { where: { userId } } : false,
+        likes: true,
         _count: { select: { likes: true } },
       },
     });
     const result = articles.map((article: any) => ({
       ...article,
       likeCount: article._count.likes,
-      isLiked: userId ? (article.likes && article.likes.length > 0) : false,
+      isLiked: userId ? (article.likes && article.likes.some((like: any) => like.userId === userId)) : false,
       likes: undefined,
       _count: undefined,
     }));
