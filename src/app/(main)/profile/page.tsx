@@ -8,7 +8,7 @@ import PersonIcon from "@mui/icons-material/Person";
 import SettingsIcon from "@mui/icons-material/Settings";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import BarChartIcon from "@mui/icons-material/BarChart";
-import { CircularProgress, Box, Container, Paper, Tabs, Tab, Typography } from "@mui/material";
+import { CircularProgress, Box, Container, Paper, Tabs, Tab, Typography, Avatar } from "@mui/material";
 
 // Skeleton Loader Component
 const SkeletonLoader = () => (
@@ -138,7 +138,11 @@ export default function ProfilePage() {
                 }}
               >
                 {/* Avatar or Persona Icon */}
-                {getPersonaIcon(user?.persona)}
+                {user?.image ? (
+                  <Avatar src={user.image} alt={user.name || ""} sx={{ width: 96, height: 96 }} />
+                ) : (
+                  getPersonaIcon(user?.persona)
+                )}
               </Box>
               <Box>
                 <Typography

@@ -109,7 +109,6 @@ export const authOptions: NextAuthOptions = {
                 email: user.email,
                 name: user.name,
                 image: user.image,
-                trialEndsAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
               },
             });
           }

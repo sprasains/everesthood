@@ -24,12 +24,12 @@ async function main() {
   await prisma.friendship.upsert({
     where: { requesterId_receiverId: { requesterId: users[0].id, receiverId: users[1].id } },
     update: {},
-    create: { requesterId: users[0].id, receiverId: users[1].id, status: "fam" },
+    create: { requesterId: users[0].id, receiverId: users[1].id, status: "ACCEPTED" },
   });
   await prisma.friendship.upsert({
     where: { requesterId_receiverId: { requesterId: users[0].id, receiverId: users[2].id } },
     update: {},
-    create: { requesterId: users[0].id, receiverId: users[2].id, status: "fam" },
+    create: { requesterId: users[0].id, receiverId: users[2].id, status: "ACCEPTED" },
   });
 
   // Seed UserAchievements for user 0

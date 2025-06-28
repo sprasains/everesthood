@@ -11,11 +11,11 @@ export async function POST(request: NextRequest, { params }: { params: { article
   const articleId = params.articleId;
   const userId = session.user.id;
 
-  // Create a new post referencing the original article
+  // Create a new post referencing the newsArticleId
   const post = await prisma.post.create({
     data: {
       authorId: userId,
-      originalArticleId: articleId,
+      newsArticleId: articleId,
       content: '', // Optionally allow user to add a comment
       type: 'LINK', // or 'REPOST' if you add this type
     },

@@ -11,6 +11,7 @@ import { useMemo } from 'react';
 import Skeleton from "@mui/material/Skeleton";
 import NewsTicker from '@/components/ui/NewsTicker';
 import AiContentHub from '@/components/ui/AiContentHub';
+import { logger, newCorrelationId } from '@/services/logger';
 
 const fetchUserPosts = async (userId: string) => {
   const res = await fetch(`/api/v1/posts?authorId=${userId}`);
@@ -19,10 +20,21 @@ const fetchUserPosts = async (userId: string) => {
 };
 
 const fetchFriendsCount = async () => {
-  const res = await fetch("/api/v1/friends");
-  if (!res.ok) throw new Error("Failed to fetch friends");
-  const data = await res.json();
-  return Array.isArray(data) ? data.length : 0;
+  newCorrelationId();
+  logger.info('Fetching friends count.');
+  try {
+    const res = await fetch("/api/v1/friends", { headers: { 'X-Correlation-ID': correlationId } });
+    if (!res.ok) {
+      logger.warn('Failed to fetch friends.', { status: res.status });
+      throw new Error("Failed to fetch friends");
+    }
+    const data = await res.json();
+    logger.info('Fetched friends count.', { count: Array.isArray(data) ? data.length : 0 });
+    return Array.isArray(data) ? data.length : 0;
+  } catch (error: any) {
+    logger.error('Error fetching friends count.', { error: error.message, stack: error.stack });
+    throw error;
+  }
 };
 const fetchAchievementsCount = async () => {
   const res = await fetch("/api/v1/achievements");
@@ -70,7 +82,7 @@ export default function DashboardPage() {
         {/* Main Dashboard Widgets */}
         <Grid container spacing={4}>
           {/* Main Content Area */}
-          <Grid item xs={12} md={8}>
+          <Grid sx={{ width: '100%' }}>
             {/* ProfileStatusCard */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
               <Paper elevation={3} sx={{ p: 3, borderRadius: 3, minHeight: 220, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
@@ -85,7 +97,7 @@ export default function DashboardPage() {
               <Paper elevation={3} sx={{ p: 3, borderRadius: 3, minHeight: 220 }}>
                 <Typography variant="h6" fontWeight="bold" gutterBottom>Your At-a-Glance Stats</Typography>
                 <Grid container spacing={2}>
-                  <Grid item xs={6} sm={4}>
+                  <Grid sx={{ width: { xs: '50%', sm: '33.33%' } }}>
                     <Link href={user?.id ? `/profile/${user.id}` : "/profile"} style={{ textDecoration: 'none' }}>
                       <Paper sx={{ p: 2, textAlign: 'center', borderRadius: 2, transition: 'transform 0.2s', '&:hover': { transform: 'scale(1.05)', boxShadow: 6 }, cursor: 'pointer' }}>
                         {postsLoading ? (
@@ -97,7 +109,7 @@ export default function DashboardPage() {
                       </Paper>
                     </Link>
                   </Grid>
-                  <Grid item xs={6} sm={4}>
+                  <Grid sx={{ width: { xs: '50%', sm: '33.33%' } }}>
                     <Link href="/friends" style={{ textDecoration: 'none' }}>
                       <Paper sx={{ p: 2, textAlign: 'center', borderRadius: 2, transition: 'transform 0.2s', '&:hover': { transform: 'scale(1.05)', boxShadow: 6 }, cursor: 'pointer' }}>
                         {friendsCountLoading ? (
@@ -109,7 +121,7 @@ export default function DashboardPage() {
                       </Paper>
                     </Link>
                   </Grid>
-                  <Grid item xs={12} sm={4}>
+                  <Grid sx={{ width: { xs: '100%', sm: '33.33%' } }}>
                     <Link href="/achievements" style={{ textDecoration: 'none' }}>
                       <Paper sx={{ p: 2, textAlign: 'center', borderRadius: 2, transition: 'transform 0.2s', '&:hover': { transform: 'scale(1.05)', boxShadow: 6 }, cursor: 'pointer' }}>
                         {achievementsCountLoading ? (
@@ -136,7 +148,7 @@ export default function DashboardPage() {
                 ) : postsData && postsData.posts.length > 0 ? (
                   <Grid container spacing={2}>
                     {postsData.posts.slice(0, 3).map((post: any) => (
-                      <Grid item xs={12} key={post.id}>
+                      <Grid key={post.id} sx={{ width: '100%' }}>
                         <PostCard post={post} />
                       </Grid>
                     ))}

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { default as fetchGenZContent } from '@/scripts/fetchGenZContent';
+import { fetchGenZContent } from '../../../../../../scripts/fetchGenZContent';
 
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get('authorization');

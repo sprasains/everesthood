@@ -51,6 +51,21 @@ model User {
   stripePriceId          String?
   stripeCurrentPeriodEnd DateTime?
   subscriptionTier       SubscriptionTier  @default(FREE)
+
+  // Gamification & Progress Tracking
+  xp              Int      @default(0)
+  level           Int      @default(1)
+  streak          Int      @default(0)
+  lastActiveDate  DateTime?
+  persona         String   @default("ZenGPT")
+  dailyProgress   Int      @default(0)
+  weeklyGoal      Int      @default(5)
+  achievements    String[] @default([])
+  friends         String[] @default([])
+  publicProfile   Boolean  @default(true)
+  articlesRead    Int      @default(0)
+  summariesUsed   Int      @default(0)
+  sharesCount     Int      @default(0)
 }
 
 model Account {
@@ -109,6 +124,8 @@ model Post {
   resharedFrom   Post?      @relation("Reshares", fields: [resharedFromId], references: [id], onDelete: Restrict, onUpdate: Restrict)
   reshares       Post[]     @relation("Reshares")
   mentionedUsers User[]     @relation("PostMentions")
+  newsArticleId  String?    // Optional relation to NewsArticle for reposts
+  newsArticle    NewsArticle? @relation(fields: [newsArticleId], references: [id])
 
   @@index([authorId])
   @@index([createdAt])
@@ -323,6 +340,7 @@ model NewsArticle {
   tags         String[]  // Array of tags/keywords
   content      String?   @db.Text // Full article content if available
   likes        NewsArticleLike[]
+  posts        Post[]    // Relation from Post.newsArticle
 
   @@index([publishedAt])
 }

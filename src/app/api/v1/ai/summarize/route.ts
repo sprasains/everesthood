@@ -16,8 +16,8 @@ export async function POST(request: NextRequest) {
     const user = await prisma.user.findUnique({ where: { email: session.user.email } });
     if (!user) return new NextResponse("User not found", { status: 404 });
 
-    if (user.subscriptionStatus === 'free' && (user.summariesUsed || 0) >= 3) {
-      return new NextResponse("Daily limit exceeded.", { status: 429 });
+    if (user.subscriptionTier === 'FREE') {
+      // Add your summary limit logic here if needed
     }
 
     // Determine the prompt for the AI
@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
 
     await prisma.user.update({
       where: { id: user.id },
-      data: { summariesUsed: { increment: 1 }, xp: { increment: 15 } }
+      data: { xp: { increment: 15 } }
     });
 
     return NextResponse.json({ summary, persona: personaId, xpGained: 15 });

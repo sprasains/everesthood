@@ -5,7 +5,7 @@ import { GENZ_SOURCES } from "../src/lib/genz-sources";
 const prisma = new PrismaClient();
 const parser = new RSSParser();
 
-async function fetchGenZContent() {
+export async function fetchGenZContent() {
   console.log("🌟 Starting Gen-Z content aggregation from live sources...");
 
   for (const source of GENZ_SOURCES) {
@@ -76,15 +76,3 @@ async function fetchGenZContent() {
 
   console.log("🎉 Gen-Z content aggregation finished.");
 }
-
-fetchGenZContent()
-  .catch((e) => {
-    console.error(
-      "A critical error occurred during the Gen-Z fetch process:",
-      e
-    );
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });

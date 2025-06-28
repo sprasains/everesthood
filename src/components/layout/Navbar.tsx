@@ -106,7 +106,7 @@ export default function Navbar() {
           <IconButton color="inherit">
             <MailOutlineIcon />
           </IconButton>
-          <Avatar src={user?.profilePicture || user?.image || undefined} alt={user?.name || ""} sx={{ width: 36, height: 36, ml: 1 }} />
+          <Avatar src={user?.image || undefined} alt={user?.name || ""} sx={{ width: 36, height: 36, ml: 1 }} />
           <IconButton
             onClick={() => signOut()}
             sx={{

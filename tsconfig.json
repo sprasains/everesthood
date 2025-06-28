@@ -27,7 +27,12 @@
   "exclude": ["node_modules"],
   "ts-node": {
     "compilerOptions": {
-      "module": "commonjs"
+      "module": "commonjs",
+      "baseUrl": ".",
+      "paths": {
+      "@/*": ["./src/*"],
+      "@/scripts/*": ["./src/scripts/*"]
+    }
     }
   }
 }

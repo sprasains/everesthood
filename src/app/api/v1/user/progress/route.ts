@@ -14,17 +14,6 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { action, entityType, entityId, metadata } = body;
 
-    // Record user activity
-    await prisma.userActivity.create({
-      data: {
-        userId: session.user.id,
-        action,
-        entityType,
-        entityId,
-        metadata,
-      },
-    });
-
     // Update user stats based on action
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },

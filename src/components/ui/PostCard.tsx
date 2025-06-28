@@ -25,7 +25,7 @@ import RichTextRenderer from './RichTextRenderer';
 
 type PostWithDetails = Post & {
   author: Partial<User>;
-  originalArticle?: Article | null;
+  newsArticle?: Article | null;
   likeCount?: number; // Add likeCount for UI
 };
 
@@ -171,31 +171,31 @@ export default function PostCard({ post }: PostCardProps) {
             ))}
           </Box>
         )}
-        {post.originalArticle && (
+        {post.newsArticle && (
           <Card variant="outlined" sx={{ p: 2, mt: 2, borderColor: "rgba(255,255,255,0.2)" }}>
             <MuiLink
-              href={post.originalArticle.url}
+              href={post.newsArticle.url}
               target="_blank"
               rel="noopener noreferrer"
               underline="none"
               sx={{ display: 'flex', alignItems: 'center', gap: 2 }}
             >
-              {post.originalArticle.imageUrl && (
+              {post.newsArticle.imageUrl && (
                 <CardMedia
                   component="img"
-                  image={post.originalArticle.imageUrl}
+                  image={post.newsArticle.imageUrl}
                   sx={{ width: 80, height: 80, objectFit: "cover", borderRadius: 1, flexShrink: 0 }}
                 />
               )}
               <Box sx={{ flex: 1 }}>
                 <Typography fontWeight="bold" sx={{ mt: 0 }}>
-                  {post.originalArticle.title}
+                  {post.newsArticle.title}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  {post.originalArticle.sourceName}
+                  {post.newsArticle.sourceName}
                 </Typography>
                 <Button
-                  href={post.originalArticle.url}
+                  href={post.newsArticle.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   size="small"

@@ -22,14 +22,12 @@ export async function GET(req: NextRequest) {
     include: {
       author: { select: { id: true, name: true, image: true } },
       likes: true,
-      dislikes: true,
       replies: {
         take: 5,
         orderBy: { createdAt: "asc" },
         include: {
           author: { select: { id: true, name: true, image: true } },
           likes: true,
-          dislikes: true,
         },
       },
     },
@@ -72,7 +70,6 @@ export async function POST(req: NextRequest) {
     include: {
       author: { select: { id: true, name: true, image: true } },
       likes: true,
-      dislikes: true,
       replies: true,
     },
   });

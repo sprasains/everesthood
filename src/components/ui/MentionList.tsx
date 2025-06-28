@@ -68,4 +68,6 @@ const MentionList = forwardRef((props: any, ref) => {
   );
 });
 
+MentionList.displayName = 'MentionList';
+
 export default MentionList; 

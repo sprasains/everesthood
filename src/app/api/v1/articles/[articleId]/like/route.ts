@@ -14,25 +14,17 @@ export async function POST(
   const { articleId } = params;
   const userId = session.user.id;
 
-  const existingLike = await prisma.like.findUnique({
-    where: { userId_articleId: { userId, articleId } },
+  const existingLike = await prisma.newsArticleLike.findUnique({
+    where: { userId_newsArticleId: { userId, newsArticleId: articleId } },
   });
 
   if (existingLike) {
-    await prisma.like.delete({
-      where: { userId_articleId: { userId, articleId } },
+    await prisma.newsArticleLike.delete({
+      where: { userId_newsArticleId: { userId, newsArticleId: articleId } },
     });
-    const article = await prisma.article.update({
-      where: { id: articleId },
-      data: { likeCount: { decrement: 1 } },
-    });
-    return NextResponse.json({ liked: false, likeCount: article.likeCount });
+    return NextResponse.json({ liked: false });
   } else {
-    await prisma.like.create({ data: { userId, articleId } });
-    const article = await prisma.article.update({
-      where: { id: articleId },
-      data: { likeCount: { increment: 1 } },
-    });
-    return NextResponse.json({ liked: true, likeCount: article.likeCount });
+    await prisma.newsArticleLike.create({ data: { userId, newsArticleId: articleId } });
+    return NextResponse.json({ liked: true });
   }
 }

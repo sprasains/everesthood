@@ -1,10 +1,11 @@
 "use client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Container, Typography, Box, Grid, Paper, Avatar, Button, CircularProgress, Tabs, Tab } from "@mui/material";
+import { Container, Typography, Box, Paper, Avatar, Button, CircularProgress, Tabs, Tab } from "@mui/material";
 import Link from 'next/link';
 import { useState } from 'react';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
+import Grid from '@mui/material/Grid';
 
 const fetchFriendsData = async () => {
   const res = await fetch('/api/v1/friends');
@@ -54,9 +55,9 @@ export default function FriendsPage() {
                 </Tabs>
             </Box>
             {tab === 0 && (
-                 <Grid container spacing={2} sx={{ mt: 2 }}>
+                 <Grid container spacing={3}>
                     {data.friends.map((friend: any) => (
-                        <Grid key={friend.id} size={{ xs: 12, sm: 6, md: 4 }}>
+                        <Grid key={friend.id} sx={{ width: { xs: '100%', sm: '50%', md: '33.33%' } }}>
                             <Paper sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
                                 <Avatar src={friend.profilePicture} />
                                 <Typography fontWeight="bold" component={Link} href={`/profile/${friend.id}`} sx={{ textDecoration: 'none', color: 'inherit' }}>{friend.name}</Typography>
@@ -66,12 +67,12 @@ export default function FriendsPage() {
                  </Grid>
             )}
             {tab === 1 && (
-                <Grid container spacing={2} sx={{ mt: 2 }}>
+                <Grid container columns={12} spacing={2} sx={{ mt: 2 }}>
                     {data.pendingReceived.length > 0 ? data.pendingReceived.map((req: any) => (
-                        <Grid key={req.requester.id} size={{ xs: 12, sm: 6, md: 4 }}>
-                             <Paper sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <Grid key={req.requester.id} sx={{ width: { xs: '100%', sm: '50%', md: '33.33%' } }}>
+                            <Paper sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2}}>
-                                    <Avatar src={req.requester.profilePicture} />
+                                    <Avatar src={req.requester.image || undefined} />
                                     <Typography fontWeight="bold">{req.requester.name}</Typography>
                                 </Box>
                                 <Box>

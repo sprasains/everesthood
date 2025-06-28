@@ -68,16 +68,17 @@ export default function NewsFeedPage() {
       },
       { root: null, rootMargin: "0px", threshold: 1.0 }
     );
-    if (loadMoreRef.current) observer.observe(loadMoreRef.current);
+    const currentRef = loadMoreRef.current;
+    if (currentRef) observer.observe(currentRef);
     return () => {
-      if (loadMoreRef.current) observer.unobserve(loadMoreRef.current);
+      if (currentRef) observer.unobserve(currentRef);
     };
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   return (
     <Container maxWidth="md" sx={{ mt: 4, mb: 6 }}>
       <Typography variant="h4" gutterBottom fontWeight="bold" sx={{ letterSpacing: 1 }}>
-        What's New in the Hood?
+        What&apos;s New in the Hood?
       </Typography>
       <Tabs
         value={filter}

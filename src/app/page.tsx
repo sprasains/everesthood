@@ -210,7 +210,7 @@ export default function HomePage() {
               </Typography>
               <AuthForm />
               <Typography variant="body2" sx={{ mt: 2, textAlign: 'center' }}>
-                Don't have an account?{' '}
+                Don&apos;t have an account?{' '}
                 <Button variant="text" onClick={() => setShowSignUp(true)} sx={{ textTransform: 'none' }}>
                   Create an Account
                 </Button>

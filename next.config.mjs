@@ -6,7 +6,7 @@ const nextConfig = {
     domains: ["newsapi.org", "hypebeast.com", "dazeddigital.com", "nylon.com"],
   },
   experimental: {
-    serverActions: true,
+    webpackBuildWorker: true // Add this to enable parallel builds
   },
 };
 

@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   Box,
   Typography,
@@ -23,6 +23,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CommentForm from './CommentForm';
 import { v4 as uuidv4 } from 'uuid';
+import { logger, newCorrelationId } from '@/services/logger';
 
 // Types
 interface Comment {
@@ -63,12 +64,9 @@ const ThreadedComments: React.FC<ThreadedCommentsProps> = ({
   const [submitting, setSubmitting] = useState(false);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [correlationId, setCorrelationId] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchInitialComments();
-  }, [postId]);
-
-  const fetchInitialComments = async () => {
+  const fetchInitialComments = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch(`/api/v1/comments?postId=${postId}&limit=10`);
@@ -80,7 +78,11 @@ const ThreadedComments: React.FC<ThreadedCommentsProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [postId]);
+
+  useEffect(() => {
+    fetchInitialComments();
+  }, [postId, fetchInitialComments]);
 
   const loadMoreComments = async () => {
     if (!nextCursor) return;
@@ -148,29 +150,57 @@ const ThreadedComments: React.FC<ThreadedCommentsProps> = ({
   };
 
   const handleLike = async (comment: Comment) => {
-    await fetch(`/api/v1/comments/${comment.id}/like`, { method: "POST" });
+    newCorrelationId();
+    logger.info('Liking comment.', { commentId: comment.id });
+    try {
+      await fetch(`/api/v1/comments/${comment.id}/like`, { method: "POST" });
+      logger.info('Comment liked.');
+    } catch (error: any) {
+      logger.error('Failed to like comment.', { error: error.message, stack: error.stack });
+    }
     fetchInitialComments();
   };
 
   const handleDislike = async (comment: Comment) => {
-    await fetch(`/api/v1/comments/${comment.id}/dislike`, { method: "POST" });
+    newCorrelationId();
+    logger.info('Disliking comment.', { commentId: comment.id });
+    try {
+      await fetch(`/api/v1/comments/${comment.id}/dislike`, { method: "POST" });
+      logger.info('Comment disliked.');
+    } catch (error: any) {
+      logger.error('Failed to dislike comment.', { error: error.message, stack: error.stack });
+    }
     fetchInitialComments();
   };
 
   const handleDelete = async (comment: Comment) => {
     if (!window.confirm("Delete this comment?")) return;
-    await fetch(`/api/v1/comments/${comment.id}`, { method: "DELETE" });
+    newCorrelationId();
+    logger.info('Deleting comment.', { commentId: comment.id });
+    try {
+      await fetch(`/api/v1/comments/${comment.id}`, { method: "DELETE" });
+      logger.info('Comment deleted.');
+    } catch (error: any) {
+      logger.error('Failed to delete comment.', { error: error.message, stack: error.stack });
+    }
     fetchInitialComments();
   };
 
   const submitReply = async (parentId: string) => {
     if (!replyContent.trim()) return;
     setSubmitting(true);
-    await fetch(`/api/v1/comments`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ postId, parentId, content: replyContent }),
-    });
+    newCorrelationId();
+    logger.info('Submitting comment reply.', { parentId });
+    try {
+      await fetch(`/api/v1/comments`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", 'X-Correlation-ID': correlationId },
+        body: JSON.stringify({ postId, parentId, content: replyContent }),
+      });
+      logger.info('Comment reply submitted.');
+    } catch (error: any) {
+      logger.error('Failed to submit comment reply.', { error: error.message, stack: error.stack });
+    }
     setReplyingTo(null);
     setReplyContent("");
     setSubmitting(false);
@@ -180,11 +210,18 @@ const ThreadedComments: React.FC<ThreadedCommentsProps> = ({
   const submitEdit = async (commentId: string) => {
     if (!editContent.trim()) return;
     setSubmitting(true);
-    await fetch(`/api/v1/comments/${commentId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ content: editContent }),
-    });
+    newCorrelationId();
+    logger.info('Submitting comment edit.', { commentId });
+    try {
+      await fetch(`/api/v1/comments/${commentId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", 'X-Correlation-ID': correlationId },
+        body: JSON.stringify({ content: editContent }),
+      });
+      logger.info('Comment edited.');
+    } catch (error: any) {
+      logger.error('Failed to edit comment.', { error: error.message, stack: error.stack });
+    }
     setEditing(null);
     setEditContent("");
     setSubmitting(false);

@@ -183,17 +183,17 @@ export default function NotificationDropdown() {
                       <>
                         {n.snippet && (
                           <Typography variant="body2" color="#65676b" sx={{ fontStyle: 'italic', mb: 0.5 }}>
-                            "{n.snippet.length > 80 ? n.snippet.slice(0, 80) + '…' : n.snippet}"
+                            &quot;{n.snippet.length > 80 ? n.snippet.slice(0, 80) + '…' : n.snippet}&quot;
                           </Typography>
                         )}
                         {n.type === 'NEW_POST' && n.title && (
                           <Typography variant="body2" color="#7c4dff" sx={{ fontWeight: 500, mb: 0.5 }}>
-                            {n.title.length > 80 ? n.title.slice(0, 80) + '…' : n.title}
+                            &quot;{n.title.length > 80 ? n.title.slice(0, 80) + '…' : n.title}&quot;
                           </Typography>
                         )}
                         {n.type === 'NEWS' && n.title && (
                           <Typography variant="body2" color="#0288d1" sx={{ fontWeight: 500, mb: 0.5 }}>
-                            {n.title.length > 80 ? n.title.slice(0, 80) + '…' : n.title}
+                            &quot;{n.title.length > 80 ? n.title.slice(0, 80) + '…' : n.title}&quot;
                           </Typography>
                         )}
                         <Typography variant="caption" sx={{ color: '#8a8d91', mt: 0.5 }}>

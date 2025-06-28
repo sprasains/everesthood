@@ -1,6 +1,7 @@
 "use client";
 import { useState } from 'react';
 import { Box, Typography, Button, LinearProgress } from '@mui/material';
+import { logger, newCorrelationId } from '@/services/logger';
 
 interface PollOption {
     id: string;
@@ -25,21 +26,26 @@ export default function PollCard({ pollData }: { pollData: PollData }) {
     const handleVote = async (optionId: string) => {
         setLoading(true);
         setError("");
+        newCorrelationId();
+        logger.info('Voting on poll option.', { optionId });
         try {
-            const res = await fetch(`/api/v1/polls/${optionId}/vote`, { method: 'POST' });
+            const res = await fetch(`/api/v1/polls/${optionId}/vote`, { method: 'POST', headers: { 'X-Correlation-ID': correlationId } });
             if (!res.ok) {
                 const msg = await res.text();
+                logger.warn('Failed to vote on poll.', { status: res.status, message: msg });
                 setError(msg || "Failed to vote");
                 setLoading(false);
                 return;
             }
+            logger.info('Poll vote successful.', { optionId });
             setVoted(optionId);
             setOptions(options.map((opt: PollOption) =>
                 opt.id === optionId
                     ? { ...opt, _count: { ...opt._count, votes: opt._count.votes + 1 } }
                     : opt
             ));
-        } catch (e) {
+        } catch (e: any) {
+            logger.error('Network error during poll vote.', { error: e.message, stack: e.stack });
             setError("Network error");
         }
         setLoading(false);

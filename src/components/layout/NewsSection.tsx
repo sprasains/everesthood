@@ -1,7 +1,8 @@
 "use client";
 import { useQuery } from '@tanstack/react-query';
-import { Box, Typography, Grid, CircularProgress } from '@mui/material';
+import { Box, Typography, CircularProgress } from '@mui/material';
 import NewsCard from '../ui/NewsCard';
+import Grid from '@mui/material/Grid';
 
 const fetchNews = async () => {
     const res = await fetch('/api/v1/news');
@@ -21,8 +22,8 @@ export default function NewsSection() {
             {error ? <Typography color="error">Could not load news.</Typography> : null}
             <Grid container spacing={3}>
                 {articles?.map((article: any) => (
-                    <Grid item key={article.id} xs={12} sm={6} md={3}>
-                       <NewsCard article={article} />
+                    <Grid key={article.id} sx={{ width: { xs: '100%', sm: '50%', md: '33.33%' } }}>
+                        <NewsCard article={article} />
                     </Grid>
                 ))}
             </Grid>

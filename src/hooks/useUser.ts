@@ -74,39 +74,21 @@ export function useUser() {
 }
 
 export interface User {
-  /** Unique identifier for the user */
   id: string;
-
-  /** Display name of the user */
   name?: string;
-
-  /** Email address of the user */
   email?: string;
-
-  /** Selected AI persona */
-  persona?: string;
-
-  /** Current level of the user */
-  level?: number;
-
-  /** Total experience points accumulated */
-  xp?: number;
-
-  /** Current streak count */
-  streak?: number;
-
-  /** Number of articles read by the user */
-  articlesRead?: number;
-
-  /** Number of AI summaries used */
-  summariesUsed?: number;
-
-  /** Subscription status (e.g., free, premium) */
-  subscriptionStatus?: string;
-
-  /** Account creation date */
-  createdAt?: Date;
-
-  /** Weekly goal set by the user */
-  weeklyGoal?: number;
+  image?: string;
+  coverPicture?: string;
+  xp: number;
+  level: number;
+  streak: number;
+  lastActiveDate?: Date;
+  persona: string;
+  dailyProgress: number;
+  weeklyGoal: number;
+  achievements: string[];
+  friends: string[];
+  publicProfile: boolean;
+  articlesRead: number;
+  sharesCount: number;
 }

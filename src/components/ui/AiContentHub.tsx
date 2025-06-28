@@ -3,17 +3,30 @@ import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { Box, Typography, Paper, Button, CircularProgress, Alert, Chip, Stack } from '@mui/material';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import { logger, newCorrelationId } from '@/services/logger';
 
 const fetchAiContent = async (topic: string) => {
-    const response = await fetch('/api/v1/ai/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topic }),
-    });
-    if (!response.ok) {
-        throw new Error('Failed to fetch AI content');
+    newCorrelationId();
+    logger.info('AI content fetch started.', { topic });
+    try {
+        const response = await fetch('/api/v1/ai/generate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Correlation-ID': correlationId,
+            },
+            body: JSON.stringify({ topic }),
+        });
+        if (!response.ok) {
+            logger.warn('AI content API call failed.', { status: response.status });
+            throw new Error('Failed to fetch AI content');
+        }
+        logger.info('AI content fetch successful.');
+        return response.json();
+    } catch (error: any) {
+        logger.error('Critical failure during AI content fetch.', { error: error.message, stack: error.stack });
+        throw error;
     }
-    return response.json();
 }
 
 export default function AiContentHub() {

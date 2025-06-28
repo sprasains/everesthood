@@ -12,19 +12,19 @@ export async function POST(request: NextRequest, { params }: { params: { article
   const userId = session.user.id;
 
   // Check if already liked
-  const existing = await prisma.like.findUnique({
-    where: { userId_articleId: { userId, articleId } },
+  const existing = await prisma.newsArticleLike.findUnique({
+    where: { userId_newsArticleId: { userId, newsArticleId: articleId } },
   });
 
   if (existing) {
     // Unlike
-    await prisma.like.delete({ where: { userId_articleId: { userId, articleId } } });
-    await prisma.article.update({ where: { id: articleId }, data: { likeCount: { decrement: 1 } } });
+    await prisma.newsArticleLike.delete({ where: { userId_newsArticleId: { userId, newsArticleId: articleId } } });
+    await prisma.newsArticle.update({ where: { id: articleId }, data: { likes: { delete: { userId_newsArticleId: { userId, newsArticleId: articleId } } } } });
     return NextResponse.json({ liked: false });
   } else {
     // Like
-    await prisma.like.create({ data: { userId, articleId } });
-    await prisma.article.update({ where: { id: articleId }, data: { likeCount: { increment: 1 } } });
+    await prisma.newsArticleLike.create({ data: { userId, newsArticleId: articleId } });
+    await prisma.newsArticle.update({ where: { id: articleId }, data: { likes: { create: { userId } } } });
     return NextResponse.json({ liked: true });
   }
 }

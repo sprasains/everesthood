@@ -1,12 +1,13 @@
 "use client";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
-import { Container, Paper, Avatar, Typography, Box, Button, Grid, Divider } from "@mui/material";
+import { Container, Paper, Avatar, Typography, Box, Button, Divider } from "@mui/material";
 import PostCard from "@/components/ui/PostCard";
 import AddReactionIcon from '@mui/icons-material/AddReaction';
 import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
 import ProfileHeaderSkeleton from "@/components/ui/ProfileHeaderSkeleton";
 import PostCardSkeleton from "@/components/ui/PostCardSkeleton";
+import Grid from '@mui/material/Grid';
 
 const fetchUserProfile = async (userId: string) => {
   const res = await fetch(`/api/v1/users/${userId}`);
@@ -72,7 +73,7 @@ export default function UserProfilePage() {
         <Paper elevation={4} sx={{ p: 3, borderRadius: 4 }}>
             <Box display="flex" flexDirection={{ xs: 'column', md: 'row' }} alignItems="center" gap={3}>
               <Avatar
-                src={user.profilePicture || undefined}
+                src={user.image || undefined}
                 alt={user.name}
                 sx={{ width: 160, height: 160, border: '4px solid white' }}
               />
@@ -106,14 +107,14 @@ export default function UserProfilePage() {
             </Box>
         ) : postsData && postsData.posts.length > 0 ? (
             <Grid container spacing={2}>
-            {postsData.posts.map((post: any) => (
-                <Grid item xs={12} key={post.id}>
-                    <PostCard post={post} />
+              {postsData.posts.map((post: any) => (
+                <Grid key={post.id} sx={{ width: '100%' }}>
+                  <PostCard post={post} />
                 </Grid>
-            ))}
+              ))}
             </Grid>
         ) : (
-            <Typography>This user hasn't posted anything yet.</Typography>
+            <Typography>This user hasn&apos;t posted anything yet.</Typography>
         )}
 
         {/* Achievements Section */}
@@ -130,7 +131,7 @@ export default function UserProfilePage() {
           ) : achievementsData && achievementsData.achievements.length > 0 ? (
               <Grid container spacing={2}>
                   {achievementsData.achievements.map((ach: any) => (
-                      <Grid item xs={12} sm={6} md={4} key={ach.id}>
+                      <Grid key={ach.id} sx={{ width: { xs: '100%', sm: '50%', md: '33.33%' } }}>
                           <Paper sx={{ p: 2, textAlign: 'center' }}>
                               <Typography variant="h4">{ach.icon}</Typography>
                               <Typography fontWeight="bold">{ach.name}</Typography>

@@ -1,24 +1,16 @@
 "use client";
-import { Grid } from "@mui/material";
 import Fade from "@mui/material/Fade";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import Link from "next/link";
 import AuthForm from "@/components/ui/AuthForm";
+import Grid from '@mui/material/Grid';
 
 export default function SignUpPage() {
   return (
-    <Grid
-      container
-      justifyContent="center"
-      alignItems="center"
-      sx={{
-        minHeight: "100vh",
-        background: "linear-gradient(135deg, #e3f2fd 0%, #ede7f6 100%)",
-      }}
-    >
-      <Grid item xs={11} sm={8} md={5} lg={4}>
+    <Grid container spacing={2}>
+      <Grid sx={{ width: { xs: '100%', sm: '50%', md: '33.33%' } }}>
         <Fade in timeout={700}>
           <Paper
             elevation={8}

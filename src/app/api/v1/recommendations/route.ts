@@ -9,18 +9,16 @@ export async function GET() {
 
     const userId = session.user.id;
 
-    // 1. Find user's liked and favorited articles
-    const likedArticles = await prisma.like.findMany({ where: { userId }, include: { article: true } });
-    const favoritedArticles = await prisma.favorite.findMany({ where: { userId }, include: { article: true } });
+    // 1. Find user's liked news articles
+    const likedArticles = await prisma.newsArticleLike.findMany({ where: { userId }, include: { newsArticle: true } });
 
     const interactedArticles = [
-        ...likedArticles.map(l => l.article),
-        ...favoritedArticles.map(f => f.article)
+        ...likedArticles.map(l => l.newsArticle),
     ];
 
     if (interactedArticles.length === 0) {
-        // Fallback: return latest articles if no history
-        const latest = await prisma.article.findMany({ orderBy: { publishedAt: 'desc' }, take: 20 });
+        // Fallback: return latest news articles if no history
+        const latest = await prisma.newsArticle.findMany({ orderBy: { publishedAt: 'desc' }, take: 20 });
         return NextResponse.json(latest);
     }
     
@@ -41,7 +39,7 @@ export async function GET() {
     // 4. Fetch new articles from those categories that the user hasn't interacted with
     const interactedArticleIds = new Set(interactedArticles.map(a => a.id));
 
-    const recommendations = await prisma.article.findMany({
+    const recommendations = await prisma.newsArticle.findMany({
         where: {
             category: { in: topCategories },
             id: { notIn: Array.from(interactedArticleIds) }

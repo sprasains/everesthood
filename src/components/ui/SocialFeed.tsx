@@ -3,6 +3,7 @@ import { motion } from "framer-motion"
 import { useState, useEffect } from "react"
 import { useUser } from "@/hooks/useUser"
 import PollCard from "@/components/ui/PollCard"
+import { logger, newCorrelationId } from '@/services/logger'
 
 export default function SocialFeed() {
   const { user } = useUser();
@@ -16,11 +17,19 @@ export default function SocialFeed() {
   const [prediction, setPrediction] = useState('');
 
   useEffect(() => {
-    // Fetch polls from API
     const fetchPolls = async () => {
-      const res = await fetch("/api/v1/polls");
-      if (res.ok) {
-        setPolls(await res.json());
+      newCorrelationId();
+      logger.info('Fetching polls for social feed.');
+      try {
+        const res = await fetch("/api/v1/polls", { headers: { 'X-Correlation-ID': correlationId } });
+        if (res.ok) {
+          setPolls(await res.json());
+          logger.info('Fetched polls for social feed.');
+        } else {
+          logger.warn('Failed to fetch polls for social feed.', { status: res.status });
+        }
+      } catch (error: any) {
+        logger.error('Error fetching polls for social feed.', { error: error.message, stack: error.stack });
       }
     };
     fetchPolls();
@@ -37,21 +46,30 @@ export default function SocialFeed() {
     if (postType === 'LINK') metadata.url = linkUrl;
     if (postType === 'PREDICTION') metadata.prediction = prediction;
 
-    const res = await fetch('/api/v1/posts', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        content: postType === 'TEXT' ? postText : '',
-        type: postType,
-        metadata,
-      }),
-    });
-    if (res.ok) {
-      setPostText('');
-      setPollOptions(['', '']);
-      setLinkUrl('');
-      setPrediction('');
-      setPostType('TEXT');
+    newCorrelationId();
+    logger.info('Posting to social feed.', { postType, metadata });
+    try {
+      const res = await fetch('/api/v1/posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Correlation-ID': correlationId },
+        body: JSON.stringify({
+          content: postType === 'TEXT' ? postText : '',
+          type: postType,
+          metadata,
+        }),
+      });
+      if (res.ok) {
+        logger.info('Post successful.');
+        setPostText('');
+        setPollOptions(['', '']);
+        setLinkUrl('');
+        setPrediction('');
+        setPostType('TEXT');
+      } else {
+        logger.warn('Failed to post to social feed.', { status: res.status });
+      }
+    } catch (error: any) {
+      logger.error('Error posting to social feed.', { error: error.message, stack: error.stack });
     }
   }
 

@@ -7,6 +7,7 @@ import { useState } from "react";
 import MenuItem from "@mui/material/MenuItem";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
+import Image from 'next/image';
 
 const POST_TYPES = [
   { label: "Text", value: "TEXT" },
@@ -39,7 +40,7 @@ export default function CreatePostPage() {
         }
       };
       findMentions(editorContent);
-      const mentionedUserIds = [...new Set(mentions)];
+      const mentionedUserIds = Array.from(new Set(mentions));
       const res = await fetch("/api/v1/posts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -115,7 +116,7 @@ export default function CreatePostPage() {
               <Box sx={{ mt: 2, display: 'flex', gap: 2, flexWrap: 'wrap' }}>
                 {mediaUrls.map((url, i) => (
                   <Box key={i} sx={{ position: 'relative' }}>
-                    <img src={url} alt="media" style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 8 }} />
+                    <Image src={url} alt="media" width={80} height={80} style={{ objectFit: 'cover', borderRadius: 8 }} />
                     <Button size="small" color="error" sx={{ position: 'absolute', top: 0, right: 0, minWidth: 0, p: 0 }} onClick={() => handleRemoveMedia(i)}>✕</Button>
                   </Box>
                 ))}

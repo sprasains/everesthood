@@ -35,7 +35,7 @@ export default function CareersPage() {
           {isLoading ? <CircularProgress /> : (
             <Grid container spacing={3}>
               {jobs?.length > 0 ? jobs.map((job: any) => (
-                <Grid item xs={12} md={6} lg={4} key={job.id}>
+                <Grid key={job.id} sx={{ width: { xs: '100%', md: '50%', lg: '33.33%' } }}>
                   <Link href={`/careers/${job.id}`} style={{ textDecoration: 'none' }}>
                     <Paper sx={{ p: 3, height: '100%', bgcolor: 'rgba(255,255,255,0.05)' }}>
                       <Typography variant="h6" fontWeight="bold">{job.title}</Typography>
@@ -44,7 +44,11 @@ export default function CareersPage() {
                     </Paper>
                   </Link>
                 </Grid>
-              )) : <Typography color="text.secondary" sx={{ ml: 2 }}>No jobs found.</Typography>}
+              )) : (
+                <Grid sx={{ width: '100%' }}>
+                  <Typography variant="body1" align="center">No jobs found.</Typography>
+                </Grid>
+              )}
             </Grid>
           )}
         </motion.div>

@@ -93,15 +93,29 @@ export async function POST(request: NextRequest) {
   }
   const { title, content, type = "TEXT", metadata, originalArticle, mediaUrls, resharedFromId, mentionedUserIds = [] } = body;
 
-  let articleData = {};
+  let newsArticleId: string | undefined = undefined;
   if (originalArticle) {
-    const existingArticle = await prisma.article.findUnique({
-      where: { url: originalArticle.url },
+    // Upsert the news article if it doesn't exist
+    const existingArticle = await prisma.newsArticle.findUnique({
+      where: { link: originalArticle.url },
     });
     if (existingArticle) {
-      articleData = { connect: { id: existingArticle.id } };
+      newsArticleId = existingArticle.id;
     } else {
-      articleData = { create: originalArticle };
+      const createdArticle = await prisma.newsArticle.create({
+        data: {
+          title: originalArticle.title,
+          link: originalArticle.url,
+          description: originalArticle.description || '',
+          imageUrl: originalArticle.imageUrl || '',
+          publishedAt: originalArticle.publishedAt ? new Date(originalArticle.publishedAt) : new Date(),
+          sourceName: originalArticle.sourceName || 'Unknown',
+          content: originalArticle.content || '',
+          category: originalArticle.category || null,
+          tags: originalArticle.tags || [],
+        },
+      });
+      newsArticleId = createdArticle.id;
     }
   }
 
@@ -114,7 +128,7 @@ export async function POST(request: NextRequest) {
       metadata,
       mediaUrls,
       resharedFromId,
-      ...(originalArticle && { originalArticle: articleData }),
+      newsArticleId,
       // Connect mentioned users
       mentionedUsers: mentionedUserIds.length > 0 ? { connect: mentionedUserIds.map((id: string) => ({ id })) } : undefined,
     },

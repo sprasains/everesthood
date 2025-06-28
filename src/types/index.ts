@@ -3,11 +3,7 @@ export interface User {
   name?: string
   email?: string
   image?: string
-  profilePicture?: string
   coverPicture?: string
-  subscriptionStatus: string
-  trialEndsAt?: Date
-
   // Gamification
   xp: number
   level: number
@@ -17,14 +13,11 @@ export interface User {
   dailyProgress: number
   weeklyGoal: number
   achievements: string[]
-
   // Social
   friends: string[]
   publicProfile: boolean
-
   // Analytics
   articlesRead: number
-  summariesUsed: number
   sharesCount: number
 }
 

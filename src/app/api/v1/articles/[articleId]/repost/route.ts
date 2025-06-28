@@ -14,13 +14,15 @@ export async function POST(
   const { articleId } = params;
   const { content } = await req.json();
 
-  const article = await prisma.article.create({
+  // Create a new post referencing the newsArticleId
+  const post = await prisma.post.create({
     data: {
+      authorId: session.user.id,
+      newsArticleId: articleId,
       content: content || `Shared Article:`,
-      author: { connect: { id: session.user.id } },
-      originalArticleId: articleId,
+      type: 'LINK',
     },
   });
 
-  return NextResponse.json(article);
+  return NextResponse.json(post);
 }

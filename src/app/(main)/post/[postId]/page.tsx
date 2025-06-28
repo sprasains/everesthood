@@ -38,7 +38,7 @@ type Article = {
 
 type PostWithDetails = Post & {
   author: Partial<User>;
-  originalArticle?: Article;
+  newsArticle?: Article;
 };
 
 type CommentWithAuthor = {
@@ -135,8 +135,8 @@ export default function PostDetailPage() {
             {post.content}
           </Typography>
 
-          {/* If it's a repost, show the original article */}
-          {post.originalArticle && (
+          {/* If it's a repost, show the news article */}
+          {post.newsArticle && (
             <Paper
               variant="outlined"
               sx={{ p: 2, my: 2, borderColor: "rgba(255,255,255,0.2)" }}
@@ -145,10 +145,10 @@ export default function PostDetailPage() {
                 Reposting:
               </Typography>
               <Typography fontWeight="bold">
-                {post.originalArticle.title}
+                {post.newsArticle.title}
               </Typography>
               <Typography variant="caption" color="text.secondary">
-                {post.originalArticle.sourceName}
+                {post.newsArticle.sourceName}
               </Typography>
             </Paper>
           )}

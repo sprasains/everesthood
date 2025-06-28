@@ -9,7 +9,6 @@ import {
   Box,
   Chip,
   Stack,
-  Grid,
   TextField,
   InputAdornment,
   Button,
@@ -17,6 +16,7 @@ import {
   CircularProgress,
   ToggleButton,
   ToggleButtonGroup,
+  Grid,
 } from "@mui/material";
 import WhatshotIcon from "@mui/icons-material/Whatshot";
 import ComputerIcon from "@mui/icons-material/Computer";
@@ -181,15 +181,10 @@ export default function NewsPage() {
               </ToggleButton>
             </ToggleButtonGroup>
           </Box>
-          <Grid container spacing={3}>
+          <Grid container spacing={2}>
             {(newsLoading || searchLoading) ? (
-              <Grid item xs={12}>
-                <Box
-                  display="flex"
-                  justifyContent="center"
-                  alignItems="center"
-                  minHeight={200}
-                >
+              <Grid sx={{ width: '100%' }}>
+                <Box display="flex" justifyContent="center" alignItems="center" minHeight={200}>
                   <CircularProgress />
                 </Box>
               </Grid>
@@ -197,7 +192,7 @@ export default function NewsPage() {
               (search ? searchData : newsData)?.length > 0 ? (
                 layout === "grid" ? (
                   (search ? searchData : newsData).map((article: any) => (
-                    <Grid item xs={12} sm={6} md={4} key={article.id}>
+                    <Grid key={article.id} sx={{ width: { xs: '100%', sm: '50%', md: '33.33%' } }}>
                       <NewsCardGrid article={article} />
                     </Grid>
                   ))
@@ -209,18 +204,9 @@ export default function NewsPage() {
                   </Stack>
                 )
               ) : (
-                <Grid item xs={12}>
-                  <Paper
-                    sx={{
-                      p: 4,
-                      textAlign: "center",
-                      bgcolor: "background.default",
-                      borderRadius: 3,
-                    }}
-                  >
-                    <Typography variant="h6" color="text.secondary">
-                      No news found.
-                    </Typography>
+                <Grid sx={{ width: '100%' }}>
+                  <Paper sx={{ p: 4, textAlign: "center", bgcolor: "background.default", borderRadius: 3 }}>
+                    <Typography variant="h6" color="text.secondary">No news found.</Typography>
                   </Paper>
                 </Grid>
               )

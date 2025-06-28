@@ -37,7 +37,7 @@ const achievements = [
 async function main() {
   for (const ach of achievements) {
     await prisma.achievement.upsert({
-      where: { type: ach.type },
+      where: { name: ach.name },
       update: ach,
       create: ach,
     });

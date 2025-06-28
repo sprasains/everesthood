@@ -1,7 +1,7 @@
 "use client";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
-import Grid from "@mui/material/Grid";
+import Grid from '@mui/material/Grid';
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
 import AchievementCard from "@/components/ui/AchievementCard";
@@ -39,11 +39,11 @@ export default function AchievementsPage() {
         ) : (
           <Box sx={{ flexGrow: 1, mt: 4 }}>
             <Grid container spacing={3}>
-              {achievements.map((ach: any) => (
-                <Grid item xs={12} sm={6} md={4} lg={3} key={ach.id}>
+              {achievements.map((achievement: any) => (
+                <Grid key={achievement.id} sx={{ width: { xs: '100%', sm: '50%', md: '33.33%' } }}>
                   <AchievementCard
-                    achievement={ach}
-                    earned={userAchievements.includes(ach.id)}
+                    achievement={achievement}
+                    earned={userAchievements.includes(achievement.id)}
                   />
                 </Grid>
               ))}

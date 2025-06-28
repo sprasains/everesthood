@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { GenZContent } from "@/types"
 
 export function useGenZContent() {
@@ -6,11 +6,7 @@ export function useGenZContent() {
   const [loading, setLoading] = useState(true)
   const [selectedCategory, setSelectedCategory] = useState<string>("all")
 
-  useEffect(() => {
-    fetchContent()
-  }, [selectedCategory])
-
-  const fetchContent = async () => {
+  const fetchContent = useCallback(async () => {
     setLoading(true)
     try {
       const params = selectedCategory !== "all" ? `?category=${selectedCategory}` : ""
@@ -25,7 +21,11 @@ export function useGenZContent() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [selectedCategory])
+
+  useEffect(() => {
+    fetchContent()
+  }, [selectedCategory, fetchContent])
 
   const categories = [
     { id: "all", name: "All", icon: "🌟" },

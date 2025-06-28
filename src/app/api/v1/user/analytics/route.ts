@@ -7,13 +7,10 @@ export async function GET() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) return new NextResponse("Unauthorized", { status: 401 });
 
-  // 1. Get Category Engagement (from likes and favorites)
-  const categoryInteractions = await prisma.article.findMany({
+  // 1. Get Category Engagement (from news article likes only)
+  const categoryInteractions = await prisma.newsArticle.findMany({
     where: {
-      OR: [
-        { likes: { some: { userId: session.user.id } } },
-        { favorites: { some: { userId: session.user.id } } },
-      ],
+      likes: { some: { userId: session.user.id } },
     },
     select: { category: true },
   });
@@ -25,17 +22,11 @@ export async function GET() {
     return acc;
   }, {} as Record<string, number>);
 
-  // 2. Get Trend Trajectory (e.g., articles read per day)
-  const userActivities = await prisma.userActivity.findMany({
-    where: { userId: session.user.id, action: 'read_article' },
-    orderBy: { createdAt: 'asc' },
-    select: { createdAt: true }
-  });
+  // 2. (Removed: userActivity tracking, as model does not exist)
 
   // 3. Get Persona Usage (mocked for now)
   return NextResponse.json({
     knowledgeGraph: categoryCounts,
-    trendTrajectory: userActivities,
     personaInsights: { ZenGPT: 10, HustleBot: 5 },
   });
 }

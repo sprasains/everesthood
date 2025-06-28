@@ -23,6 +23,7 @@ import {
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import Image from 'next/image';
 
 function fetchPosts() {
   return fetch("/api/v1/posts").then((res) => res.json());
@@ -95,10 +96,12 @@ export default function AdminPostsPage() {
                           <Typography variant="subtitle1" fontWeight="bold">
                             {post.title}
                           </Typography>
-                          <img
+                          <Image
                             src={post.metadata?.image || "https://i.pravatar.cc/150?u=everhood"}
                             alt="preview"
-                            style={{ width: "100%", borderRadius: 8, margin: "8px 0" }}
+                            width={300}
+                            height={180}
+                            style={{ width: "100%", borderRadius: 8, margin: "8px 0", objectFit: 'cover' }}
                           />
                           <Typography variant="body2" color="text.secondary">
                             {post.content}

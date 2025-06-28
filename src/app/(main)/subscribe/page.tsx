@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useUser } from "@/hooks/useUser";
 import Navbar from "@/components/layout/Navbar";
 import { styled } from "@mui/material/styles";
-import Grid from "@mui/material/Grid";
+import Grid from '@mui/material/Grid';
 import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -114,26 +114,18 @@ export default function SubscribePage() {
 
           {/* Plan Comparison */}
           <Box sx={{ width: "100%" }} className="mb-12">
-            <Grid
-              container
-              rowSpacing={1}
-              columnSpacing={{ xs: 1, sm: 2, md: 3 }}
-            >
+            <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
               {plans.map((plan, index) => (
-                <Grid item xs={12} sm={6} md={4} key={plan.id} component="div">
+                <Grid key={plan.id} sx={{ width: { xs: '100%', sm: '50%', md: '33.33%' } }}>
                   <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
                     className={`
-                  relative rounded-2xl p-8 cursor-pointer transition-all border-2
-                  ${
-                    selectedPlan === plan.id
-                      ? "border-purple-500"
-                      : "border-transparent"
-                  }
-                  bg-gradient-to-br ${plan.theme}
-                `}
+                      relative rounded-2xl p-8 cursor-pointer transition-all border-2
+                      ${selectedPlan === plan.id ? "border-purple-500" : "border-transparent"}
+                      bg-gradient-to-br ${plan.theme}
+                    `}
                     onClick={() => setSelectedPlan(plan.id)}
                   >
                     {plan.popular && (
@@ -169,13 +161,13 @@ export default function SubscribePage() {
                       onClick={handleSubscribe}
                       disabled={plan.id === "free" || loading}
                       className={`
-                    w-full py-3 rounded-lg font-bold transition-all
-                    ${
-                      plan.id === "free"
-                        ? "bg-gray-600 text-gray-300 cursor-not-allowed"
-                        : "bg-white text-purple-600 hover:bg-gray-100"
-                    }
-                  `}
+                        w-full py-3 rounded-lg font-bold transition-all
+                        ${
+                          plan.id === "free"
+                            ? "bg-gray-600 text-gray-300 cursor-not-allowed"
+                            : "bg-white text-purple-600 hover:bg-gray-100"
+                        }
+                      `}
                     >
                       {loading ? "Processing..." : plan.cta}
                     </motion.button>
@@ -303,7 +295,7 @@ export default function SubscribePage() {
                     </div>
                   </div>
                   <p className="text-gray-300 text-sm italic">
-                    "{testimonial.content}"
+                    &quot;{testimonial.content}&quot;
                   </p>
                 </div>
               ))}

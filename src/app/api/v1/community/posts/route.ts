@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     const body = await request.json();
-    const { title, content, type = "TEXT", metadata, mediaUrls, originalArticleId, resharedFromId } = body;
+    const { title, content, type = "TEXT", metadata, mediaUrls, newsArticleId, resharedFromId } = body;
     if (!content) {
       return NextResponse.json({ error: "Content is required" }, { status: 400 });
     }
@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
         type,
         metadata,
         mediaUrls,
-        originalArticleId,
+        newsArticleId,
         resharedFromId,
       },
     });

@@ -6,6 +6,7 @@ import CommentForm from "@/components/ui/CommentForm";
 import PostPageSkeleton from "@/components/ui/PostPageSkeleton";
 import dynamic from "next/dynamic";
 import ThreadedComments from '@/components/ui/ThreadedComments';
+import Image from 'next/image';
 const EditPostButton = dynamic(() => import("@/components/ui/EditPostButton"), { ssr: false });
 
 async function fetchPost(id: string) {
@@ -38,7 +39,7 @@ export default async function PostPage({ params }: { params: { id: string } }) {
               <a href={post.originalArticle.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                   {post.originalArticle.imageUrl && (
-                    <img src={post.originalArticle.imageUrl} alt="article" style={{ width: 80, height: 80, objectFit: "cover", borderRadius: 8 }} />
+                    <Image src={post.originalArticle.imageUrl} alt="article" width={80} height={80} style={{ objectFit: "cover", borderRadius: 8 }} />
                   )}
                   <Box>
                     <Typography fontWeight="bold">{post.originalArticle.title}</Typography>

@@ -19,8 +19,8 @@ export async function GET(
             image: true,
           },
         },
-        // Include the original article if it's a repost
-        originalArticle: true,
+        // Include the news article if it's a repost
+        newsArticle: true,
       },
     });
 
