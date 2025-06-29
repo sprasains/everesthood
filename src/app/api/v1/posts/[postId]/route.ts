@@ -6,12 +6,13 @@ import { z } from "zod";
 
 export async function GET(request: NextRequest, { params }: { params: { postId: string } }) {
   const post = await prisma.post.findUnique({
-    where: { id: params.postId },
+    where: { id: params.postId, isDeleted: false },
     include: {
       author: { select: { id: true, name: true, image: true } },
     },
   });
   if (!post) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  await prisma.post.update({ where: { id: params.postId }, data: { viewCount: { increment: 1 } } });
   return NextResponse.json(post);
 }
 

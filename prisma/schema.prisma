@@ -44,6 +44,7 @@ model User {
   triggeredNotifications Notification[]     @relation("triggeredNotifications")
   newsArticleLikes       NewsArticleLike[]
   mentionedInPosts       Post[]            @relation("PostMentions")
+  tasks                  Task[]
 
   // Monetization Fields
   stripeCustomerId       String?           @unique
@@ -70,6 +71,37 @@ model User {
   tippingBalance  Float    @default(0)
   creatorBalance  Float    @default(0)
   profileSpotlightEndsAt DateTime?
+
+  // Admin/Moderation Fields
+  role                    UserRole         @default(USER)
+  isBanned                Boolean          @default(false)
+  banReason               String?
+  languagePreference      String?
+  profileImageUrl         String?
+  headerImageUrl          String?
+  socialLinks             Json?
+
+  // Ambassador Program Fields
+  isAmbassador           Boolean   @default(false)
+  referralCode           String?   @unique
+  ambassadorMetrics      AmbassadorMetric[] @relation("AmbassadorReferrer")
+  referredByAmbassador   AmbassadorMetric[] @relation("AmbassadorReferral")
+
+  userBadges            UserBadge[]
+  tipsGiven             Tip[]      @relation("Tipper")
+  tipsReceived          Tip[]      @relation("Creator")
+
+  // New fields for Tasks 1-3
+  passwordHash           String
+  firstName              String?
+  familyId               String?
+  family                 Family?    @relation(fields: [familyId], references: [id])
+  settings               Json?
+  budgets                Budget[]
+  bills                  Bill[]
+  subscriptions          Subscription[]
+  eventsCreated          Event[]    @relation("CreatedEvents")
+  eventAttendees         EventAttendee[]
 }
 
 model Account {
@@ -131,6 +163,8 @@ model Post {
   newsArticleId  String?    // Optional relation to NewsArticle for reposts
   newsArticle    NewsArticle? @relation(fields: [newsArticleId], references: [id])
   isDeleted      Boolean    @default(false)
+  viewCount      Int        @default(0)
+  tips           Tip[]
 
   @@index([authorId])
   @@index([createdAt])
@@ -379,6 +413,18 @@ model GenZContent {
   updatedAt   DateTime @updatedAt
 }
 
+model AmbassadorMetric {
+  id                String   @id @default(cuid())
+  ambassadorId      String
+  referredUserId    String
+  createdAt         DateTime @default(now())
+
+  ambassador        User     @relation("AmbassadorReferrer", fields: [ambassadorId], references: [id])
+  referredUser      User     @relation("AmbassadorReferral", fields: [referredUserId], references: [id])
+
+  @@unique([ambassadorId, referredUserId])
+}
+
 // Enums
 enum PostType {
   TEXT
@@ -416,7 +462,125 @@ enum NotificationType {
   SYSTEM
 }
 
+enum UserRole {
+  USER
+  CREATOR
+  ADMIN
+}
+
 // --- MIGRATION: Rich Text & Hierarchical Comments ---
 // 1. Post.content and NewsArticle.content are now Json for rich text editor support.
 // 2. Comment model supports infinite-level threading via parentId and replies self-relation.
 // 3. onDelete: Cascade for parentId to cascade delete nested replies.
+
+model Badge {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String
+  imageUrl    String
+  userBadges  UserBadge[]
+}
+
+model UserBadge {
+  id        String   @id @default(cuid())
+  userId    String
+  badgeId   String
+  earnedAt  DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge     Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, badgeId])
+}
+
+model Tip {
+  id         String   @id @default(cuid())
+  tipperId   String
+  creatorId  String
+  postId     String
+  amount     Float
+  createdAt  DateTime @default(now())
+  tipper     User     @relation("Tipper", fields: [tipperId], references: [id])
+  creator    User     @relation("Creator", fields: [creatorId], references: [id])
+  post       Post     @relation(fields: [postId], references: [id])
+
+  @@index([tipperId])
+  @@index([creatorId])
+  @@index([postId])
+}
+
+model Family {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  users     User[]
+  events    Event[]
+}
+
+model Budget {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  category   String
+  limitAmount Float
+  createdAt  DateTime @default(now())
+}
+
+model Bill {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  name      String
+  amount    Float
+  dueDate   DateTime
+  isPaid    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Subscription {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  name       String
+  amount     Float
+  renewalDate DateTime
+  createdAt  DateTime @default(now())
+}
+
+model Event {
+  id           String   @id @default(cuid())
+  familyId     String
+  family       Family   @relation(fields: [familyId], references: [id])
+  createdById  String
+  createdBy    User     @relation("CreatedEvents", fields: [createdById], references: [id])
+  title        String
+  description  String?
+  startTime    DateTime
+  endTime      DateTime
+  attendees    EventAttendee[]
+}
+
+model EventAttendee {
+  eventId String
+  userId  String
+  event   Event   @relation(fields: [eventId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+
+  @@id([eventId, userId])
+}
+
+model Task {
+  id          String   @id @default(cuid())
+  content     String
+  details     String?
+  link        String?
+  isCompleted Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  completedAt DateTime?
+  ownerId     String
+  owner       User     @relation(fields: [ownerId], references: [id])
+}
+
+model ProductivityTip {
+  id   String @id @default(cuid())
+  text String
+}

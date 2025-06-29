@@ -8,6 +8,8 @@ import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
 import ProfileHeaderSkeleton from "@/components/ui/ProfileHeaderSkeleton";
 import PostCardSkeleton from "@/components/ui/PostCardSkeleton";
 import Grid from '@mui/material/Grid';
+import { BadgeList, Badge } from '@/components/ui/BadgeList';
+import { useState, useEffect } from "react";
 
 const fetchUserProfile = async (userId: string) => {
   const res = await fetch(`/api/v1/users/${userId}`);
@@ -30,6 +32,7 @@ const fetchUserAchievements = async (userId: string) => {
 export default function UserProfilePage() {
   const params = useParams();
   const userId = params?.userId as string | undefined;
+  const [badges, setBadges] = useState<Badge[]>([]);
 
   const { data: user, isLoading: isUserLoading, error: userError } = useQuery({
     queryKey: ["userProfile", userId],
@@ -48,6 +51,10 @@ export default function UserProfilePage() {
     queryFn: () => userId ? fetchUserAchievements(userId) : Promise.resolve(undefined),
     enabled: !!userId,
   });
+
+  useEffect(() => {
+    fetch(`/api/v1/users/${params.userId}/badges`).then(res => res.json()).then(data => setBadges(data.badges || []));
+  }, [params.userId]);
 
   if (isUserLoading) {
     return <ProfileHeaderSkeleton />;
@@ -94,6 +101,8 @@ export default function UserProfilePage() {
               </Box>
             </Box>
         </Paper>
+
+        <BadgeList badges={badges} />
 
         <Typography variant="h5" fontWeight="bold" sx={{ mt: 4, mb: 2 }}>
             Posts by {user.name}

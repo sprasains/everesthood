@@ -4,7 +4,9 @@ test.describe('Custom AI Persona', () => {
   test('should allow creating, selecting, and using a custom persona', async ({ page }) => {
     // Login
     await page.goto('http://localhost:3000/auth/signin');
-    await page.getByRole('button', { name: /Test User/i }).click();
+    await page.fill('input[name="email"]', 'test0@example.com');
+    await page.fill('input[name="password"]', 'password123');
+    await page.getByRole('button', { name: /Sign in/i }).click();
     await page.waitForURL('**/dashboard');
 
     // Go to Persona Workshop

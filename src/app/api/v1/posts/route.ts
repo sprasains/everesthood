@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
   const authorId = searchParams.get("authorId");
   const skip = (page - 1) * limit;
 
-  let where: any = {};
+  let where: any = { isDeleted: false };
   let orderBy: any = { createdAt: "desc" };
 
   if (authorId) {

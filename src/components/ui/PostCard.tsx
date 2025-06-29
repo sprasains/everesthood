@@ -21,11 +21,15 @@ import { useForm } from 'react-hook-form';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
 import RichTextRenderer from './RichTextRenderer';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 
 type PostWithDetails = Post & {
   author: Partial<User>;
   newsArticle?: NewsArticle | null;
   likeCount?: number; // Add likeCount for UI
+  viewCount?: number;
+  commentCount?: number;
 };
 
 interface PostCardProps {
@@ -45,6 +49,7 @@ export default function PostCard({ post }: PostCardProps) {
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const [pop, setPop] = useState(false); // For pop animation
+  const commentCount = post.commentCount ?? 0;
 
   // Edit form
   const { register, handleSubmit, formState: { errors }, reset } = useForm({
@@ -264,6 +269,34 @@ export default function PostCard({ post }: PostCardProps) {
               </Box>
             </MuiLink>
           </Card>
+        )}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 1 }}>
+          <IconButton size="small" disabled>
+            <FavoriteIcon fontSize="small" color="error" sx={{ mr: 0.5 }} />
+            <Typography variant="body2">{likeCount}</Typography>
+          </IconButton>
+          <IconButton size="small" disabled>
+            <VisibilityIcon fontSize="small" sx={{ mr: 0.5 }} />
+            <Typography variant="body2">{post.viewCount ?? 0}</Typography>
+          </IconButton>
+          <IconButton size="small" disabled>
+            <ChatBubbleOutlineIcon fontSize="small" sx={{ mr: 0.5 }} />
+            <Typography variant="body2">{commentCount}</Typography>
+          </IconButton>
+        </Box>
+        {isAuthor && (
+          <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
+            <Button
+              variant="outlined"
+              size="small"
+              startIcon={<EditIcon />}
+              component={Link}
+              href={`/posts/${post.id}/edit`}
+              sx={{ textTransform: 'none' }}
+            >
+              Edit
+            </Button>
+          </Box>
         )}
       </CardContent>
       <CardActions sx={{ display: 'flex', gap: 2, alignItems: 'center', px: 3, pb: 2 }}>

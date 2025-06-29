@@ -16,6 +16,15 @@ import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import PersonIcon from '@mui/icons-material/Person';
 import StarIcon from '@mui/icons-material/Star';
 import OpportunityColumn from './OpportunityColumn';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import FamilyRestroomIcon from '@mui/icons-material/FamilyRestroom';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import DescriptionIcon from '@mui/icons-material/Description';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
+import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
+import CampaignIcon from '@mui/icons-material/Campaign';
 
 // Add logical section headers and new features
 type NavSection = { header?: string; items: { text: string; icon: React.ReactElement; href: string; }[] };
@@ -29,6 +38,17 @@ const navSections: NavSection[] = [
       { text: 'Community', icon: <GroupIcon />, href: '/community' },
       { text: 'Opportunities', icon: <WorkIcon />, href: '/careers' },
       { text: 'Exclusive Content', icon: <StarIcon />, href: '/exclusive' },
+    ],
+  },
+  {
+    header: 'Modules',
+    items: [
+      { text: 'Money', icon: <AccountBalanceWalletIcon />, href: '/money' },
+      { text: 'Schedule', icon: <CalendarMonthIcon />, href: '/schedule' },
+      { text: 'Family', icon: <FamilyRestroomIcon />, href: '/family' },
+      { text: 'Docs & Vault', icon: <DescriptionIcon />, href: '/docs' },
+      { text: 'Health & Wellness', icon: <LocalHospitalIcon />, href: '/health' },
+      { text: 'Shopping', icon: <ShoppingCartIcon />, href: '/shopping' },
     ],
   },
   {
@@ -55,6 +75,13 @@ const navSections: NavSection[] = [
     items: [
       { text: 'Profile Spotlight', icon: <StarIcon />, href: '/profile/spotlight' },
       { text: 'Tipping Credits', icon: <MonetizationOnIcon />, href: '/wallet' },
+      { text: 'Ambassador Hub', icon: <CampaignIcon />, href: '/ambassador' },
+    ],
+  },
+  {
+    header: 'Admin',
+    items: [
+      { text: 'Admin Dashboard', icon: <SupervisorAccountIcon />, href: '/admin' },
     ],
   },
 ];
@@ -114,6 +141,14 @@ export default function AppSidebar() {
       ))}
       <Divider sx={{ my: 2, borderColor: 'rgba(255, 255, 255, 0.1)' }} />
       <OpportunityColumn />
+      <ListItem button component="a" href="/docs">
+        <ListItemIcon><DescriptionIcon /></ListItemIcon>
+        <ListItemText primary="Docs" />
+      </ListItem>
+      <ListItem button component="a" href="/health">
+        <ListItemIcon><FavoriteIcon /></ListItemIcon>
+        <ListItemText primary="Health" />
+      </ListItem>
     </Box>
   );
 }

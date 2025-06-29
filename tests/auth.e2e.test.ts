@@ -7,7 +7,9 @@ test.describe('Sign-In Quick Login', () => {
     await page.goto('http://localhost:3000/auth/signin');
 
     // Wait for the quick login panel and select the test user
-    await page.getByRole('button', { name: /Test User/i }).click();
+    await page.fill('input[name="email"]', 'test0@example.com');
+    await page.fill('input[name="password"]', 'password123');
+    await page.getByRole('button', { name: /Sign in/i }).click();
 
     // Should redirect to dashboard after login
     await page.waitForURL('**/dashboard');

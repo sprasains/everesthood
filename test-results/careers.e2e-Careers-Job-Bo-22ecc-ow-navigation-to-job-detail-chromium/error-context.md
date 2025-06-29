@@ -1,0 +1,87 @@
+# Page snapshot
+
+```yaml
+- complementary:
+  - heading "Everhood" [level=5]
+  - text: Main
+  - list:
+    - listitem:
+      - link "Dashboard":
+        - /url: /dashboard
+    - listitem:
+      - link "News Feed":
+        - /url: /news
+    - listitem:
+      - link "Community":
+        - /url: /community
+    - listitem:
+      - link "Opportunities":
+        - /url: /careers
+    - listitem:
+      - link "Exclusive Content":
+        - /url: /exclusive
+  - separator
+  - text: User
+  - list:
+    - listitem:
+      - link "My Profile":
+        - /url: /profile
+    - listitem:
+      - link "My Friends":
+        - /url: /friends
+    - listitem:
+      - link "Achievements":
+        - /url: /achievements
+    - listitem:
+      - link "AI Personas":
+        - /url: /settings/personas
+    - listitem:
+      - link "Settings":
+        - /url: /settings
+    - listitem:
+      - link "Subscription":
+        - /url: /billing
+  - separator
+  - text: Tools
+  - list:
+    - listitem:
+      - link "Analytics Dashboard":
+        - /url: /dashboard/analytics
+    - listitem:
+      - link "Resume Vibe Check":
+        - /url: /tools/resume-checker
+    - listitem:
+      - link "Creator API":
+        - /url: /settings/api
+  - separator
+  - text: Monetization
+  - list:
+    - listitem:
+      - link "Profile Spotlight":
+        - /url: /profile/spotlight
+    - listitem:
+      - link "Tipping Credits":
+        - /url: /wallet
+  - separator
+  - heading "AI Opportunities" [level=6]
+  - list
+  - link "View All...":
+    - /url: /careers
+- main:
+  - link "E Everesthood":
+    - /url: /
+    - heading "E Everesthood" [level=6]
+  - link "📊 Dashboard":
+    - /url: /dashboard
+    - button "📊 Dashboard"
+  - link "🌟 Gen-Z Content":
+    - /url: /genz
+    - button "🌟 Gen-Z Content"
+  - button "notifications"
+  - button
+  - button
+  - heading "Opportunities" [level=3]
+  - textbox "Search jobs..."
+  - progressbar:
+    - img
+```
