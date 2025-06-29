@@ -39,4 +39,4 @@ next-env.d.ts
 
 # Logs
 *.log
-cron.log
+cron.logenv.local
