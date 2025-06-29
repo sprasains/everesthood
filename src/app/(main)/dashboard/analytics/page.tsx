@@ -5,7 +5,7 @@ import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS } from 'chart.js/auto';
 import { motion } from "framer-motion";
 import Grid from '@mui/material/Grid';
-import { logger, newCorrelationId } from '@/services/logger';
+import { logger, newCorrelationId, getCorrelationId } from '@/services/logger';
 
 // Fetches analytics data for the user, logs the process, and handles errors
 const fetchAnalytics = async () => {
@@ -14,7 +14,8 @@ const fetchAnalytics = async () => {
   logger.info('Fetching analytics.');
   try {
     // Make the API call, passing the correlation ID for traceability
-    const res = await fetch('/api/v1/user/analytics', { headers: { 'X-Correlation-ID': correlationId } });
+    const headers = new Headers({ 'X-Correlation-ID': getCorrelationId() });
+    const res = await fetch('/api/v1/user/analytics', { headers });
     if (!res.ok) {
       // Log a warning if the API call fails
       logger.warn('Failed to fetch analytics.', { status: res.status });

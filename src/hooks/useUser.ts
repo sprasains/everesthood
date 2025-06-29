@@ -69,7 +69,7 @@ export function useUser() {
     loading,
     updateUser,
     isAuthenticated: !!session,
-    isPremium: user?.subscriptionStatus === "premium",
+    isPremium: user?.subscriptionTier === "PREMIUM",
   };
 }
 
@@ -91,4 +91,6 @@ export interface User {
   publicProfile: boolean;
   articlesRead: number;
   sharesCount: number;
+  createdAt?: string;
+  subscriptionTier?: string;
 }

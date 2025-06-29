@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
         sourceName,
         imageUrl,
         publishedAt: new Date(publishedAt),
-        url,
+        link: url,
         category,
         tags: tags || [],
       },

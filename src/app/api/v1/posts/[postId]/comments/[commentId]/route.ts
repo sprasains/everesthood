@@ -34,6 +34,6 @@ export async function DELETE(request: NextRequest, { params }: { params: { postI
   const { commentId } = params;
   const comment = await prisma.comment.findUnique({ where: { id: commentId } });
   if (!comment || comment.authorId !== session.user.id) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  await prisma.comment.delete({ where: { id: commentId } });
+  await prisma.comment.update({ where: { id: commentId }, data: { isDeleted: true } });
   return NextResponse.json({ success: true });
 }

@@ -42,9 +42,8 @@ export async function GET(request: NextRequest) {
         take: limit,
         include: {
           author: { select: { id: true, name: true, image: true } },
-          likes: userId ? { where: { userId } } : false,
+          likes: true,
           _count: { select: { likes: true } },
-          originalArticle: true,
           reshares: true,
         },
       }),
@@ -54,7 +53,7 @@ export async function GET(request: NextRequest) {
     const result = posts.map(post => ({
       ...post,
       likeCount: post._count.likes,
-      isLiked: post.likes && post.likes.length > 0,
+      isLiked: userId ? post.likes.some((like: any) => like.userId === userId) : false,
       likes: undefined,
       _count: undefined,
     }));
@@ -67,6 +66,11 @@ export async function GET(request: NextRequest) {
       hasMore: skip + limit < total,
     });
   } catch (error) {
+    if (error instanceof Error) {
+      console.error('GET /api/v1/community/posts error:', error, error.stack);
+    } else {
+      console.error('GET /api/v1/community/posts error:', error);
+    }
     return NextResponse.json({ error: "Failed to fetch posts" }, { status: 500 });
   }
 }

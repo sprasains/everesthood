@@ -73,7 +73,7 @@ export default function Navbar() {
         </Box>
         {/* Right-aligned icons, upgrade, avatar, logout */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          {user?.subscriptionStatus === "free" && (
+          {user?.subscriptionTier === "FREE" && (
             <Link href="/subscribe" style={{ textDecoration: "none" }}>
               <Button
                 variant="contained"
@@ -92,7 +92,7 @@ export default function Navbar() {
               </Button>
             </Link>
           )}
-          {user?.subscriptionStatus === "premium" && (
+          {user?.subscriptionTier === "PREMIUM" && (
             <Link href="/billing" style={{ textDecoration: "none" }}>
               <Button
                 variant="text"

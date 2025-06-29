@@ -1,7 +1,7 @@
 "use client";
 import { useState } from 'react';
 import { Box, Typography, Button, LinearProgress } from '@mui/material';
-import { logger, newCorrelationId } from '@/services/logger';
+import { logger, newCorrelationId, getCorrelationId } from '@/services/logger';
 
 interface PollOption {
     id: string;
@@ -29,7 +29,7 @@ export default function PollCard({ pollData }: { pollData: PollData }) {
         newCorrelationId();
         logger.info('Voting on poll option.', { optionId });
         try {
-            const res = await fetch(`/api/v1/polls/${optionId}/vote`, { method: 'POST', headers: { 'X-Correlation-ID': correlationId } });
+            const res = await fetch(`/api/v1/polls/${optionId}/vote`, { method: 'POST', headers: { 'X-Correlation-ID': getCorrelationId() } });
             if (!res.ok) {
                 const msg = await res.text();
                 logger.warn('Failed to vote on poll.', { status: res.status, message: msg });

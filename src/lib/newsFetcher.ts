@@ -1,5 +1,6 @@
 import Parser from 'rss-parser';
 import { PrismaClient } from '@prisma/client';
+import { logger } from '../services/logger';
 
 const prisma = new PrismaClient();
 const parser = new Parser();
@@ -13,7 +14,7 @@ const RSS_FEEDS = [
 ];
 
 export async function fetchAndStoreNews() {
-  console.log('Starting news fetch process...');
+  logger.info('Starting news fetch process...');
   let articlesAdded = 0;
 
   for (const feed of RSS_FEEDS) {
@@ -46,10 +47,10 @@ export async function fetchAndStoreNews() {
           });
         }
       }
-      console.log(`Successfully processed feed: ${feed.name}`);
+      logger.info('Successfully processed feed', { feedName: feed.name });
     } catch (error) {
-      console.error(`Failed to fetch or process feed ${feed.name}:`, error);
+      logger.error('Failed to fetch or process feed', { feedName: feed.name, error });
     }
   }
-  console.log('News fetch process finished.');
+  logger.info('News fetch process finished.');
 }

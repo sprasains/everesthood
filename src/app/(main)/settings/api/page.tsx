@@ -21,7 +21,7 @@ export default function ApiSettingsPage() {
     queryKey: ["api-keys"],
     queryFn: fetchKeys,
   });
-  const { mutate: generateKey, isLoading: creating } = useMutation({
+  const { mutate: generateKey, isPending: creating } = useMutation({
     mutationFn: createKey,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["api-keys"] }),
   });

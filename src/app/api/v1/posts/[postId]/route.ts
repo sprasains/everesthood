@@ -9,8 +9,6 @@ export async function GET(request: NextRequest, { params }: { params: { postId: 
     where: { id: params.postId },
     include: {
       author: { select: { id: true, name: true, image: true } },
-      mediaUrls: true,
-      metadata: true,
     },
   });
   if (!post) return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -29,7 +27,7 @@ export async function PUT(request: NextRequest, { params }: { params: { postId: 
   }
   const updatePostSchema = z.object({
     title: z.string().max(200).optional(),
-    content: z.string().min(1).max(1000),
+    content: z.any(),
     type: z.string().optional(),
     metadata: z.any().optional(),
     mediaUrls: z.array(z.string()).optional(),
@@ -59,6 +57,6 @@ export async function DELETE(request: NextRequest, { params }: { params: { postI
   if (post.authorId !== session.user.id) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
-  await prisma.post.delete({ where: { id: params.postId } });
+  await prisma.post.update({ where: { id: params.postId }, data: { isDeleted: true } });
   return NextResponse.json({ success: true });
 } 

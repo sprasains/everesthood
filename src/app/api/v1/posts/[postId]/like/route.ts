@@ -17,8 +17,8 @@ export async function POST(req: NextRequest, { params }: { params: { postId: str
   if (!post) return new NextResponse("Post not found", { status: 404 });
 
   if (action === 'like') {
-    await prisma.like.create({
-      data: { userId: session.user.id, articleId: postId },
+    await prisma.postLike.create({
+      data: { userId: session.user.id, postId },
     });
     // Notify the post author (unless liking own post)
     if (post.authorId !== session.user.id) {
@@ -32,9 +32,8 @@ export async function POST(req: NextRequest, { params }: { params: { postId: str
       });
       // Emit websocket event to the author
       try {
-        // @ts-ignore
-        if (globalThis.io) {
-          globalThis.io.to(post.authorId).emit('notification', {
+        if ((globalThis.io as any)?.to) {
+          (globalThis.io as any).to(post.authorId).emit('notification', {
             type: 'POST_LIKE',
             postId,
             actorId: session.user.id,
@@ -42,11 +41,13 @@ export async function POST(req: NextRequest, { params }: { params: { postId: str
         }
       } catch (e) { /* ignore */ }
     }
-    return new NextResponse("Liked", { status: 200 });
+    const likeCount = await prisma.postLike.count({ where: { postId } });
+    return NextResponse.json({ liked: true, likeCount });
   } else {
-    await prisma.like.delete({
-      where: { userId_articleId: { userId: session.user.id, articleId: postId } },
+    await prisma.postLike.delete({
+      where: { userId_postId: { userId: session.user.id, postId } },
     });
-    return new NextResponse("Unliked", { status: 200 });
+    const likeCount = await prisma.postLike.count({ where: { postId } });
+    return NextResponse.json({ liked: false, likeCount });
   }
 }

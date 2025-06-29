@@ -35,17 +35,18 @@ export default function AdminPostsPage() {
     queryFn: fetchPosts,
   });
   const posts = data?.posts || [];
-  const [editPost, setEditPost] = useState(null);
+  const [editPost, setEditPost] = useState<any>(null);
   const [editValues, setEditValues] = useState({ title: "", content: "" });
   const [saving, setSaving] = useState(false);
   const queryClient = useQueryClient();
 
-  const handleEdit = (post) => {
+  const handleEdit = (post: any) => {
     setEditPost(post);
     setEditValues({ title: post.title || "", content: post.content || "" });
   };
 
   const handleSave = async () => {
+    if (!editPost) return;
     setSaving(true);
     await fetch(`/api/v1/posts/${editPost.id}`, {
       method: "PUT",
@@ -54,7 +55,7 @@ export default function AdminPostsPage() {
     });
     setSaving(false);
     setEditPost(null);
-    queryClient.invalidateQueries(["admin-posts"]);
+    queryClient.invalidateQueries({ queryKey: ["admin-posts"] });
   };
 
   return (
@@ -80,7 +81,7 @@ export default function AdminPostsPage() {
                 </TableCell>
               </TableRow>
             ) : (
-              posts.map((post) => (
+              posts.map((post: any) => (
                 <TableRow key={post.id}>
                   <TableCell>
                     <Avatar

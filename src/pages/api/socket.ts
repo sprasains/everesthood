@@ -7,7 +7,7 @@ export default function handler(req: any, res: any) {
       addTrailingSlash: false,
       cors: { origin: "*" },
     });
-    globalThis.io = io;
+    (globalThis as any).io = io;
 
     io.on("connection", (socket: any) => {
       socket.on("join_post", (postId: string) => {

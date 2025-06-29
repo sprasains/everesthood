@@ -25,7 +25,7 @@ export async function GET(req: NextRequest, { params }: { params: { userId: stri
       orderBy: { createdAt: 'desc' },
       include: {
         author: { select: { name: true, image: true } },
-        originalArticle: true, // Include article info for reposts
+        newsArticle: true, // Include article info for reposts
         _count: { select: { comments: true } }
       }
     });

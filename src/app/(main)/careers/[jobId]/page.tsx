@@ -6,7 +6,7 @@ import { Box, Container, Typography, CircularProgress, Paper, Button, Divider } 
 
 export default function JobDetailPage() {
     const params = useParams();
-    const jobId = params.jobId as string;
+    const jobId = params?.jobId as string | undefined;
     const [job, setJob] = useState<any>(null);
 
     useEffect(() => {

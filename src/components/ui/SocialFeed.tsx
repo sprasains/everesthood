@@ -3,7 +3,7 @@ import { motion } from "framer-motion"
 import { useState, useEffect } from "react"
 import { useUser } from "@/hooks/useUser"
 import PollCard from "@/components/ui/PollCard"
-import { logger, newCorrelationId } from '@/services/logger'
+import { logger, newCorrelationId, getCorrelationId } from '@/services/logger'
 
 export default function SocialFeed() {
   const { user } = useUser();
@@ -21,7 +21,7 @@ export default function SocialFeed() {
       newCorrelationId();
       logger.info('Fetching polls for social feed.');
       try {
-        const res = await fetch("/api/v1/polls", { headers: { 'X-Correlation-ID': correlationId } });
+        const res = await fetch("/api/v1/polls", { headers: { 'X-Correlation-ID': getCorrelationId() } });
         if (res.ok) {
           setPolls(await res.json());
           logger.info('Fetched polls for social feed.');
@@ -51,7 +51,7 @@ export default function SocialFeed() {
     try {
       const res = await fetch('/api/v1/posts', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Correlation-ID': correlationId },
+        headers: { 'Content-Type': 'application/json', 'X-Correlation-ID': getCorrelationId() },
         body: JSON.stringify({
           content: postType === 'TEXT' ? postText : '',
           type: postType,

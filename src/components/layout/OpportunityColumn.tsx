@@ -1,6 +1,6 @@
 "use client";
 import { useQuery } from '@tanstack/react-query';
-import { Box, Typography, List, ListItem, ListItemText, Divider, Skeleton, Link as MuiLink } from '@mui/material';
+import { Box, Typography, List, ListItem, ListItemText, Divider, Skeleton, Link as MuiLink, ListItemButton } from '@mui/material';
 import Link from 'next/link';
 
 const fetchJobs = async () => {
@@ -28,13 +28,15 @@ export default function OpportunityColumn() {
                 )}
                 {jobs?.slice(0, 10).map((job: any, index: number) => (
                     <div key={job.id}>
-                        <ListItem button component={Link} href={`/careers/${job.id}`} passHref>
-                           <ListItemText
-                                primary={job.title}
-                                secondary={job.companyName}
-                                primaryTypographyProps={{ fontWeight: 'medium', noWrap: true }}
-                                secondaryTypographyProps={{ noWrap: true }}
-                           />
+                        <ListItem disablePadding>
+                          <ListItemButton component={Link} href={`/careers/${job.id}`}>
+                            <ListItemText
+                              primary={job.title}
+                              secondary={job.companyName}
+                              primaryTypographyProps={{ fontWeight: 'medium', noWrap: true }}
+                              secondaryTypographyProps={{ noWrap: true }}
+                            />
+                          </ListItemButton>
                         </ListItem>
                         {index < jobs.slice(0, 10).length - 1 && <Divider component="li" />}
                     </div>

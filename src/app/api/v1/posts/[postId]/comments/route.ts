@@ -5,9 +5,8 @@ import { prisma } from "@/lib/prisma";
 
 // Helper to emit comment updates
 function emitCommentUpdate(postId: string) {
-  // @ts-ignore
-  if (globalThis.io) {
-    globalThis.io.to(postId).emit("comment_update");
+  if ((globalThis.io as any)?.to) {
+    (globalThis.io as any).to(postId).emit("comment_update");
   }
 }
 
@@ -29,7 +28,7 @@ export async function GET(
   }
 }
 
-// POST a new comment
+// POST a new comment or reply (supports parentId for nesting, and rich text JSON content)
 export async function POST(
   request: NextRequest,
   { params }: { params: { postId: string } }
@@ -39,7 +38,7 @@ export async function POST(
     if (!session?.user?.id)
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const { content, mentionedUserIds = [] } = await request.json();
+    const { content, parentId, mentionedUserIds = [] } = await request.json();
     const { postId } = params;
 
     const post = await prisma.post.findUnique({ where: { id: postId } });
@@ -50,6 +49,7 @@ export async function POST(
         content,
         postId,
         authorId: session.user.id,
+        parentId: parentId || null, // Support nested replies
         // Connect mentioned users if any (assuming you add a relation in the schema)
         // mentionedUsers: mentionedUserIds.length > 0 ? { connect: mentionedUserIds.map((id: string) => ({ id })) } : undefined,
       },
@@ -78,9 +78,8 @@ export async function POST(
         },
       });
       try {
-        // @ts-ignore
-        if (globalThis.io) {
-          globalThis.io.to(mentionedId).emit('notification', {
+        if ((globalThis.io as any)?.to) {
+          (globalThis.io as any).to(mentionedId).emit('notification', {
             type: 'MENTION',
             postId: postId,
             actorId: session.user.id,

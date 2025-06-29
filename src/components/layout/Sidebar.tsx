@@ -119,7 +119,7 @@ export default function Sidebar() {
             </ListItemButton>
           ))}
         </List>
-        {user?.subscriptionStatus === "free" && (
+        {user?.subscriptionTier === "FREE" && (
           <Box mt={4} p={2} borderRadius={2} bgcolor="linear-gradient(90deg, #ec4899 0%, #8b5cf6 100%)" color="white">
             <Typography fontWeight="bold" mb={1}>🚀 Unlock Premium</Typography>
             <Typography variant="body2" mb={2}>Get unlimited AI summaries, exclusive personas, and advanced features</Typography>

@@ -51,7 +51,7 @@ type CommentWithAuthor = {
 export default function PostDetailPage() {
   const { user } = useUser();
   const params = useParams();
-  const postId = params.postId as string;
+  const postId = params?.postId as string | undefined;
 
   const [post, setPost] = useState<PostWithDetails | null>(null);
   const [comments, setComments] = useState<CommentWithAuthor[]>([]);

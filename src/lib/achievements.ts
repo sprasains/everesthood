@@ -37,16 +37,7 @@ export async function awardAchievement(userId: string, achievementName: string) 
         entityId: achievement.id,
       },
     });
-    try {
-      // @ts-ignore
-      if (globalThis.io) {
-        globalThis.io.to(userId).emit('notification', {
-          type: 'ACHIEVEMENT',
-          achievementId: achievement.id,
-          actorId: userId,
-        });
-      }
-    } catch (e) { /* ignore */ }
+    // Real-time notification via websockets should be handled in a server context where the Socket.IO server instance is available.
   }
 }
 

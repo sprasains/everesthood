@@ -29,23 +29,23 @@ const fetchUserAchievements = async (userId: string) => {
 
 export default function UserProfilePage() {
   const params = useParams();
-  const userId = params.userId as string;
+  const userId = params?.userId as string | undefined;
 
   const { data: user, isLoading: isUserLoading, error: userError } = useQuery({
     queryKey: ["userProfile", userId],
-    queryFn: () => fetchUserProfile(userId),
+    queryFn: () => userId ? fetchUserProfile(userId) : Promise.resolve(undefined),
     enabled: !!userId,
   });
 
   const { data: postsData, isLoading: arePostsLoading } = useQuery({
     queryKey: ["userPosts", userId],
-    queryFn: () => fetchUserPosts(userId),
+    queryFn: () => userId ? fetchUserPosts(userId) : Promise.resolve(undefined),
     enabled: !!userId,
   });
 
   const { data: achievementsData, isLoading: areAchievementsLoading } = useQuery({
     queryKey: ["userAchievements", userId],
-    queryFn: () => fetchUserAchievements(userId),
+    queryFn: () => userId ? fetchUserAchievements(userId) : Promise.resolve(undefined),
     enabled: !!userId,
   });
 
@@ -114,7 +114,16 @@ export default function UserProfilePage() {
               ))}
             </Grid>
         ) : (
-            <Typography>This user hasn&apos;t posted anything yet.</Typography>
+            <Box textAlign="center" py={6}>
+              <Typography variant="h6" color="text.secondary" gutterBottom>
+                {user.isCurrentUser
+                  ? "You haven't posted anything yet."
+                  : `${user.name || 'This user'} hasn't posted anything yet.`}
+              </Typography>
+              {user.isCurrentUser && (
+                <Button href="/posts/create" variant="contained" sx={{ mt: 2 }}>Create Your First Post</Button>
+              )}
+            </Box>
         )}
 
         {/* Achievements Section */}
@@ -141,7 +150,14 @@ export default function UserProfilePage() {
                   ))}
               </Grid>
           ) : (
-              <Typography>This user has not earned any achievements yet.</Typography>
+              <Box textAlign="center" py={4}>
+                <Typography variant="h6" color="text.secondary" gutterBottom>
+                  {user.isCurrentUser
+                    ? "You haven't earned any achievements yet."
+                    : `${user.name || 'This user'} has not earned any achievements yet.`}
+                </Typography>
+                <Typography variant="body2">Keep engaging to unlock achievements!</Typography>
+              </Box>
           )}
         </Box>
       </Container>

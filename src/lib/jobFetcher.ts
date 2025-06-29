@@ -1,5 +1,6 @@
 import Parser from 'rss-parser';
 import { PrismaClient } from '@prisma/client';
+import { logger } from '../services/logger';
 
 const prisma = new PrismaClient();
 const parser = new Parser();
@@ -11,7 +12,7 @@ const JOB_FEEDS = [
 ];
 
 export async function fetchAndStoreJobs() {
-  console.log('🤖 Starting AI job fetch process...');
+  logger.info('Starting AI job fetch process...');
 
   for (const feed of JOB_FEEDS) {
     try {
@@ -41,10 +42,10 @@ export async function fetchAndStoreJobs() {
           },
         });
       }
-      console.log(`✅ Successfully processed job feed: ${feed.source}`);
+      logger.info('Successfully processed job feed', { source: feed.source });
     } catch (error) {
-      console.error(`❌ Failed to process job feed ${feed.source}:`, error);
+      logger.error('Failed to process job feed', { source: feed.source, error });
     }
   }
-  console.log('🤖 AI job fetch process finished.');
+  logger.info('AI job fetch process finished.');
 }

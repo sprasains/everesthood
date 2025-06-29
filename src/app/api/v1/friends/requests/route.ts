@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
   try {
     // @ts-ignore
     if (globalThis.io) {
-      globalThis.io.to(receiverId).emit('notification', {
+      (globalThis.io as any).to(receiverId).emit('notification', {
         type: 'FRIEND_REQUEST',
         actorId: requesterId,
       });

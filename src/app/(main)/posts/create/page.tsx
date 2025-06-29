@@ -52,6 +52,15 @@ export default function CreatePostPage() {
     onSuccess: (data) => {
       enqueueSnackbar("Post created successfully!", { variant: "success" });
       queryClient.invalidateQueries({ queryKey: ["community-posts"] });
+      let userId = null;
+      try {
+        userId = JSON.parse(localStorage.getItem('currentUser') || '{}').id;
+      } catch {}
+      if (userId) {
+        queryClient.invalidateQueries({ queryKey: ["userPosts", userId] });
+      } else {
+        queryClient.invalidateQueries({ queryKey: ["userPosts"] });
+      }
       if (data?.post?.id) {
         router.push(`/posts/${data.post.id}`);
       }
@@ -89,7 +98,7 @@ export default function CreatePostPage() {
               helperText={errors.title?.message?.toString()}
             />
             <Box sx={{ my: 2 }}>
-              <RichTextEditor value={editorContent} onChange={setEditorContent} />
+              <RichTextEditor initialContent={editorContent} onUpdate={setEditorContent} />
             </Box>
             <TextField
               select
@@ -131,7 +140,7 @@ export default function CreatePostPage() {
               fullWidth
               startIcon={status === 'pending' ? <CircularProgress size={20} /> : null}
             >
-              {status === 'pending' ? "Posting..." : "Create Post"}
+              {status === 'pending' ? "Posting..." : "Publish"}
             </Button>
           </form>
         </Paper>

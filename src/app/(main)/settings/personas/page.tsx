@@ -38,7 +38,7 @@ export default function PersonasPage() {
   });
   const [open, setOpen] = useState(false);
   const [editingPersona, setEditingPersona] = useState<any>(null);
-  const { mutate: save, isLoading: saving } = useMutation({
+  const { mutate: save, isPending: saving } = useMutation({
     mutationFn: savePersona,
     onSuccess: () => {
       setOpen(false);
@@ -49,7 +49,7 @@ export default function PersonasPage() {
       enqueueSnackbar('Failed to save persona', { variant: 'error' });
     }
   });
-  const { mutate: remove, isLoading: deleting } = useMutation({
+  const { mutate: remove, isPending: deleting } = useMutation({
     mutationFn: deletePersona,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["personas"] });

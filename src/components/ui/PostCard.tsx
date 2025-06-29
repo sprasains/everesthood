@@ -1,10 +1,9 @@
 "use client";
 import { Card, CardContent, CardActions, CardMedia, Box, Avatar, Typography, Link as MuiLink, Button, TextField, IconButton } from "@mui/material";
-import { Post, User, Article } from "@prisma/client";
+import { Post, User, NewsArticle } from "@prisma/client";
 import Link from "next/link";
-import CommentList from "./CommentList";
-import CommentForm from "./CommentForm";
-import { useState, useEffect } from "react";
+import ThreadedComments from "./ThreadedComments";
+import { useState, useEffect, useRef } from "react";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -25,7 +24,7 @@ import RichTextRenderer from './RichTextRenderer';
 
 type PostWithDetails = Post & {
   author: Partial<User>;
-  newsArticle?: Article | null;
+  newsArticle?: NewsArticle | null;
   likeCount?: number; // Add likeCount for UI
 };
 
@@ -45,10 +44,11 @@ export default function PostCard({ post }: PostCardProps) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
+  const [pop, setPop] = useState(false); // For pop animation
 
   // Edit form
   const { register, handleSubmit, formState: { errors }, reset } = useForm({
-    defaultValues: { content: post.content }
+    defaultValues: { title: post.title, content: post.content }
   });
   const editMutation = useMutation({
     mutationFn: async (data: any) => {
@@ -60,14 +60,26 @@ export default function PostCard({ post }: PostCardProps) {
       if (!res.ok) throw new Error('Failed to update post');
       return res.json();
     },
-    onSuccess: () => {
-      enqueueSnackbar('Post updated!', { variant: 'success' });
-      setIsEditDialogOpen(false);
+    onMutate: async (data) => {
+      await queryClient.cancelQueries({ queryKey: ['community-posts'] });
+      const previousPosts = queryClient.getQueryData<any[]>(['community-posts']);
+      queryClient.setQueryData(['community-posts'], (old: any[] = []) =>
+        old.map((p) => p.id === post.id ? { ...p, ...data } : p)
+      );
+      return { previousPosts };
+    },
+    onError: (_err, _data, context) => {
+      if (context?.previousPosts) {
+        queryClient.setQueryData(['community-posts'], context.previousPosts);
+      }
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['community-posts'] });
     },
-    onError: () => {
-      enqueueSnackbar('Failed to update post', { variant: 'error' });
-    }
+    onSuccess: () => {
+      setIsEditDialogOpen(false);
+      enqueueSnackbar('Post updated!', { variant: 'success' });
+    },
   });
   // Delete mutation
   const deleteMutation = useMutation({
@@ -76,14 +88,24 @@ export default function PostCard({ post }: PostCardProps) {
       if (!res.ok) throw new Error('Failed to delete post');
       return res.json();
     },
-    onSuccess: () => {
-      enqueueSnackbar('Post deleted!', { variant: 'success' });
-      setIsDeleteDialogOpen(false);
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: ['community-posts'] });
+      const previousPosts = queryClient.getQueryData<any[]>(['community-posts']);
+      queryClient.setQueryData(['community-posts'], (old: any[] = []) => old.filter((p) => p.id !== post.id));
+      return { previousPosts };
+    },
+    onError: (_err, _data, context) => {
+      if (context?.previousPosts) {
+        queryClient.setQueryData(['community-posts'], context.previousPosts);
+      }
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['community-posts'] });
     },
-    onError: () => {
-      enqueueSnackbar('Failed to delete post', { variant: 'error' });
-    }
+    onSuccess: () => {
+      setIsDeleteDialogOpen(false);
+      enqueueSnackbar('Post deleted!', { variant: 'success' });
+    },
   });
 
   // Fetch like status for current user
@@ -104,21 +126,57 @@ export default function PostCard({ post }: PostCardProps) {
     fetchLikeStatus();
   }, [post.id, session?.user?.id, post.likeCount]);
 
-  const handleLike = async () => {
-    setLikeLoading(true);
-    const action = liked ? "unlike" : "like";
-    const res = await fetch(`/api/v1/posts/${post.id}/like`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action }),
-    });
-    if (res.ok) {
-      const data = await res.json();
+  // Optimistic like mutation
+  const likeMutation = useMutation({
+    mutationFn: async (action: 'like' | 'unlike') => {
+      const res = await fetch(`/api/v1/posts/${post.id}/like`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action }),
+      });
+      if (!res.ok) throw new Error('Failed to like post');
+      return res.json();
+    },
+    onMutate: async (action) => {
+      await queryClient.cancelQueries({ queryKey: ['community-posts'] });
+      const previousPosts = queryClient.getQueryData<any[]>(['community-posts']);
+      // Optimistically update like state/count for this post
+      setLiked(action === 'like');
+      setLikeCount((c) => action === 'like' ? c + 1 : Math.max(0, c - 1));
+      setPop(true);
+      return { previousPosts };
+    },
+    onError: (_err, action, context) => {
+      if (context?.previousPosts) {
+        queryClient.setQueryData(['community-posts'], context.previousPosts);
+      }
+      setLiked((prev) => !prev);
+      setLikeCount((c) => liked ? c + 1 : Math.max(0, c - 1));
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['community-posts'] });
+    },
+    onSuccess: (data) => {
       setLiked(data.liked);
       setLikeCount(data.likeCount);
-    }
-    setLikeLoading(false);
+    },
+  });
+
+  const handleLike = () => {
+    if (likeLoading) return;
+    setLikeLoading(true);
+    likeMutation.mutate(liked ? 'unlike' : 'like', {
+      onSettled: () => setLikeLoading(false),
+    });
   };
+
+  // Pop animation reset
+  useEffect(() => {
+    if (pop) {
+      const timeout = setTimeout(() => setPop(false), 200);
+      return () => clearTimeout(timeout);
+    }
+  }, [pop]);
 
   const handleComment = () => setRefreshComments((c) => c + 1);
 
@@ -143,11 +201,6 @@ export default function PostCard({ post }: PostCardProps) {
             <Typography variant="caption" color="text.secondary">
               {new Date(post.createdAt).toLocaleString()}
             </Typography>
-            {post.resharedFrom && (
-              <Typography variant="caption" color="info.main">
-                🔁 Reshared from {post.resharedFrom.author?.name || 'another user'}
-              </Typography>
-            )}
           </Box>
         </Box>
         {post.title && (
@@ -157,7 +210,11 @@ export default function PostCard({ post }: PostCardProps) {
         )}
         {/* Render rich text content safely */}
         <Box sx={{ my: 2 }}>
-          <RichTextRenderer content={post.content} />
+          {post.isDeleted ? (
+            <Typography color="text.secondary" fontStyle="italic">[deleted]</Typography>
+          ) : (
+            <RichTextRenderer content={post.content} />
+          )}
         </Box>
         {post.mediaUrls && post.mediaUrls.length > 0 && (
           <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mb: 2 }}>
@@ -174,7 +231,7 @@ export default function PostCard({ post }: PostCardProps) {
         {post.newsArticle && (
           <Card variant="outlined" sx={{ p: 2, mt: 2, borderColor: "rgba(255,255,255,0.2)" }}>
             <MuiLink
-              href={post.newsArticle.url}
+              href={post.newsArticle.link}
               target="_blank"
               rel="noopener noreferrer"
               underline="none"
@@ -195,7 +252,7 @@ export default function PostCard({ post }: PostCardProps) {
                   {post.newsArticle.sourceName}
                 </Typography>
                 <Button
-                  href={post.newsArticle.url}
+                  href={post.newsArticle.link}
                   target="_blank"
                   rel="noopener noreferrer"
                   size="small"
@@ -219,8 +276,22 @@ export default function PostCard({ post }: PostCardProps) {
           variant={liked ? "contained" : "outlined"}
           size="small"
           color="secondary"
-          onClick={async () => { await handleLike(); }}
-          startIcon={likeLoading ? <CircularProgress size={18} /> : (liked ? <FavoriteIcon color="error" sx={{ transition: 'transform 0.2s', transform: liked ? 'scale(1.2)' : 'scale(1)' }} /> : <FavoriteBorderIcon />)}
+          onClick={handleLike}
+          startIcon={
+            likeLoading ? (
+              <CircularProgress size={18} />
+            ) : liked ? (
+              <FavoriteIcon
+                color="error"
+                sx={{
+                  transition: 'transform 0.2s',
+                  transform: pop ? 'scale(1.4)' : liked ? 'scale(1.2)' : 'scale(1)'
+                }}
+              />
+            ) : (
+              <FavoriteBorderIcon />
+            )
+          }
           disabled={likeLoading}
           sx={{ transition: 'background 0.2s' }}
         >
@@ -236,10 +307,16 @@ export default function PostCard({ post }: PostCardProps) {
         >
           Reshare
         </Button>
-        <MuiLink component={Link} href={`/posts/${post.id}`} underline="none">
-          <Button variant="text" size="small" color="info">View Post</Button>
-        </MuiLink>
-        {isAuthor && (
+        <Button
+          component={Link}
+          href={`/posts/${post.id}`}
+          variant="text"
+          size="small"
+          color="info"
+        >
+          View Post
+        </Button>
+        {isAuthor && !post.isDeleted && (
           <>
             <IconButton onClick={e => setAnchorEl(e.currentTarget)}>
               <MoreVertIcon />
@@ -265,7 +342,7 @@ export default function PostCard({ post }: PostCardProps) {
               fullWidth
               margin="normal"
               defaultValue={post.title}
-              {...register('title')}
+              {...register('title' as const)}
             />
             <TextField
               label="Content"
@@ -302,9 +379,8 @@ export default function PostCard({ post }: PostCardProps) {
         </DialogActions>
       </Dialog>
       <CardContent sx={{ pt: 0 }}>
-        {/* Comments Section */}
-        <CommentForm postId={post.id} onComment={handleComment} />
-        <CommentList key={refreshComments} postId={post.id} />
+        {/* Threaded Comments Section (Facebook-style) */}
+        <ThreadedComments postId={post.id} currentUserId={session?.user?.id || ""} />
         {/* Tipping Section */}
         <Box sx={{ display: 'flex', gap: 2, mt: 2, alignItems: 'center' }}>
           <Typography variant="body2" color="text.secondary">

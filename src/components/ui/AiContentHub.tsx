@@ -6,7 +6,7 @@ import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import { logger, newCorrelationId } from '@/services/logger';
 
 const fetchAiContent = async (topic: string) => {
-    newCorrelationId();
+    const correlationId = newCorrelationId();
     logger.info('AI content fetch started.', { topic });
     try {
         const response = await fetch('/api/v1/ai/generate', {

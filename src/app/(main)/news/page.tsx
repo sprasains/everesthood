@@ -206,7 +206,12 @@ export default function NewsPage() {
               ) : (
                 <Grid sx={{ width: '100%' }}>
                   <Paper sx={{ p: 4, textAlign: "center", bgcolor: "background.default", borderRadius: 3 }}>
-                    <Typography variant="h6" color="text.secondary">No news found.</Typography>
+                    <Typography variant="h6" color="text.secondary" gutterBottom>
+                      We couldn&apos;t find any articles right now.
+                    </Typography>
+                    <Typography variant="body1" color="text.secondary">
+                      Please check back later or try a different search/category.
+                    </Typography>
                   </Paper>
                 </Grid>
               )

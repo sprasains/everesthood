@@ -11,7 +11,8 @@ import { useMemo } from 'react';
 import Skeleton from "@mui/material/Skeleton";
 import NewsTicker from '@/components/ui/NewsTicker';
 import AiContentHub from '@/components/ui/AiContentHub';
-import { logger, newCorrelationId } from '@/services/logger';
+import { logger, newCorrelationId, getCorrelationId } from '@/services/logger';
+import PostCardSkeleton from "@/components/ui/PostCardSkeleton";
 
 const fetchUserPosts = async (userId: string) => {
   const res = await fetch(`/api/v1/posts?authorId=${userId}`);
@@ -23,7 +24,8 @@ const fetchFriendsCount = async () => {
   newCorrelationId();
   logger.info('Fetching friends count.');
   try {
-    const res = await fetch("/api/v1/friends", { headers: { 'X-Correlation-ID': correlationId } });
+    const headers = new Headers({ 'X-Correlation-ID': getCorrelationId() });
+    const res = await fetch("/api/v1/friends", { headers });
     if (!res.ok) {
       logger.warn('Failed to fetch friends.', { status: res.status });
       throw new Error("Failed to fetch friends");
@@ -86,10 +88,21 @@ export default function DashboardPage() {
             {/* ProfileStatusCard */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
               <Paper elevation={3} sx={{ p: 3, borderRadius: 3, minHeight: 220, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                <Avatar src={typeof avatar === 'string' ? avatar : undefined} alt={user?.name || ""} sx={{ width: 72, height: 72, mb: 2 }} />
-                <Typography variant="h6" fontWeight="bold">{user?.name || 'Explorer'}</Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>{user?.email}</Typography>
-                <Button component={Link} href="/settings" variant="outlined" startIcon={<EditIcon />}>Edit Profile</Button>
+                {user ? (
+                  <>
+                    <Avatar src={typeof avatar === 'string' ? avatar : undefined} alt={user?.name || ""} sx={{ width: 72, height: 72, mb: 2 }} />
+                    <Typography variant="h6" fontWeight="bold">{user?.name || 'Explorer'}</Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>{user?.email}</Typography>
+                    <Button component={Link} href="/settings" variant="outlined" startIcon={<EditIcon />}>Edit Profile</Button>
+                  </>
+                ) : (
+                  <>
+                    <Skeleton variant="circular" width={72} height={72} sx={{ mb: 2 }} />
+                    <Skeleton variant="text" width={120} height={32} />
+                    <Skeleton variant="text" width={180} height={24} sx={{ mb: 2 }} />
+                    <Skeleton variant="rectangular" width={120} height={36} sx={{ borderRadius: 2 }} />
+                  </>
+                )}
               </Paper>
             </motion.div>
             {/* StatsOverview */}
@@ -142,8 +155,10 @@ export default function DashboardPage() {
                 <Typography variant="h6" fontWeight="bold" gutterBottom>Your Latest Posts</Typography>
                 {/* Replace with real post fetching and skeletons */}
                 {postsLoading ? (
-                  <Box display="flex" justifyContent="center" alignItems="center" minHeight={120}>
-                    <CircularProgress />
+                  <Box>
+                    {Array.from(new Array(2)).map((_, i) => (
+                      <Box key={i} mb={2}><PostCardSkeleton /></Box>
+                    ))}
                   </Box>
                 ) : postsData && postsData.posts.length > 0 ? (
                   <Grid container spacing={2}>

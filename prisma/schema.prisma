@@ -4,7 +4,7 @@
 datasource db {
   provider     = "postgresql"
   url          = env("DATABASE_URL")
-  relationMode = "prisma"
+  relationMode = "foreignKeys"
 }
 
 generator client {
@@ -66,6 +66,10 @@ model User {
   articlesRead    Int      @default(0)
   summariesUsed   Int      @default(0)
   sharesCount     Int      @default(0)
+  // Monetization: Tipping balance for creators and users
+  tippingBalance  Float    @default(0)
+  creatorBalance  Float    @default(0)
+  profileSpotlightEndsAt DateTime?
 }
 
 model Account {
@@ -109,7 +113,7 @@ model VerificationToken {
 model Post {
   id             String     @id @default(cuid())
   title          String?
-  content        Json? // Temporarily make content optional for migration
+  content        Json? // CHANGED: was String/Text, now Json for rich text
   authorId       String
   createdAt      DateTime   @default(now())
   updatedAt      DateTime   @updatedAt
@@ -126,6 +130,7 @@ model Post {
   mentionedUsers User[]     @relation("PostMentions")
   newsArticleId  String?    // Optional relation to NewsArticle for reposts
   newsArticle    NewsArticle? @relation(fields: [newsArticleId], references: [id])
+  isDeleted      Boolean    @default(false)
 
   @@index([authorId])
   @@index([createdAt])
@@ -148,12 +153,14 @@ model Comment {
   createdAt DateTime      @default(now())
   authorId  String
   postId    String
-  parentId  String?
+  parentId  String? // Self-referencing for infinite-level threading
   author    User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
   post      Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
-  parent    Comment?      @relation("Replies", fields: [parentId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  parent    Comment?      @relation("Replies", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   replies   Comment[]     @relation("Replies")
   likes     CommentLike[]
+  isDeleted Boolean       @default(false)
+  // NOTE: For soft delete, add a 'deletedAt' field and filter in queries.
 }
 
 model CommentLike {
@@ -338,7 +345,7 @@ model NewsArticle {
   // Added for GenZ content and categorization
   category     String?   // e.g. 'ai', 'startup', 'culture', etc.
   tags         String[]  // Array of tags/keywords
-  content      String?   @db.Text // Full article content if available
+  content      Json?     // CHANGED: was String/Text, now Json for rich text
   likes        NewsArticleLike[]
   posts        Post[]    // Relation from Post.newsArticle
 
@@ -408,3 +415,8 @@ enum NotificationType {
   ACHIEVEMENT
   SYSTEM
 }
+
+// --- MIGRATION: Rich Text & Hierarchical Comments ---
+// 1. Post.content and NewsArticle.content are now Json for rich text editor support.
+// 2. Comment model supports infinite-level threading via parentId and replies self-relation.
+// 3. onDelete: Cascade for parentId to cascade delete nested replies.

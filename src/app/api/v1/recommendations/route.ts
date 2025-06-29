@@ -23,7 +23,7 @@ export async function GET() {
     }
     
     // 2. Tally the categories
-    const categoryCounts = interactedArticles.reduce((acc, article) => {
+    const categoryCounts = interactedArticles.reduce((acc: Record<string, number>, article) => {
         if (article.category) {
             acc[article.category] = (acc[article.category] || 0) + 1;
         }

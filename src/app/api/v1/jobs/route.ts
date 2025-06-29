@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
 
     const { title, description, location, type } = await req.json();
     const newJob = await prisma.job.create({
-        data: { title, description, location, type, companyId: company.id }
+        data: { title, description, location, type, companyId: company.id, companyName: company.name }
     });
     return NextResponse.json(newJob, { status: 201 });
 }

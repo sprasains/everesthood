@@ -60,9 +60,8 @@ export async function POST(
     });
     // Emit websocket event
     try {
-      // @ts-ignore
       if (globalThis.io) {
-        globalThis.io.to(requesterId).emit('notification', {
+        (globalThis.io as any).to(requesterId).emit('notification', {
           type: 'FRIEND_ACCEPT',
           actorId: loggedInUserId,
         });

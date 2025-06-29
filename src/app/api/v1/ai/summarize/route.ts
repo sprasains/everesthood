@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
     if (!session?.user?.email) return new NextResponse("Unauthorized", { status: 401 });
 
     const body = await request.json();
-    const { content, personaId } = body;
+    const { content, personaId } = body as { content: string; personaId: keyof typeof defaultPersonas | string };
     if (!content) return new NextResponse("Content is required", { status: 400 });
 
     const user = await prisma.user.findUnique({ where: { email: session.user.email } });
@@ -29,8 +29,8 @@ export async function POST(request: NextRequest) {
       CoachAda: "You are CoachAda, a supportive career coach. Summarize this content with encouragement and career development focus:"
     };
 
-    if (defaultPersonas[personaId]) {
-      personaPrompt = defaultPersonas[personaId];
+    if (defaultPersonas[personaId as keyof typeof defaultPersonas]) {
+      personaPrompt = defaultPersonas[personaId as keyof typeof defaultPersonas];
     } else {
       // It's a custom persona, fetch it from the DB
       const customPersona = await prisma.customPersona.findFirst({

@@ -31,15 +31,15 @@ export async function POST(req: NextRequest, { params }: { params: { postId: str
       where: { id: post.author.id },
       data: { creatorBalance: { increment: amount } },
     }),
-    prisma.userActivity.create({
-      data: {
-        userId: tipper.id,
-        action: 'tip',
-        entityType: 'post',
-        entityId: postId,
-        metadata: { amount, creatorId: post.author.id },
-      },
-    }),
+    // prisma.userActivity.create({
+    //   data: {
+    //     userId: tipper.id,
+    //     action: 'tip',
+    //     entityType: 'Post',
+    //     entityId: post.id,
+    //     metadata: { amount },
+    //   },
+    // }),
   ]);
 
   return NextResponse.json({ success: true });

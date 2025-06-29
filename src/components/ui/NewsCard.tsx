@@ -100,7 +100,7 @@ export default function NewsCard({ article }: NewsCardProps) {
       }}
     >
       <Link
-        href={article.url || article.link || '#'}
+        href={article.url || '#'}
         target="_blank"
         rel="noopener noreferrer"
         style={{ textDecoration: "none", color: "inherit" }}

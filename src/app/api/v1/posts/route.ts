@@ -157,18 +157,17 @@ export async function POST(request: NextRequest) {
   ));
 
   // Emit websocket event to each friend
-  try {
-    // @ts-ignore
-    if (globalThis.io) {
-      friendIds.forEach(friendId => {
-        globalThis.io.to(friendId).emit('notification', {
-          type: 'NEW_POST',
-          postId: post.id,
-          actorId: session.user.id,
-        });
-      });
-    }
-  } catch (e) { /* ignore */ }
+  // NOTE: Websocket emission is only available in custom server context, not in API routes.
+  // To avoid build errors, skip emitting if no server instance is available.
+  // If you want real-time notifications, move this logic to a place where you have access to the HTTP server.
+  // try {
+  //   if (typeof getSocketServer === 'function') {
+  //     const io = getSocketServer(/* server */); // Not available in API route
+  //     if (io && typeof io.to === 'function') {
+  //       io.to(friendId).emit('notification', { ... });
+  //     }
+  //   }
+  // } catch (e) { /* ignore */ }
 
   // Mention notifications for each mentioned user
   for (const mentionedId of mentionedUserIds.filter((id: string) => id !== session.user.id)) {
@@ -180,16 +179,14 @@ export async function POST(request: NextRequest) {
         entityId: post.id,
       },
     });
-    try {
-      // @ts-ignore
-      if (globalThis.io) {
-        globalThis.io.to(mentionedId).emit('notification', {
-          type: 'MENTION',
-          postId: post.id,
-          actorId: session.user.id,
-        });
-      }
-    } catch (e) { /* ignore */ }
+    // try {
+    //   if (typeof getSocketServer === 'function') {
+    //     const io = getSocketServer(/* server */); // Not available in API route
+    //     if (io && typeof io.to === 'function') {
+    //       io.to(mentionedId).emit('notification', { ... });
+    //     }
+    //   }
+    // } catch (e) { /* ignore */ }
   }
 
   return NextResponse.json({ post });

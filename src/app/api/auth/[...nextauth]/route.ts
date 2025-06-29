@@ -57,9 +57,9 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id;
-        session.user.subscriptionTier = token.subscriptionTier;
-        session.user.level = token.level;
+        session.user.id = token.id as string;
+        session.user.subscriptionTier = token.subscriptionTier as string | undefined;
+        session.user.level = token.level as number | undefined;
       }
       return session;
     },
@@ -70,7 +70,7 @@ export const authOptions: NextAuthOptions = {
   events: {
     async createUser({ user }) {
       if (!user.email) return;
-      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2024-04-10" });
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2023-10-16" });
       const customer = await stripe.customers.create({ email: user.email, name: user.name ?? undefined });
       await prisma.user.update({ where: { id: user.id }, data: { stripeCustomerId: customer.id } });
     },

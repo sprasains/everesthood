@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id)
     return new NextResponse("Unauthorized", { status: 401 });
-  const { postId, content, parentId } = await req.json();
+  const { postId, content, parentId, mentionedUserIds = [] } = await req.json();
   if (!content || !postId)
     return NextResponse.json(
       { error: "Missing content or postId" },
@@ -87,17 +87,7 @@ export async function POST(req: NextRequest) {
       });
     }
   }
-  // --- Mention notifications ---
-  let mentionedUserIds: string[] = [];
-  if (typeof content === 'string') {
-    const mentionMatches = content.match(/@([a-zA-Z0-9_]+)/g) || [];
-    if (mentionMatches.length > 0) {
-      const usernames = mentionMatches.map(m => m.slice(1));
-      const users = await prisma.user.findMany({ where: { name: { in: usernames } } });
-      mentionedUserIds = users.map(u => u.id).filter(id => id !== session.user.id);
-    }
-  }
-  for (const mentionedId of mentionedUserIds) {
+  for (const mentionedId of mentionedUserIds.filter((id: string) => id !== session.user.id)) {
     await prisma.notification.create({
       data: {
         recipientId: mentionedId,
@@ -107,9 +97,8 @@ export async function POST(req: NextRequest) {
       },
     });
     try {
-      // @ts-ignore
       if (globalThis.io) {
-        globalThis.io.to(mentionedId).emit('notification', {
+        (globalThis.io as any).to(mentionedId).emit('notification', {
           type: 'MENTION',
           commentId: comment.id,
           actorId: session.user.id,

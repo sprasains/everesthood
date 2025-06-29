@@ -41,9 +41,8 @@ export async function POST(
       });
       // Emit websocket event to the author
       try {
-        // @ts-ignore
         if (globalThis.io) {
-          globalThis.io.to(comment.authorId).emit('notification', {
+          (globalThis.io as any).to(comment.authorId).emit('notification', {
             type: 'COMMENT_LIKE',
             commentId,
             actorId: userId,

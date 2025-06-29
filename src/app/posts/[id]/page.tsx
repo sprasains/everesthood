@@ -1,3 +1,4 @@
+"use client";
 import { notFound } from "next/navigation";
 import { Box, Card, CardContent, Typography, Avatar, Button, CircularProgress } from "@mui/material";
 import { Suspense } from "react";
@@ -7,18 +8,23 @@ import PostPageSkeleton from "@/components/ui/PostPageSkeleton";
 import dynamic from "next/dynamic";
 import ThreadedComments from '@/components/ui/ThreadedComments';
 import Image from 'next/image';
+import { useUser } from '@/hooks/useUser';
+
 const EditPostButton = dynamic(() => import("@/components/ui/EditPostButton"), { ssr: false });
 
+// NOTE: This fetch runs on the server. NEXT_PUBLIC_BASE_URL must be set in your environment (e.g., https://yourdomain.com)
 async function fetchPost(id: string) {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/v1/posts/${id}`);
+  if (!process.env.NEXT_PUBLIC_BASE_URL) {
+    throw new Error('NEXT_PUBLIC_BASE_URL is required for server-side fetches to /api/v1/posts/.');
+  }
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/posts/${id}`);
   if (!res.ok) return null;
   return res.json();
 }
 
-export default async function PostPage({ params }: { params: { id: string } }) {
-  const post = await fetchPost(params.id);
-  if (!post) return notFound();
-
+// Client component for post page
+function PostPageClient({ post }: { post: any }) {
+  const { user } = useUser();
   return (
     <Box sx={{ maxWidth: 600, mx: "auto", mt: 4 }}>
       <Card sx={{ mb: 3 }}>
@@ -57,4 +63,10 @@ export default async function PostPage({ params }: { params: { id: string } }) {
       </Suspense>
     </Box>
   );
+}
+
+export default async function PostPage({ params }: { params: { id: string } }) {
+  const post = await fetchPost(params.id);
+  if (!post) return notFound();
+  return <PostPageClient post={post} />;
 }

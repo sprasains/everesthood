@@ -1,42 +1,80 @@
 // src/services/logger.ts
 
-// Generate a unique correlation ID for each session or flow
-let correlationId = crypto.randomUUID();
+// Utility to detect environment
+const isNode = typeof process !== 'undefined' && process.versions != null && process.versions.node != null;
+const isBrowser = typeof window !== 'undefined';
 
-export const newCorrelationId = () => {
-    correlationId = crypto.randomUUID();
-};
+// Correlation/trace ID helpers
+let correlationId: string | undefined = undefined;
 
-const log = (level: 'info' | 'warn' | 'error', message: string, context: Record<string, any> = {}) => {
-    const logEntry = {
-        level,
-        message,
-        timestamp: new Date().toISOString(),
-        context: {
-            ...context,
-            correlationId,
-            userId: (window as any).currentUser?.id || 'anonymous',
-            url: window.location.href,
-            userAgent: navigator.userAgent
-        },
-        severity: level.toUpperCase(),
-    };
+export function setCorrelationId(id: string) {
+  correlationId = id;
+}
 
+export function getCorrelationId() {
+  if (correlationId) return correlationId;
+  if (isNode) {
+    // Use crypto for UUID in Node
+    return require('crypto').randomUUID();
+  } else if (isBrowser && window.crypto?.randomUUID) {
+    return window.crypto.randomUUID();
+  }
+  // fallback
+  return Math.random().toString(36).slice(2) + Date.now();
+}
+
+export function newCorrelationId() {
+  const id = getCorrelationId();
+  setCorrelationId(id);
+  return id;
+}
+
+export { correlationId };
+
+// Main log function
+async function log(
+  level: 'info' | 'warn' | 'error',
+  message: string,
+  context: Record<string, any> = {}
+) {
+  const traceId = context.traceId || getCorrelationId();
+  const logEntry: Record<string, any> = {
+    severity: level.toUpperCase(),
+    level,
+    message,
+    timestamp: new Date().toISOString(),
+    traceId,
+    ...context,
+  };
+
+  if (isNode) {
+    // Node: log to stdout for GCP ingestion
+    // eslint-disable-next-line no-console
+    console[level](JSON.stringify(logEntry));
+  } else if (isBrowser) {
+    // Browser: log to console, and POST to backend unless in development
     if (process.env.NODE_ENV === 'development') {
-        console[level](JSON.stringify(logEntry, null, 2));
+      // eslint-disable-next-line no-console
+      console[level](JSON.stringify(logEntry, null, 2));
+    } else {
+      try {
+        await fetch('/api/logs', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(logEntry),
+        });
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error('Failed to send log to backend', e);
+      }
     }
-
-    // Example: send to Sentry, Logtail, or your own endpoint
-    // Sentry.captureMessage(message, { extra: logEntry });
-    // fetch('https://your-logging-endpoint.com/logs', {
-    //     method: 'POST',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify(logEntry)
-    // });
-};
+  }
+}
 
 export const logger = {
-    info: (message: string, context?: Record<string, any>) => log('info', message, context),
-    warn: (message: string, context?: Record<string, any>) => log('warn', message, context),
-    error: (message: string, context?: Record<string, any>) => log('error', message, context),
+  info: (message: string, context?: Record<string, any>) => log('info', message, context),
+  warn: (message: string, context?: Record<string, any>) => log('warn', message, context),
+  error: (message: string, context?: Record<string, any>) => log('error', message, context),
+  setCorrelationId,
+  getCorrelationId,
 }; 

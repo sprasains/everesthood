@@ -4,6 +4,9 @@ import { useRouter, useParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { Box, Button, Container, Paper, TextField, Typography, CircularProgress } from "@mui/material";
 import { useSnackbar } from "notistack";
+import dynamic from "next/dynamic";
+
+const RichTextEditor = dynamic(() => import("@/components/ui/RichTextEditor"), { ssr: false });
 
 export default function EditPostPage() {
   const router = useRouter();
@@ -13,6 +16,7 @@ export default function EditPostPage() {
   const { register, handleSubmit, setValue, formState: { errors, isSubmitting } } = useForm();
   const [loading, setLoading] = useState(true);
   const [post, setPost] = useState<any>(null);
+  const [editorContent, setEditorContent] = useState<any>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -23,7 +27,7 @@ export default function EditPostPage() {
         const data = await res.json();
         setPost(data);
         setValue("title", data.title || "");
-        setValue("content", data.content || "");
+        setEditorContent(data.content || null);
       } else {
         enqueueSnackbar("Failed to load post", { variant: "error" });
         router.push("/dashboard");
@@ -39,7 +43,7 @@ export default function EditPostPage() {
       const res = await fetch(`/api/v1/posts/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ ...data, content: editorContent }),
       });
       if (res.ok) {
         enqueueSnackbar("Post updated!", { variant: "success" });
@@ -79,16 +83,9 @@ export default function EditPostPage() {
               error={!!errors.title}
               helperText={errors.title?.message?.toString()}
             />
-            <TextField
-              label="Content"
-              fullWidth
-              margin="normal"
-              multiline
-              minRows={4}
-              {...register("content", { required: "Content is required" })}
-              error={!!errors.content}
-              helperText={errors.content?.message?.toString()}
-            />
+            <Box sx={{ my: 2 }}>
+              <RichTextEditor initialContent={editorContent} onUpdate={setEditorContent} />
+            </Box>
             <Button
               type="submit"
               variant="contained"

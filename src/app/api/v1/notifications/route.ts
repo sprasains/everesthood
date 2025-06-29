@@ -27,9 +27,16 @@ export async function GET(request: NextRequest) {
     }
     if (n.type === 'NEWS' && n.entityId) {
       const news = await prisma.newsArticle.findUnique({ where: { id: n.entityId } });
-      return { ...n, title: news?.title || '', actor: null };
+      return {
+        ...n,
+        title: news?.title || '',
+        actor: n.actor && typeof n.actor === 'object' ? n.actor : { id: '', name: null, profilePicture: null },
+      };
     }
-    return n;
+    return {
+      ...n,
+      actor: n.actor && typeof n.actor === 'object' ? n.actor : { id: '', name: null, profilePicture: null },
+    };
   }));
 
   return NextResponse.json(notifications);
@@ -56,17 +63,18 @@ export async function POST(request: NextRequest) {
             actorId: session.user.id,
             type: 'SYSTEM',
             entityId: null,
-            snippet: body.message,
           },
         });
         try {
           // @ts-ignore
           if (globalThis.io) {
-            globalThis.io.to(user.id).emit('notification', {
-              type: 'SYSTEM',
-              message: body.message,
-              actorId: session.user.id,
-            });
+            // if (globalThis.io && typeof globalThis.io.to === 'function') {
+            //   globalThis.io.to(user.id).emit('notification', {
+            //     type: 'SYSTEM',
+            //     message: body.message,
+            //     actorId: session.user.id,
+            //   });
+            // }
           }
         } catch (e) { /* ignore */ }
       }

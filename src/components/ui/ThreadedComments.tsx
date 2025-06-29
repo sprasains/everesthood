@@ -17,13 +17,12 @@ import {
 import ThumbUpAltOutlinedIcon from "@mui/icons-material/ThumbUpAltOutlined";
 import ThumbDownAltOutlinedIcon from "@mui/icons-material/ThumbDownAltOutlined";
 import ReplyIcon from "@mui/icons-material/Reply";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CommentForm from './CommentForm';
 import { v4 as uuidv4 } from 'uuid';
-import { logger, newCorrelationId } from '@/services/logger';
+import { logger, newCorrelationId, getCorrelationId } from '@/services/logger';
 
 // Types
 interface Comment {
@@ -40,6 +39,7 @@ interface Comment {
   canEdit?: boolean;
   canDelete?: boolean;
   pending?: boolean;
+  isDeleted?: boolean;
 }
 
 interface ThreadedCommentsProps {
@@ -194,7 +194,7 @@ const ThreadedComments: React.FC<ThreadedCommentsProps> = ({
     try {
       await fetch(`/api/v1/comments`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", 'X-Correlation-ID': correlationId },
+        headers: { "Content-Type": "application/json", 'X-Correlation-ID': getCorrelationId() || '' },
         body: JSON.stringify({ postId, parentId, content: replyContent }),
       });
       logger.info('Comment reply submitted.');
@@ -215,7 +215,7 @@ const ThreadedComments: React.FC<ThreadedCommentsProps> = ({
     try {
       await fetch(`/api/v1/comments/${commentId}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json", 'X-Correlation-ID': correlationId },
+        headers: { "Content-Type": "application/json", 'X-Correlation-ID': getCorrelationId() || '' },
         body: JSON.stringify({ content: editContent }),
       });
       logger.info('Comment edited.');
@@ -228,24 +228,38 @@ const ThreadedComments: React.FC<ThreadedCommentsProps> = ({
     fetchInitialComments();
   };
 
+  const getCommentBg = (depth: number, isCurrentUser: boolean) => {
+    if (isCurrentUser) return 'rgba(24, 119, 242, 0.08)'; // Facebook blue tint for own comments
+    if (depth === 0) return 'background.paper';
+    return 'rgba(0,0,0,0.03)';
+  };
+
   const renderComment = (comment: Comment, depth: number = 0) => {
     const canReply = depth < MAX_REPLY_DEPTH && comment.replies.length < 5;
+    const isCurrentUser = comment.user.id === currentUserId;
     return (
-      <Box key={comment.id} sx={{ ml: depth * 3, mt: 2 }}>
+      <Box key={comment.id} sx={{ ml: depth * 3, mt: depth === 0 ? 3 : 2 }}>
         <Card
           sx={{
-            background: "rgba(255,255,255,0.07)",
-            borderRadius: 2,
-            boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+            background: getCommentBg(depth, isCurrentUser),
+            borderRadius: 3,
+            boxShadow: depth === 0 ? 2 : 0,
+            border: depth > 0 ? '1px solid #e0e0e0' : 'none',
             mb: 1,
             opacity: comment.pending ? 0.5 : 1,
+            p: 0,
           }}
         >
-          <CardContent sx={{ p: 2 }}>
+          <CardContent sx={{ p: 2, pb: 1.5 }}>
             <Stack direction="row" alignItems="center" spacing={2}>
               <Avatar
                 src={comment.user.avatarUrl}
-                sx={{ width: 32, height: 32 }}
+                sx={{
+                  width: 36,
+                  height: 36,
+                  border: isCurrentUser ? '2px solid #1877f2' : '2px solid transparent',
+                  boxShadow: isCurrentUser ? '0 0 0 2px #e3f0ff' : undefined,
+                }}
               >
                 {comment.user.name[0]}
               </Avatar>
@@ -257,19 +271,16 @@ const ThreadedComments: React.FC<ThreadedCommentsProps> = ({
                   {new Date(comment.createdAt).toLocaleString()}
                 </Typography>
               </Box>
-              {comment.canEdit && (
+              {isCurrentUser && !comment.isDeleted && (
                 <Tooltip title="Edit">
                   <IconButton size="small" onClick={() => handleEdit(comment)}>
                     <EditIcon fontSize="small" />
                   </IconButton>
                 </Tooltip>
               )}
-              {comment.canDelete && (
+              {isCurrentUser && !comment.isDeleted && (
                 <Tooltip title="Delete">
-                  <IconButton
-                    size="small"
-                    onClick={() => handleDelete(comment)}
-                  >
+                  <IconButton size="small" onClick={() => handleDelete(comment)}>
                     <DeleteIcon fontSize="small" />
                   </IconButton>
                 </Tooltip>
@@ -306,7 +317,11 @@ const ThreadedComments: React.FC<ThreadedCommentsProps> = ({
             ) : (
               <Box display="flex" alignItems="center" mt={2}>
                 <Typography fontSize="1.05rem" sx={{ flex: 1 }}>
-                  {comment.content}
+                  {comment.isDeleted ? (
+                    <span style={{ color: '#bdbdbd', fontStyle: 'italic' }}>[deleted]</span>
+                  ) : (
+                    comment.content
+                  )}
                 </Typography>
                 {comment.pending && (
                   <CircularProgress size={18} sx={{ ml: 1 }} />
@@ -335,32 +350,37 @@ const ThreadedComments: React.FC<ThreadedCommentsProps> = ({
               </Tooltip>
               <Typography fontSize="0.95rem">{comment.dislikeCount}</Typography>
               {canReply && (
-                <Button
-                  size="small"
-                  startIcon={<ReplyIcon />}
-                  onClick={() => handleReply(comment.id)}
-                  sx={{ ml: 1 }}
-                >
-                  Reply
-                </Button>
+                <Tooltip title="Reply">
+                  <Button
+                    size="small"
+                    startIcon={<ReplyIcon />}
+                    onClick={() => handleReply(comment.id)}
+                    sx={{ ml: 1, textTransform: 'none' }}
+                  >
+                    Reply
+                  </Button>
+                </Tooltip>
               )}
               {comment.replies.length > 0 && (
-                <Button
-                  size="small"
-                  startIcon={
-                    expanded[comment.id] ? (
-                      <ExpandLessIcon />
-                    ) : (
-                      <ExpandMoreIcon />
-                    )
-                  }
-                  onClick={() => handleExpand(comment.id)}
-                  sx={{ ml: 1 }}
-                >
-                  {expanded[comment.id]
-                    ? "Hide Replies"
-                    : `View Replies (${comment.replies.length})`}
-                </Button>
+                <Tooltip title={expanded[comment.id] ? "Hide Replies" : `View Replies (${comment.replies.length})`}>
+                  <Button
+                    size="small"
+                    startIcon={
+                      <ChevronRightIcon
+                        sx={{
+                          transform: expanded[comment.id] ? 'rotate(90deg)' : 'rotate(0deg)',
+                          transition: 'transform 0.2s',
+                        }}
+                      />
+                    }
+                    onClick={() => handleExpand(comment.id)}
+                    sx={{ ml: 1, textTransform: 'none' }}
+                  >
+                    {expanded[comment.id]
+                      ? "Hide Replies"
+                      : `View Replies (${comment.replies.length})`}
+                  </Button>
+                </Tooltip>
               )}
             </Stack>
             {replyingTo === comment.id && (
@@ -414,7 +434,9 @@ const ThreadedComments: React.FC<ThreadedCommentsProps> = ({
             <CircularProgress color="primary" />
           </Box>
         ) : comments.length === 0 ? (
-          <Typography color="#bdbdbd">No comments yet. Be the first!</Typography>
+          <Typography color="#bdbdbd" sx={{ textAlign: 'center', mt: 4, fontSize: '1.1rem' }}>
+            No comments yet. Be the first!
+          </Typography>
         ) : (
           <>
             {comments.map((comment) => renderComment(comment))}

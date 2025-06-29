@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, ChangeEvent, FormEvent } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import axios from "axios";
 
 export default function ProfileSettings() {
@@ -15,18 +15,19 @@ export default function ProfileSettings() {
     coverPicture: null,
   });
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleFileChange = (e) => {
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name } = e.target;
-    const file = e.target.files[0];
+    const files = e.target.files;
+    const file = files && files[0] ? files[0] : null;
     setFormData((prev) => ({ ...prev, [name]: file }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formDataToSend = new FormData();
     formDataToSend.append("name", formData.name);

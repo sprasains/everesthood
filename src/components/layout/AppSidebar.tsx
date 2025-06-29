@@ -63,7 +63,7 @@ export default function AppSidebar() {
   const pathname = usePathname();
 
   const renderListItem = (item: { text: string; icon: React.ReactElement; href: string; }) => {
-    const isActive = pathname.startsWith(item.href);
+    const isActive = (pathname ?? '').startsWith(item.href);
     return (
       <ListItem key={item.text} disablePadding>
         <Tooltip title={item.text} placement="right" arrow>

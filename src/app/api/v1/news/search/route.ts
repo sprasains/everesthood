@@ -15,7 +15,6 @@ export async function GET(req: NextRequest) {
       OR: [
         { title: { contains: q, mode: "insensitive" } },
         { description: { contains: q, mode: "insensitive" } },
-        { content: { contains: q, mode: "insensitive" } },
       ],
     },
     orderBy: { publishedAt: "desc" },

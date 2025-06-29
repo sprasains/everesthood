@@ -1,3 +1,5 @@
+import { logger } from '../services/logger';
+
 export interface GenZSource {
   name: string
   url: string
@@ -53,7 +55,7 @@ export const GENZ_SOURCES: GenZSource[] = [
 export async function fetchGenZContent(source: GenZSource) {
   try {
     // This would integrate with actual APIs/RSS feeds
-    console.log(`Fetching content from ${source.name}`)
+    logger.info('Fetching content from source', { sourceName: source.name });
 
     // Mock data for demonstration
     return {
@@ -69,7 +71,7 @@ export async function fetchGenZContent(source: GenZSource) {
       ]
     }
   } catch (error) {
-    console.error(`Error fetching from ${source.name}:`, error)
+    logger.error('Error fetching from source', { sourceName: source.name, error });
     return { articles: [] }
   }
 }

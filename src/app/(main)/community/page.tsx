@@ -24,7 +24,7 @@ interface Post {
 
 const fetchPosts = async ({ pageParam = 1, queryKey }: any) => {
   const [_key, filter] = queryKey;
-  const res = await fetch(`/api/v1/posts?page=${pageParam}&limit=10&filter=${filter}`);
+  const res = await fetch(`/api/v1/community/posts?page=${pageParam}&limit=10&filter=${filter}`);
   if (!res.ok) throw new Error("Failed to fetch posts");
   return res.json();
 };
@@ -87,18 +87,28 @@ export default function CommunityPage() {
         <Typography color="error">Error: {(error as Error).message}</Typography>
       ) : (
         <>
-          {data?.pages.map((page, i) => (
-            <div key={i}>
-              {page.posts.map((post: any) => (
-                <PostCard key={post.id} post={post} />
+          {/* Check for empty state */}
+          {data && data.pages.every((page) => page.posts.length === 0) ? (
+            <Box textAlign="center" py={6}>
+              <Typography variant="h6" color="text.secondary" gutterBottom>No posts found for this feed.</Typography>
+              <Typography variant="body1">Be the first to post and start the conversation!</Typography>
+            </Box>
+          ) : (
+            <>
+              {data?.pages.map((page, i) => (
+                <div key={i}>
+                  {page.posts.map((post: any) => (
+                    <PostCard key={post.id} post={post} />
+                  ))}
+                </div>
               ))}
-            </div>
-          ))}
-          <Box sx={{ display: "flex", justifyContent: "center", mt: 4, height: '80px' }}>
-            <div ref={ref} />
-            {isFetchingNextPage && <CircularProgress />}
-            {!hasNextPage && !isFetching && <Typography>No more posts to load.</Typography>}
-          </Box>
+              <Box sx={{ display: "flex", justifyContent: "center", mt: 4, height: '80px' }}>
+                <div ref={ref} />
+                {isFetchingNextPage && <CircularProgress />}
+                {!hasNextPage && !isFetching && <Typography>No more posts to load.</Typography>}
+              </Box>
+            </>
+          )}
         </>
       )}
     </Container>

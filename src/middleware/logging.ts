@@ -2,23 +2,22 @@
 // If you see a type error, run: npm install --save-dev @types/express
 import { randomUUID } from 'crypto';
 import type { Request, Response, NextFunction } from 'express';
+import { logger } from '../services/logger';
 
-const backendLogger = (level: string, message: string, context: Record<string, any> = {}) => {
-    const logEntry = {
-        severity: level.toUpperCase(),
-        message,
-        timestamp: new Date().toISOString(),
-        ...context
-    };
-    console.log(JSON.stringify(logEntry));
+const logMethod = {
+    info: logger.info,
+    warn: logger.warn,
+    error: logger.error,
 };
+
+type LogLevel = 'info' | 'warn' | 'error';
 
 export const requestLogger = (req: Request, res: Response, next: NextFunction) => {
     const startTime = process.hrtime();
     const correlationId = req.header('X-Correlation-ID') || randomUUID();
     const requestId = randomUUID();
 
-    (req as any).log = (level: string, message: string, context: Record<string, any> = {}) => {
+    (req as any).log = (level: LogLevel, message: string, context: Record<string, any> = {}) => {
         const logContext = {
             ...context,
             httpRequest: {
@@ -30,7 +29,7 @@ export const requestLogger = (req: Request, res: Response, next: NextFunction) =
             requestId,
             userId: (req as any).user?.id || 'anonymous',
         };
-        backendLogger(level, message, logContext);
+        logMethod[level](message, logContext);
     };
 
     res.on('finish', () => {
