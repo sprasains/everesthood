@@ -23,9 +23,30 @@ export function useUser() {
   useEffect(() => {
     if (status === "loading") return;
 
-    if (session?.user?.id) {
+    if (session && session.user && session.user.id) {
+      // Immediately set a minimal user object from session for instant UI feedback
+      setUser((prev) =>
+        prev || {
+          id: session.user!.id as string,
+          name: session.user!.name || undefined,
+          email: session.user!.email || undefined,
+          image: session.user!.image || undefined,
+          xp: 0,
+          level: 0,
+          streak: 0,
+          persona: '',
+          dailyProgress: 0,
+          weeklyGoal: 0,
+          achievements: [],
+          friends: [],
+          publicProfile: true,
+          articlesRead: 0,
+          sharesCount: 0,
+        }
+      );
       fetchUserData(session.user.id);
     } else {
+      setUser(null);
       setLoading(false);
     }
   }, [session, status]);

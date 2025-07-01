@@ -13,7 +13,7 @@ interface Comment {
   id: string;
   content: string;
   createdAt: string;
-  author: { name: string; image?: string; id?: string };
+  author: { name: string; profilePicture?: string; id?: string };
 }
 
 export default function CommentList({ postId }: { postId: string }) {
@@ -24,11 +24,20 @@ export default function CommentList({ postId }: { postId: string }) {
   const [replyTo, setReplyTo] = useState<string | null>(null);
   const { data: session } = useSession();
   const queryClient = useQueryClient();
+  // Debug logs
+  console.log('CommentList session:', session);
+  console.log('CommentList comments:', comments);
 
   const fetchComments = useCallback(() => {
     fetch(`/api/v1/posts/${postId}/comments`)
       .then((res) => res.json())
-      .then((data) => setComments(data))
+      .then((data) => {
+        console.log('Fetched comments:', data);
+        setComments(data);
+      })
+      .catch((err) => {
+        console.error('Error fetching comments:', err);
+      })
       .finally(() => setLoading(false));
   }, [postId]);
 
@@ -62,7 +71,8 @@ export default function CommentList({ postId }: { postId: string }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ content: editContent }),
       });
-    } catch {
+    } catch (err) {
+      console.error('Error editing comment:', err);
       // Revert on error
       if (previousComments) {
         queryClient.setQueryData(['comments', postId], previousComments);
@@ -81,7 +91,8 @@ export default function CommentList({ postId }: { postId: string }) {
     queryClient.setQueryData(['comments', postId], (old: any[] = []) => old.filter(c => c.id !== id));
     try {
       await fetch(`/api/v1/posts/${postId}/comments/${id}`, { method: "DELETE" });
-    } catch {
+    } catch (err) {
+      console.error('Error deleting comment:', err);
       // Revert on error
       if (previousComments) {
         queryClient.setQueryData(['comments', postId], previousComments);
@@ -104,12 +115,20 @@ export default function CommentList({ postId }: { postId: string }) {
 
   return (
     <Box sx={{ mt: 2 }}>
-      {/* Top-level comment form */}
-      <CommentForm postId={postId} onComment={handleCommentPosted} />
+      {/* Top-level comment form (only for signed-in users) */}
+      {session?.user?.id ? (
+        <CommentForm postId={postId} onComment={handleCommentPosted} />
+      ) : (
+        <Box sx={{ p: 2, border: '1px solid #eee', borderRadius: 2, bgcolor: 'rgba(255,255,255,0.04)', textAlign: 'center', mb: 2 }}>
+          <Typography color="text.secondary">
+            Sign in to <Button variant="text" size="small" href="/auth/signin" sx={{ textTransform: 'none', p: 0, minWidth: 0 }}>add a comment</Button>.
+          </Typography>
+        </Box>
+      )}
       {comments.length === 0 && <Typography>No comments yet.</Typography>}
       {comments.map((comment) => (
         <Paper key={comment.id} sx={{ p: 2, mb: 1, display: 'flex', gap: 2, alignItems: 'flex-start', bgcolor: 'rgba(255,255,255,0.03)' }}>
-          <Avatar src={comment.author.image} />
+          <Avatar src={comment.author.profilePicture} />
           <Box sx={{ flex: 1 }}>
             <Typography fontWeight="bold">{comment.author.name}</Typography>
             <Typography variant="caption" color="text.secondary">{new Date(comment.createdAt).toLocaleString()}</Typography>
@@ -127,7 +146,7 @@ export default function CommentList({ postId }: { postId: string }) {
               <Button size="small" onClick={() => handleReply(comment.id)}>
                 {replyTo === comment.id ? "Cancel" : "Reply"}
               </Button>
-              {replyTo === comment.id && (
+              {replyTo === comment.id && session?.user?.id && (
                 <CommentForm postId={postId} parentId={comment.id} onComment={handleCommentPosted} />
               )}
             </Box>

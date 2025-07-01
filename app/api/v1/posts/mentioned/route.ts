@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     },
     orderBy: { createdAt: 'desc' },
     include: {
-      author: { select: { id: true, name: true, image: true } },
+      author: { select: { id: true, name: true, profilePicture: true } },
     },
   });
   return NextResponse.json(posts);

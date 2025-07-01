@@ -24,6 +24,7 @@
     "check": "npm run lint && npm run typecheck && npm run prisma:validate"
   },
   "dependencies": {
+    "@auth/prisma-adapter": "^2.10.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@faker-js/faker": "^9.8.0",
@@ -42,6 +43,7 @@
     "@tiptap/starter-kit": "^2.23.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.5",
+    "@types/nprogress": "^0.2.3",
     "@types/socket.io": "^3.0.1",
     "axios": "^1.10.0",
     "bcrypt": "^6.0.0",
@@ -55,6 +57,7 @@
     "next-auth": "^4.24.5",
     "next-pwa": "^5.6.0",
     "notistack": "^3.0.2",
+    "nprogress": "^0.2.0",
     "react": "^18.2.0",
     "react-chartjs-2": "^5.3.0",
     "react-dom": "^18.2.0",

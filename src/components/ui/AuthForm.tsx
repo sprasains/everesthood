@@ -20,6 +20,7 @@ import GoogleIcon from "@mui/icons-material/Google";
 import FacebookIcon from '@mui/icons-material/Facebook';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 interface AuthFormProps {
   isSignUp?: boolean;
@@ -55,20 +56,23 @@ export default function AuthForm({ isSignUp = false }: AuthFormProps) {
   const onSubmit = async (data: any) => {
     setIsSubmitting(true);
     try {
-      if (isSignUp) {
+      console.log('AuthForm onSubmit data:', data);
+      if (mode === 'signup') {
         // Handle sign-up logic here
         const res = await fetch("/api/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data),
         });
+        console.log('Sign up response:', res);
         if (res.ok) {
           enqueueSnackbar("Sign up successful! Please sign in.", {
             variant: "success",
           });
-          router.push("/auth/signin");
+          setMode('signin'); // Switch to sign in mode after sign up
         } else {
           const errorData = await res.json().catch(() => ({}));
+          console.error('Sign up error:', errorData);
           enqueueSnackbar(errorData.message || "Registration failed", { variant: "error" });
         }
       } else {
@@ -76,7 +80,10 @@ export default function AuthForm({ isSignUp = false }: AuthFormProps) {
           redirect: false,
           email: data.email,
           password: data.password,
+          callbackUrl: "/dashboard",
         });
+
+        console.log('SIGNIN RESULT', result);
 
         if (result?.error) {
           enqueueSnackbar("Invalid email or password. Please try again.", {
@@ -84,13 +91,12 @@ export default function AuthForm({ isSignUp = false }: AuthFormProps) {
           });
         } else if (result?.ok) {
           enqueueSnackbar("Signed in successfully!", { variant: "success" });
-          // Force session refresh before redirect
-          setTimeout(() => {
-            router.push("/dashboard");
-          }, 300);
+          // ✅ Use Next.js router for navigation
+          router.push(result.url || "/dashboard");
         }
       }
     } catch (error) {
+      console.error('AuthForm onSubmit error:', error);
       enqueueSnackbar("An unexpected error occurred.", { variant: "error" });
     } finally {
       setIsSubmitting(false);
@@ -101,8 +107,8 @@ export default function AuthForm({ isSignUp = false }: AuthFormProps) {
   const handleTestUserSelect = (idx: number) => {
     setSelectedTestUser(idx);
     const user = testUsers[idx];
-    setValue('email', user.email);
-    setValue('password', user.password);
+    setValue('email', user.email, { shouldValidate: true });
+    setValue('password', user.password, { shouldValidate: true });
   };
 
   return (
@@ -122,7 +128,7 @@ export default function AuthForm({ isSignUp = false }: AuthFormProps) {
         position: 'relative',
       }}
     >
-      {/* Background image behind buttons */}
+      {/* Background image behind buttons (Next.js Image for best practice) */}
       <Box sx={{
         position: 'absolute',
         top: 0,
@@ -130,11 +136,20 @@ export default function AuthForm({ isSignUp = false }: AuthFormProps) {
         width: '100%',
         height: 180,
         zIndex: 0,
-        background: `url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80') center/cover no-repeat`,
         borderTopLeftRadius: 24,
         borderTopRightRadius: 24,
+        overflow: 'hidden',
         opacity: 0.25,
-      }} />
+      }}>
+        <Image
+          src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80"
+          alt="Colorful mountain background"
+          fill
+          style={{ objectFit: 'cover' }}
+          priority
+          sizes="(max-width: 600px) 100vw, 600px"
+        />
+      </Box>
       <Stack spacing={2} alignItems="center" mb={2} sx={{ position: 'relative', zIndex: 1 }}>
         {/* Remove logo, keep only heading and subheading */}
         <Typography
@@ -170,42 +185,38 @@ export default function AuthForm({ isSignUp = false }: AuthFormProps) {
             ? 'Sign up to join the AI Vibe Hub for Gen-Z. Explore, connect, and level up your world!'
             : 'Sign in to join the AI Vibe Hub for Gen-Z. Explore, connect, and level up your world!'}
         </Typography>
-        {/* Toggle buttons */}
-        <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
+        {/* Toggle button */}
+        <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', mb: 2 }}>
           <Button
-            variant={mode === 'signin' ? 'contained' : 'outlined'}
-            onClick={() => setMode('signin')}
+            onClick={() => setMode(mode === 'signin' ? 'signup' : 'signin')}
+            variant="outlined"
             sx={{
-              fontWeight: 'bold',
-              background: mode === 'signin' ? 'linear-gradient(45deg, #ff4e53, #ffcc00)' : 'rgba(255,255,255,0.7)',
-              color: mode === 'signin' ? '#222' : '#222',
               borderRadius: 8,
-              boxShadow: mode === 'signin' ? '0 4px 16px rgba(255, 78, 83, 0.2)' : undefined,
-              border: mode === 'signin' ? undefined : '1px solid #ff4e53',
-              zIndex: 2,
+              fontWeight: 'bold',
+              px: 4,
+              py: 1.2,
+              background: mode === 'signin'
+                ? 'linear-gradient(90deg, #8b5cf6 0%, #ffcc00 100%)'
+                : 'linear-gradient(90deg, #ff4e53 0%, #ffcc00 100%)',
+              color: '#fff',
+              border: 'none',
+              boxShadow: '0 2px 12px rgba(139,92,246,0.10)',
+              transition: 'all 0.2s',
+              '&:hover': {
+                background: mode === 'signin'
+                  ? 'linear-gradient(90deg, #ffcc00 0%, #8b5cf6 100%)'
+                  : 'linear-gradient(90deg, #ffcc00 0%, #ff4e53 100%)',
+                color: '#222',
+                boxShadow: '0 4px 24px rgba(255, 78, 83, 0.15)',
+              },
             }}
           >
-            Sign In
+            {mode === 'signin' ? "Don't have an account? Sign Up" : "Already have an account? Sign In"}
           </Button>
-          <Button
-            variant={mode === 'signup' ? 'contained' : 'outlined'}
-            onClick={() => setMode('signup')}
-            sx={{
-              fontWeight: 'bold',
-              background: mode === 'signup' ? 'linear-gradient(45deg, #8b5cf6, #ffcc00)' : 'rgba(255,255,255,0.7)',
-              color: mode === 'signup' ? '#222' : '#222',
-              borderRadius: 8,
-              boxShadow: mode === 'signup' ? '0 4px 16px rgba(139, 92, 246, 0.2)' : undefined,
-              border: mode === 'signup' ? undefined : '1px solid #8b5cf6',
-              zIndex: 2,
-            }}
-          >
-            Sign Up
-          </Button>
-        </Stack>
+        </Box>
       </Stack>
       {/* Test User Dropdown */}
-      {!isSignUp && (
+      {mode === 'signin' && (
         <Box mb={2}>
           <Button
             variant="outlined"
@@ -292,16 +303,16 @@ export default function AuthForm({ isSignUp = false }: AuthFormProps) {
             sx={{
               py: 1.5,
               fontWeight: "bold",
-              background: mode === 'signup'
+              background: (mode === 'signup')
                 ? "linear-gradient(45deg, #8b5cf6, #ffcc00)"
                 : "linear-gradient(45deg, #ff4e53, #ffcc00)",
               color: "#222",
-              boxShadow: mode === 'signup'
+              boxShadow: (mode === 'signup')
                 ? '0 4px 16px rgba(139, 92, 246, 0.2)'
                 : '0 4px 16px rgba(255, 78, 83, 0.2)',
               borderRadius: 8,
               '&:hover': {
-                background: mode === 'signup'
+                background: (mode === 'signup')
                   ? "linear-gradient(45deg, #ffcc00, #8b5cf6)"
                   : "linear-gradient(45deg, #ffcc00, #ff4e53)",
                 color: "#111",
@@ -350,7 +361,7 @@ export default function AuthForm({ isSignUp = false }: AuthFormProps) {
             }}
             disabled={isSubmitting}
           >
-            {isSignUp ? "Sign up with Google" : "Sign in with Google"}
+            {mode === 'signup' ? "Sign up with Google" : "Sign in with Google"}
           </Button>
           {/* Facebook Sign In */}
           <Button
@@ -381,7 +392,7 @@ export default function AuthForm({ isSignUp = false }: AuthFormProps) {
             }}
             disabled={isSubmitting}
           >
-            {isSignUp ? "Sign up with Facebook" : "Sign in with Facebook"}
+            {mode === 'signup' ? "Sign up with Facebook" : "Sign in with Facebook"}
           </Button>
         </Stack>
       </form>

@@ -20,13 +20,13 @@ export async function GET(req: NextRequest) {
     take: limit + 1,
     ...(cursor ? { skip: 1, cursor: { id: cursor } } : {}),
     include: {
-      author: { select: { id: true, name: true, image: true } },
+      author: { select: { id: true, name: true, profilePicture: true } },
       likes: true,
       replies: {
         take: 5,
         orderBy: { createdAt: "asc" },
         include: {
-          author: { select: { id: true, name: true, image: true } },
+          author: { select: { id: true, name: true, profilePicture: true } },
           likes: true,
         },
       },
@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
       parentId: parentId || null,
     },
     include: {
-      author: { select: { id: true, name: true, image: true } },
+      author: { select: { id: true, name: true, profilePicture: true } },
       likes: true,
       replies: true,
     },

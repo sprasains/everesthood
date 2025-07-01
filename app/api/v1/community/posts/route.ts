@@ -31,7 +31,8 @@ export async function GET(request: NextRequest) {
       where.authorId = { in: friendIds };
     }
     if (filter === "popular") {
-      orderBy = { likeCount: "desc" };
+      // Order by like count using Prisma's aggregation
+      orderBy = [{ likes: { _count: "desc" } }, { createdAt: "desc" }];
     }
 
     const [posts, total] = await Promise.all([
@@ -41,7 +42,7 @@ export async function GET(request: NextRequest) {
         skip,
         take: limit,
         include: {
-          author: { select: { id: true, name: true, image: true } },
+          author: { select: { id: true, name: true, profilePicture: true } },
           likes: true,
           _count: { select: { likes: true } },
           reshares: true,

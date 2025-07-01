@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState, useCallback } from "react";
+import { useSession } from "next-auth/react";
 import {
   Box,
   Typography,
@@ -53,6 +54,8 @@ const ThreadedComments: React.FC<ThreadedCommentsProps> = ({
   postId,
   currentUserId,
 }) => {
+  const { data: session, status } = useSession();
+  const isAuthenticated = !!session?.user?.id;
   const [comments, setComments] = useState<Comment[]>([]);
   const [pendingComments, setPendingComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -416,13 +419,19 @@ const ThreadedComments: React.FC<ThreadedCommentsProps> = ({
           💬 Comments
         </Typography>
         <Box mb={2}>
-          <CommentForm
-            postId={postId}
-            onComment={(content: string) => {
-              optimisticAddComment(content);
-              fetchCommentsWithCleanup();
-            }}
-          />
+          {isAuthenticated ? (
+            <CommentForm
+              postId={postId}
+              onComment={(content: string) => {
+                optimisticAddComment(content);
+                fetchCommentsWithCleanup();
+              }}
+            />
+          ) : (
+            <Box sx={{ p: 2, border: '1px solid #eee', borderRadius: 2, bgcolor: 'rgba(255,255,255,0.04)', textAlign: 'center' }}>
+              <Typography color="text.secondary">Sign in to add a comment.</Typography>
+            </Box>
+          )}
         </Box>
         {loading ? (
           <Box

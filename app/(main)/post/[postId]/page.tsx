@@ -128,7 +128,7 @@ export default function PostDetailPage() {
           sx={{ p: 4, bgcolor: "rgba(255, 255, 255, 0.05)", borderRadius: 3 }}
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
-            <Avatar src={post.author.image || undefined} />
+            <Avatar src={post.author.profilePicture || undefined} />
             <Typography fontWeight="bold">{post.author.name}</Typography>
           </Box>
           <Typography sx={{ whiteSpace: "pre-wrap", my: 2 }}>
@@ -161,7 +161,7 @@ export default function PostDetailPage() {
             {comments.map((comment) => (
               <Box key={comment.id} sx={{ display: "flex", gap: 2 }}>
                 <Avatar
-                  src={comment.author.image || undefined}
+                  src={comment.author.profilePicture || undefined}
                   sx={{ width: 32, height: 32 }}
                 />
                 <Box>

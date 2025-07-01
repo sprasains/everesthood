@@ -16,7 +16,7 @@ export async function GET(
           select: {
             id: true,
             name: true,
-            image: true,
+            profilePicture: true,
           },
         },
         // Include the news article if it's a repost

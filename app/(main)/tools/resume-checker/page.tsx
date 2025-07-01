@@ -1,8 +1,12 @@
 "use client";
 import { useState } from 'react';
 import { Box, Container, Typography, Button, Paper, CircularProgress } from '@mui/material';
+import { useRequireAuth, AuthLoading } from "@/hooks/useRequireAuth";
 
 export default function ResumeCheckerPage() {
+    const { user, loading } = useRequireAuth();
+    if (loading || !user) return <AuthLoading />;
+
     const [file, setFile] = useState<File | null>(null);
     const [feedback, setFeedback] = useState("");
     const [loading, setLoading] = useState(false);

@@ -3,7 +3,13 @@ import nextPwa from "next-pwa";
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ["newsapi.org", "hypebeast.com", "dazeddigital.com", "nylon.com"],
+    domains: [
+      "newsapi.org",
+      "hypebeast.com",
+      "dazeddigital.com",
+      "nylon.com",
+      "images.unsplash.com"
+    ],
   },
   experimental: {
     webpackBuildWorker: true // Add this to enable parallel builds

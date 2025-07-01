@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
         { name: { contains: query, mode: 'insensitive' } },
       ],
     },
-    select: { id: true, name: true, image: true }, // Select fields needed for the mention list
+    select: { id: true, name: true, profilePicture: true }, // Select fields needed for the mention list
     take: 5, // Limit to 5 results for performance
   });
 

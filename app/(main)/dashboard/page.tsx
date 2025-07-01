@@ -7,12 +7,13 @@ import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import EditIcon from '@mui/icons-material/Edit';
 import { useTheme } from '@mui/material/styles';
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import Skeleton from "@mui/material/Skeleton";
 import NewsTicker from '@/components/ui/NewsTicker';
 import AiContentHub from '@/components/ui/AiContentHub';
 import { logger, newCorrelationId, getCorrelationId } from '@/services/logger';
 import PostCardSkeleton from "@/components/ui/PostCardSkeleton";
+import { useRouter } from "next/navigation";
 
 const fetchUserPosts = async (userId: string) => {
   const res = await fetch(`/api/v1/posts?authorId=${userId}`);
@@ -46,7 +47,17 @@ const fetchAchievementsCount = async () => {
 };
 
 export default function DashboardPage() {
-  const { user } = useUser();
+  const { user, loading } = useUser();
+  const router = useRouter();
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (!loading && !user) {
+      router.replace("/auth/signin");
+    }
+  }, [user, loading, router]);
+  if (loading || !user) {
+    return <CircularProgress />;
+  }
   const theme = useTheme();
 
   const { data: postsData, isLoading: postsLoading } = useQuery({

@@ -9,7 +9,7 @@ export async function GET(request: NextRequest, { params }: { params: { postId: 
   const { commentId } = params;
   const comment = await prisma.comment.findUnique({
     where: { id: commentId },
-    include: { author: { select: { name: true, image: true } } },
+    include: { author: { select: { name: true, profilePicture: true } } },
   });
   if (!comment) return NextResponse.json({ error: "Comment not found" }, { status: 404 });
   return NextResponse.json(comment);

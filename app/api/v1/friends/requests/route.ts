@@ -75,7 +75,7 @@ export async function GET(req: NextRequest) {
 
   const requests = await prisma.friendship.findMany({
     where: { receiverId: session.user.id, status: "PENDING" },
-    include: { requester: { select: { id: true, name: true, image: true } } },
+    include: { requester: { select: { id: true, name: true, profilePicture: true } } },
   });
 
   return NextResponse.json(requests);

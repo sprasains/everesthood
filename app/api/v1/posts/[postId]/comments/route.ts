@@ -19,7 +19,7 @@ export async function GET(
     const { postId } = params;
     const comments = await prisma.comment.findMany({
       where: { postId },
-      include: { author: { select: { name: true, image: true, id: true } } },
+      include: { author: { select: { name: true, profilePicture: true, id: true } } },
       orderBy: { createdAt: "asc" },
     });
     return NextResponse.json(comments);
@@ -53,7 +53,7 @@ export async function POST(
         // Connect mentioned users if any (assuming you add a relation in the schema)
         // mentionedUsers: mentionedUserIds.length > 0 ? { connect: mentionedUserIds.map((id: string) => ({ id })) } : undefined,
       },
-      include: { author: { select: { name: true, image: true, id: true } } },
+      include: { author: { select: { name: true, profilePicture: true, id: true } } },
     });
 
     // Create notification for post author (if not commenting on own post)

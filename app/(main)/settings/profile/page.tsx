@@ -5,12 +5,14 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { BadgeList, Badge } from "@/components/ui/BadgeList";
+import { useUser } from "@/hooks/useUser";
+import { CircularProgress } from "@mui/material";
 
 export default function ProfileSettings() {
-  const { data: session } = useSession();
+  const { user, loading } = useUser();
   const router = useRouter();
   const [formData, setFormData] = useState({
-    name: session?.user?.name || "",
+    name: "",
     bio: "",
     profilePicture: null,
     coverPicture: null,
@@ -18,12 +20,22 @@ export default function ProfileSettings() {
   const [badges, setBadges] = useState<Badge[]>([]);
 
   useEffect(() => {
-    if (session?.user?.id) {
-      fetch(`/api/v1/users/${session.user.id}/badges`).then(r => r.json()).then(d => setBadges(d.badges || []));
+    if (!loading && !user) {
+      router.replace("/auth/signin");
     }
-  }, [session?.user?.id]);
+  }, [user, loading, router]);
 
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  useEffect(() => {
+    if (user?.id) {
+      fetch(`/api/v1/users/${user.id}/badges`)
+        .then((r) => r.json())
+        .then((d) => setBadges(d.badges || []));
+    }
+  }, [user?.id]);
+
+  const handleInputChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -55,13 +67,19 @@ export default function ProfileSettings() {
     }
   };
 
+  if (loading || !user) {
+    return <CircularProgress />;
+  }
+
   return (
     <div className="max-w-4xl mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Profile Settings</h1>
       <BadgeList badges={badges} />
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="name" className="block text-sm font-medium">Name</label>
+          <label htmlFor="name" className="block text-sm font-medium">
+            Name
+          </label>
           <input
             type="text"
             id="name"
@@ -72,7 +90,9 @@ export default function ProfileSettings() {
           />
         </div>
         <div>
-          <label htmlFor="bio" className="block text-sm font-medium">Bio</label>
+          <label htmlFor="bio" className="block text-sm font-medium">
+            Bio
+          </label>
           <textarea
             id="bio"
             name="bio"
@@ -82,7 +102,9 @@ export default function ProfileSettings() {
           />
         </div>
         <div>
-          <label htmlFor="profilePicture" className="block text-sm font-medium">Profile Picture</label>
+          <label htmlFor="profilePicture" className="block text-sm font-medium">
+            Profile Picture
+          </label>
           <input
             type="file"
             id="profilePicture"
@@ -92,7 +114,9 @@ export default function ProfileSettings() {
           />
         </div>
         <div>
-          <label htmlFor="coverPicture" className="block text-sm font-medium">Cover Picture</label>
+          <label htmlFor="coverPicture" className="block text-sm font-medium">
+            Cover Picture
+          </label>
           <input
             type="file"
             id="coverPicture"

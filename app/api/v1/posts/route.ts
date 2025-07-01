@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
       skip,
       take: limit,
       include: {
-        author: { select: { id: true, name: true, image: true } },
+        author: { select: { id: true, name: true, profilePicture: true } },
         likes: true, // fetch all likes for each post
         _count: { select: { comments: true } },
       },

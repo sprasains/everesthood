@@ -11,6 +11,7 @@ import BarChartIcon from "@mui/icons-material/BarChart";
 import { CircularProgress, Box, Container, Paper, Tabs, Tab, Typography, Avatar } from "@mui/material";
 import { BadgeList, Badge } from "@/components/ui/BadgeList";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 // Skeleton Loader Component
 const SkeletonLoader = () => (
@@ -34,6 +35,7 @@ const SkeletonLoader = () => (
 
 export default function ProfilePage() {
   const { user, updateUser, loading } = useUser();
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState("overview");
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
@@ -59,6 +61,12 @@ export default function ProfilePage() {
       fetch(`/api/v1/users/${session.user.id}/badges`).then(r => r.json()).then(d => setBadges(d.badges || []));
     }
   }, [session?.user?.id]);
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.replace("/auth/signin");
+    }
+  }, [user, loading, router]);
 
   const handleSave = async () => {
     await updateUser(formData);
@@ -89,14 +97,8 @@ export default function ProfilePage() {
     { id: "settings", name: "Settings", icon: <SettingsIcon /> },
   ];
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-900 text-white">
-        <div className="pt-20 px-6 pb-6">
-          <SkeletonLoader />
-        </div>
-      </div>
-    );
+  if (loading || !user) {
+    return <CircularProgress />;
   }
 
   // Fix: define getPersonaIcon and memberSince above return

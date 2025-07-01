@@ -200,7 +200,7 @@ export default function PostCard({ post }: PostCardProps) {
     >
       <CardContent>
         <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
-          <Avatar src={post.author.image || "https://i.pravatar.cc/150?u=everhood"} />
+          <Avatar src={post.author.profilePicture || "https://i.pravatar.cc/150?u=everhood"} />
           <Box>
             <Typography fontWeight="bold">{post.author.name} {likeCount >= 10 && <span style={{marginLeft: 6, fontSize: 18}} title="Trending"><span role="img" aria-label="fire">🔥</span> Trending</span>}</Typography>
             <Typography variant="caption" color="text.secondary">
