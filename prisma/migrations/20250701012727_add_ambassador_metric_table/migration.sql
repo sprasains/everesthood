@@ -9,7 +9,6 @@
   - You are about to drop the column `title` on the `Post` table. All the data in the column will be lost.
   - You are about to drop the column `achievements` on the `User` table. All the data in the column will be lost.
   - You are about to drop the column `articlesRead` on the `User` table. All the data in the column will be lost.
-  - You are about to drop the column `coverPicture` on the `User` table. All the data in the column will be lost.
   - You are about to drop the column `dailyProgress` on the `User` table. All the data in the column will be lost.
   - You are about to drop the column `friends` on the `User` table. All the data in the column will be lost.
   - You are about to drop the column `headerImageUrl` on the `User` table. All the data in the column will be lost.
@@ -17,7 +16,6 @@
   - You are about to drop the column `password` on the `User` table. All the data in the column will be lost.
   - You are about to drop the column `persona` on the `User` table. All the data in the column will be lost.
   - You are about to drop the column `profileImageUrl` on the `User` table. All the data in the column will be lost.
-  - You are about to drop the column `profilePicture` on the `User` table. All the data in the column will be lost.
   - You are about to drop the column `sharesCount` on the `User` table. All the data in the column will be lost.
   - You are about to drop the column `streak` on the `User` table. All the data in the column will be lost.
   - You are about to drop the column `summariesUsed` on the `User` table. All the data in the column will be lost.
@@ -177,7 +175,6 @@ ADD COLUMN     "deletedAt" TIMESTAMP(3);
 -- AlterTable
 ALTER TABLE "User" DROP COLUMN "achievements",
 DROP COLUMN "articlesRead",
-DROP COLUMN "coverPicture",
 DROP COLUMN "dailyProgress",
 DROP COLUMN "friends",
 DROP COLUMN "headerImageUrl",
@@ -185,18 +182,15 @@ DROP COLUMN "image",
 DROP COLUMN "password",
 DROP COLUMN "persona",
 DROP COLUMN "profileImageUrl",
-DROP COLUMN "profilePicture",
 DROP COLUMN "sharesCount",
 DROP COLUMN "streak",
 DROP COLUMN "summariesUsed",
 DROP COLUMN "tippingBalance",
 DROP COLUMN "weeklyGoal",
-ADD COLUMN     "coverPictureUrl" TEXT,
 ADD COLUMN     "currentStreak" INTEGER NOT NULL DEFAULT 0,
 ADD COLUMN     "familyId" TEXT,
 ADD COLUMN     "isAmbassador" BOOLEAN NOT NULL DEFAULT false,
 ADD COLUMN     "passwordHash" TEXT,
-ADD COLUMN     "profilePictureUrl" TEXT,
 ADD COLUMN     "referralCode" TEXT,
 ALTER COLUMN "languagePreference" SET DEFAULT 'en';
 

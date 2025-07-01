@@ -21,8 +21,8 @@ model User {
   email                String?   @unique
   emailVerified        DateTime?
   passwordHash         String? // Use this instead of a plain password field
-  profilePictureUrl    String? // Consolidated from image and profilePicture
-  coverPictureUrl      String?
+  profilePicture       String? // Standardized field for profile image
+  coverPicture         String?
   bio                  String?   @db.Text
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt

@@ -117,7 +117,7 @@ async function main() {
   await prisma.postLike.deleteMany();
   await prisma.post.deleteMany();
   await prisma.friendship.deleteMany();
-  await prisma.newsArticleLike.deleteMany();
+  // await prisma.newsArticleLike.deleteMany();
   await prisma.ambassadorMetric.deleteMany();
   await prisma.tip.deleteMany();
   await prisma.user.deleteMany();
@@ -138,7 +138,7 @@ async function main() {
       bio: 'Platform administrator',
       role: 'ADMIN',
       languagePreference: 'en',
-      profilePictureUrl: 'https://randomuser.me/api/portraits/men/1.jpg',
+      profilePicture: 'https://randomuser.me/api/portraits/men/1.jpg',
       socialLinks: { twitter: 'https://twitter.com/admin', github: 'https://github.com/admin' },
     },
   });
@@ -151,7 +151,7 @@ async function main() {
         email: `test${i}@example.com`,
         passwordHash: hashedPassword,
         bio: 'I am a test user for the Everesthood beta!',
-        profilePictureUrl: faker.image.avatarGitHub(),
+        profilePicture: faker.image.avatarGitHub(),
         languagePreference: i % 2 === 0 ? 'en' : 'es',
         isBanned: i === 4, // Ban the last test user
         banReason: i === 4 ? 'Violation of community guidelines' : null,
@@ -176,7 +176,7 @@ async function main() {
       isAmbassador: true,
       referralCode: 'ALICE123',
       bio: 'Campus ambassador and influencer',
-      profilePictureUrl: 'https://randomuser.me/api/portraits/women/10.jpg',
+      profilePicture: 'https://randomuser.me/api/portraits/women/10.jpg',
     },
   });
   const ambassador2 = await prisma.user.create({
@@ -187,7 +187,7 @@ async function main() {
       isAmbassador: true,
       referralCode: 'BOB456',
       bio: 'Ambassador for Everesthood',
-      profilePictureUrl: 'https://randomuser.me/api/portraits/men/11.jpg',
+      profilePicture: 'https://randomuser.me/api/portraits/men/11.jpg',
     },
   });
   console.log('🎓 Ambassador Alice: alice.ambassador@example.com / password123, code: ALICE123');
@@ -200,7 +200,7 @@ async function main() {
       email: 'referred1@example.com',
       passwordHash: hashedPassword,
       bio: 'Joined via Alice',
-      profilePictureUrl: 'https://randomuser.me/api/portraits/men/12.jpg',
+      profilePicture: 'https://randomuser.me/api/portraits/men/12.jpg',
     },
   });
   const referredUser2 = await prisma.user.create({
@@ -209,7 +209,7 @@ async function main() {
       email: 'referred2@example.com',
       passwordHash: hashedPassword,
       bio: 'Joined via Bob',
-      profilePictureUrl: 'https://randomuser.me/api/portraits/women/13.jpg',
+      profilePicture: 'https://randomuser.me/api/portraits/women/13.jpg',
     },
   });
   await prisma.ambassadorMetric.create({
@@ -235,7 +235,7 @@ async function main() {
         email: faker.internet.email(),
         passwordHash: hashedPassword,
         bio: faker.lorem.sentence(),
-        profilePictureUrl: faker.image.avatarGitHub(),
+        profilePicture: faker.image.avatarGitHub(),
       },
     });
     users.push(user);
@@ -446,6 +446,7 @@ async function main() {
       email: 'demo@everesthood.com',
       name: 'Demo User',
       passwordHash: await bcrypt.hash('password123', 10),
+      profilePicture: faker.image.avatarGitHub(),
     },
   });
 
