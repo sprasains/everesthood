@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/src/lib/auth";
-import { prisma } from "@/src/lib/prisma";
+import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from "next/server";
 
 export async function requireAdmin(req: NextRequest) {

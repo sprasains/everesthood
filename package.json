@@ -37,7 +37,7 @@
     "@prisma/client": "^6.10.1",
     "@tanstack/react-query": "^5.81.2",
     "@tiptap/extension-image": "^2.23.0",
-    "@tiptap/extension-mention": "^2.23.0",
+    "@tiptap/extension-mention": "^2.23.1",
     "@tiptap/react": "^2.23.0",
     "@tiptap/starter-kit": "^2.23.0",
     "@types/bcryptjs": "^2.4.6",

@@ -49,6 +49,9 @@ export default function AuthForm({ isSignUp = false }: AuthFormProps) {
   } = useForm();
   const [selectedTestUser, setSelectedTestUser] = useState<number | null>(null);
 
+  // Add toggle for sign in/sign up
+  const [mode, setMode] = useState(isSignUp ? 'signup' : 'signin');
+
   const onSubmit = async (data: any) => {
     setIsSubmitting(true);
     try {
@@ -112,17 +115,94 @@ export default function AuthForm({ isSignUp = false }: AuthFormProps) {
         borderRadius: 24,
         boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.37)",
         padding: 32,
-        maxWidth: 400,
+        maxWidth: 600,
         margin: "0 auto",
         backdropFilter: "blur(12px)",
         border: "1px solid rgba(255,255,255,0.18)",
+        position: 'relative',
       }}
     >
-      <Stack spacing={2} alignItems="center" mb={2}>
-        <img src="/logo.svg" alt="Everhood Logo" style={{ width: 56, height: 56, marginBottom: 8 }} />
-        <Typography variant="h5" fontWeight="bold" sx={{ background: "linear-gradient(45deg, #ff4e53, #ffcc00)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-          {isSignUp ? "Create your account" : "Sign in to Everhood"}
+      {/* Background image behind buttons */}
+      <Box sx={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: 180,
+        zIndex: 0,
+        background: `url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80') center/cover no-repeat`,
+        borderTopLeftRadius: 24,
+        borderTopRightRadius: 24,
+        opacity: 0.25,
+      }} />
+      <Stack spacing={2} alignItems="center" mb={2} sx={{ position: 'relative', zIndex: 1 }}>
+        {/* Remove logo, keep only heading and subheading */}
+        <Typography
+          variant="h3"
+          fontWeight={900}
+          sx={{
+            background: "linear-gradient(90deg, #ff4e53, #ffcc00, #8b5cf6)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            fontFamily: 'Poppins, Montserrat, sans-serif',
+            letterSpacing: 1.5,
+            mb: 1,
+            textShadow: "0 2px 16px rgba(139,92,246,0.12)",
+            textAlign: 'center',
+          }}
+        >
+          {mode === 'signup' ? 'Create Your Account' : 'Welcome Back!'}
         </Typography>
+        <Typography
+          variant="body1"
+          sx={{
+            maxWidth: 480,
+            margin: '0 auto',
+            color: '#d0d0d0',
+            fontSize: { xs: '1rem', md: '1.1rem' },
+            lineHeight: 1.7,
+            padding: { xs: 1, md: 2 },
+            marginBottom: 2,
+            textAlign: 'center',
+          }}
+        >
+          {mode === 'signup'
+            ? 'Sign up to join the AI Vibe Hub for Gen-Z. Explore, connect, and level up your world!'
+            : 'Sign in to join the AI Vibe Hub for Gen-Z. Explore, connect, and level up your world!'}
+        </Typography>
+        {/* Toggle buttons */}
+        <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
+          <Button
+            variant={mode === 'signin' ? 'contained' : 'outlined'}
+            onClick={() => setMode('signin')}
+            sx={{
+              fontWeight: 'bold',
+              background: mode === 'signin' ? 'linear-gradient(45deg, #ff4e53, #ffcc00)' : 'rgba(255,255,255,0.7)',
+              color: mode === 'signin' ? '#222' : '#222',
+              borderRadius: 8,
+              boxShadow: mode === 'signin' ? '0 4px 16px rgba(255, 78, 83, 0.2)' : undefined,
+              border: mode === 'signin' ? undefined : '1px solid #ff4e53',
+              zIndex: 2,
+            }}
+          >
+            Sign In
+          </Button>
+          <Button
+            variant={mode === 'signup' ? 'contained' : 'outlined'}
+            onClick={() => setMode('signup')}
+            sx={{
+              fontWeight: 'bold',
+              background: mode === 'signup' ? 'linear-gradient(45deg, #8b5cf6, #ffcc00)' : 'rgba(255,255,255,0.7)',
+              color: mode === 'signup' ? '#222' : '#222',
+              borderRadius: 8,
+              boxShadow: mode === 'signup' ? '0 4px 16px rgba(139, 92, 246, 0.2)' : undefined,
+              border: mode === 'signup' ? undefined : '1px solid #8b5cf6',
+              zIndex: 2,
+            }}
+          >
+            Sign Up
+          </Button>
+        </Stack>
       </Stack>
       {/* Test User Dropdown */}
       {!isSignUp && (
@@ -162,7 +242,7 @@ export default function AuthForm({ isSignUp = false }: AuthFormProps) {
       )}
       <form onSubmit={handleSubmit(onSubmit)}>
         <Stack spacing={2} sx={{ width: "100%" }}>
-          {isSignUp && (
+          {mode === 'signup' && (
             <TextField
               label="Name"
               {...register("name", { required: "Name is required" })}
@@ -180,7 +260,7 @@ export default function AuthForm({ isSignUp = false }: AuthFormProps) {
             helperText={errors.email?.message as string}
             disabled={isSubmitting}
             fullWidth
-            autoFocus={!isSignUp}
+            autoFocus={mode !== 'signup'}
           />
           <TextField
             label="Password"
@@ -212,19 +292,25 @@ export default function AuthForm({ isSignUp = false }: AuthFormProps) {
             sx={{
               py: 1.5,
               fontWeight: "bold",
-              background: "linear-gradient(45deg, #ff4e53, #ffcc00)",
+              background: mode === 'signup'
+                ? "linear-gradient(45deg, #8b5cf6, #ffcc00)"
+                : "linear-gradient(45deg, #ff4e53, #ffcc00)",
               color: "#222",
-              boxShadow: "0 4px 16px rgba(255, 78, 83, 0.2)",
+              boxShadow: mode === 'signup'
+                ? '0 4px 16px rgba(139, 92, 246, 0.2)'
+                : '0 4px 16px rgba(255, 78, 83, 0.2)',
               borderRadius: 8,
               '&:hover': {
-                background: "linear-gradient(45deg, #ffcc00, #ff4e53)",
+                background: mode === 'signup'
+                  ? "linear-gradient(45deg, #ffcc00, #8b5cf6)"
+                  : "linear-gradient(45deg, #ffcc00, #ff4e53)",
                 color: "#111",
               },
             }}
           >
             {isSubmitting ? (
               <CircularProgress size={24} />
-            ) : isSignUp ? (
+            ) : mode === 'signup' ? (
               "Sign Up"
             ) : (
               "Sign In"
@@ -301,4 +387,4 @@ export default function AuthForm({ isSignUp = false }: AuthFormProps) {
       </form>
     </motion.div>
   );
-} 
+}
