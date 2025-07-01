@@ -9,6 +9,8 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import { CircularProgress, Box, Container, Paper, Tabs, Tab, Typography, Avatar } from "@mui/material";
+import { BadgeList, Badge } from "@/components/ui/BadgeList";
+import { useSession } from "next-auth/react";
 
 // Skeleton Loader Component
 const SkeletonLoader = () => (
@@ -40,6 +42,8 @@ export default function ProfilePage() {
   });
   // Billing: Manage Subscription Button
   const [billingLoading, setBillingLoading] = useState(false);
+  const [badges, setBadges] = useState<Badge[]>([]);
+  const { data: session } = useSession();
 
   useEffect(() => {
     if (user) {
@@ -49,6 +53,12 @@ export default function ProfilePage() {
       });
     }
   }, [user]);
+
+  useEffect(() => {
+    if (session?.user?.id) {
+      fetch(`/api/v1/users/${session.user.id}/badges`).then(r => r.json()).then(d => setBadges(d.badges || []));
+    }
+  }, [session?.user?.id]);
 
   const handleSave = async () => {
     await updateUser(formData);
@@ -187,7 +197,7 @@ export default function ProfilePage() {
                     fontWeight="bold"
                     mb={2}
                   ></Typography>
-                  {/* Add overview content here */}
+                  <BadgeList badges={badges} />
                 </Box>
               )}
               {activeTab === "persona" && (
@@ -207,7 +217,7 @@ export default function ProfilePage() {
                     fontWeight="bold"
                     mb={2}
                   ></Typography>
-                  {/* Add achievements content here */}
+                  <BadgeList badges={badges} />
                 </Box>
               )}
               {activeTab === "settings" && (

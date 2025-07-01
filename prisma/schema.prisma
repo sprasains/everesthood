@@ -4,104 +4,107 @@
 datasource db {
   provider     = "postgresql"
   url          = env("DATABASE_URL")
-  relationMode = "foreignKeys"
+  relationMode = "prisma" // Changed from foreignKeys for better Vercel Postgres compatibility
 }
 
 generator client {
   provider = "prisma-client-js"
 }
 
-// Core User and Auth Models
-model User {
-  id                     String            @id @default(cuid())
-  name                   String?
-  email                  String?           @unique
-  emailVerified          DateTime?
-  password               String?
-  image                  String?           // Default avatar from OAuth
-  profilePicture         String?           // User-uploaded profile picture
-  coverPicture           String?           // User-uploaded cover photo
-  bio                    String?           @db.Text
-  createdAt              DateTime          @default(now())
-  updatedAt              DateTime          @updatedAt
-  accounts               Account[]
-  sessions               Session[]
-  posts                  Post[]
-  comments               Comment[]
-  commentLikes           CommentLike[]
-  postLikes              PostLike[]
-  sentFriendships        Friendship[]      @relation("sentFriendships")
-  receivedFriendships    Friendship[]      @relation("receivedFriendships")
-  ownedCircles           Circle[]
-  circleMemberships      CircleMembership[]
-  jobApplications        JobApplication[]
-  ownedCompany           Company?
-  apiKey                 ApiKey[]
-  customPersonas         CustomPersona[]
-  userAchievements       UserAchievement[]
-  votes                  Vote[]
-  notifications          Notification[]     @relation("notifications")
-  triggeredNotifications Notification[]     @relation("triggeredNotifications")
-  newsArticleLikes       NewsArticleLike[]
-  mentionedInPosts       Post[]            @relation("PostMentions")
-  tasks                  Task[]
+// #############################################################################
+// ## Core User, Auth & Settings Models
+// #############################################################################
 
-  // Monetization Fields
-  stripeCustomerId       String?           @unique
-  stripeSubscriptionId   String?           @unique
+model User {
+  id                   String    @id @default(cuid())
+  name                 String?
+  email                String?   @unique
+  emailVerified        DateTime?
+  passwordHash         String? // Use this instead of a plain password field
+  profilePictureUrl    String? // Consolidated from image and profilePicture
+  coverPictureUrl      String?
+  bio                  String?   @db.Text
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  publicProfile        Boolean   @default(true)
+  languagePreference   String?   @default("en")
+  socialLinks          Json?
+  lastActiveDate       DateTime? @updatedAt // Automatically updates on any user modification
+
+  // --- Relations ---
+  accounts             Account[]
+  sessions             Session[]
+  apiKey               ApiKey[]
+  settings             UserSettings?
+  posts                Post[]
+  comments             Comment[]
+  commentLikes         CommentLike[]
+  postLikes            PostLike[]
+  sentFriendships      Friendship[]       @relation("sentFriendships")
+  receivedFriendships  Friendship[]       @relation("receivedFriendships")
+  ownedCircles         Circle[]
+  circleMemberships    CircleMembership[]
+  jobApplications      JobApplication[]
+  ownedCompany         Company?
+  customPersonas       CustomPersona[]
+  userAchievements     UserAchievement[]
+  votes                Vote[]
+  notifications        Notification[]     @relation("notifications")
+  triggeredNotifications Notification[]   @relation("triggeredNotifications")
+  newsArticleLikes     NewsArticleLike[]
+  mentionedInPosts     Post[]             @relation("PostMentions")
+  tasks                Task[]
+  userBadges           UserBadge[]
+  tipsGiven            Tip[]              @relation("Tipper")
+  tipsReceived         Tip[]              @relation("Creator")
+  reportsMade          Report[]           @relation("Reporter")
+  blocksMade           Block[]            @relation("blockedBy")
+  blocksReceived       Block[]            @relation("blocking")
+
+  // --- EverestHood Relations ---
+  familyId             String?
+  family               Family?            @relation(fields: [familyId], references: [id], onDelete: SetNull)
+  budgets              Budget[]
+  bills                Bill[]
+  subscriptions        Subscription[]
+  transactions         Transaction[]
+  eventsCreated        Event[]            @relation("CreatedEvents")
+  eventAttendees       EventAttendee[]
+
+  // --- Monetization ---
+  stripeCustomerId       String?          @unique
+  stripeSubscriptionId   String?          @unique
   stripePriceId          String?
   stripeCurrentPeriodEnd DateTime?
-  subscriptionTier       SubscriptionTier  @default(FREE)
-
-  // Gamification & Progress Tracking
-  xp              Int      @default(0)
-  level           Int      @default(1)
-  streak          Int      @default(0)
-  lastActiveDate  DateTime?
-  persona         String   @default("ZenGPT")
-  dailyProgress   Int      @default(0)
-  weeklyGoal      Int      @default(5)
-  achievements    String[] @default([])
-  friends         String[] @default([])
-  publicProfile   Boolean  @default(true)
-  articlesRead    Int      @default(0)
-  summariesUsed   Int      @default(0)
-  sharesCount     Int      @default(0)
-  // Monetization: Tipping balance for creators and users
-  tippingBalance  Float    @default(0)
-  creatorBalance  Float    @default(0)
+  subscriptionTier       SubscriptionTier @default(FREE)
+  creatorBalance         Float            @default(0)
   profileSpotlightEndsAt DateTime?
 
-  // Admin/Moderation Fields
-  role                    UserRole         @default(USER)
-  isBanned                Boolean          @default(false)
-  banReason               String?
-  languagePreference      String?
-  profileImageUrl         String?
-  headerImageUrl          String?
-  socialLinks             Json?
+  // --- Gamification ---
+  xp                   Int    @default(0)
+  level                Int    @default(1)
+  currentStreak        Int    @default(0)
 
-  // Ambassador Program Fields
-  isAmbassador           Boolean   @default(false)
-  referralCode           String?   @unique
-  ambassadorMetrics      AmbassadorMetric[] @relation("AmbassadorReferrer")
-  referredByAmbassador   AmbassadorMetric[] @relation("AmbassadorReferral")
+  // --- Admin/Moderation ---
+  role                 UserRole @default(USER)
+  isBanned             Boolean  @default(false)
+  banReason            String?
 
-  userBadges            UserBadge[]
-  tipsGiven             Tip[]      @relation("Tipper")
-  tipsReceived          Tip[]      @relation("Creator")
+  // --- Ambassador Program ---
+  isAmbassador         Boolean            @default(false)
+  referralCode         String?            @unique
+  ambassadorMetrics    AmbassadorMetric[] @relation("AmbassadorReferrer")
+  referredByAmbassador AmbassadorMetric[] @relation("AmbassadorReferral")
+}
 
-  // New fields for Tasks 1-3
-  passwordHash           String
-  firstName              String?
-  familyId               String?
-  family                 Family?    @relation(fields: [familyId], references: [id])
-  settings               Json?
-  budgets                Budget[]
-  bills                  Bill[]
-  subscriptions          Subscription[]
-  eventsCreated          Event[]    @relation("CreatedEvents")
-  eventAttendees         EventAttendee[]
+model UserSettings {
+  userId                 String  @id
+  user                   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  notificationsOnLike    Boolean @default(true)
+  notificationsOnComment Boolean @default(true)
+  notificationsOnMention Boolean @default(true)
+  notificationsOnSystem  Boolean @default(true)
+  theme                  String  @default("system")
 }
 
 model Account {
@@ -141,33 +144,51 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-// Content and Engagement Models
+// #############################################################################
+// ## Content & Engagement Models
+// #############################################################################
+
 model Post {
-  id             String     @id @default(cuid())
-  title          String?
-  content        Json? // CHANGED: was String/Text, now Json for rich text
+  id             String    @id @default(cuid())
+  content        Json? // For rich text editor support (e.g., TipTap)
   authorId       String
-  createdAt      DateTime   @default(now())
-  updatedAt      DateTime   @updatedAt
-  type           PostType   @default(TEXT)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  type           PostType  @default(TEXT)
   mediaUrls      String[]
   metadata       Json?
-  author         User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  viewCount      Int       @default(0)
+  isDeleted      Boolean   @default(false) // Soft delete flag
+  deletedAt      DateTime? // Timestamp for soft delete
+
+  // --- Relations ---
+  author         User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
   comments       Comment[]
   likes          PostLike[]
   poll           Poll?
-  resharedFromId String?
-  resharedFrom   Post?      @relation("Reshares", fields: [resharedFromId], references: [id], onDelete: Restrict, onUpdate: Restrict)
-  reshares       Post[]     @relation("Reshares")
-  mentionedUsers User[]     @relation("PostMentions")
-  newsArticleId  String?    // Optional relation to NewsArticle for reposts
-  newsArticle    NewsArticle? @relation(fields: [newsArticleId], references: [id])
-  isDeleted      Boolean    @default(false)
-  viewCount      Int        @default(0)
+  mentionedUsers User[]      @relation("PostMentions")
+  revisions      PostRevision[]
   tips           Tip[]
+  resharedFromId String?
+  resharedFrom   Post?       @relation("Reshares", fields: [resharedFromId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  reshares       Post[]      @relation("Reshares")
+  newsArticleId  String?
+  newsArticle    NewsArticle? @relation(fields: [newsArticleId], references: [id], onDelete: SetNull)
 
   @@index([authorId])
-  @@index([createdAt])
+  @@index([createdAt(sort: Desc)])
+  @@index([isDeleted])
+}
+
+model PostRevision {
+  id        String   @id @default(cuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  content   Json
+  reason    String? // e.g., "Corrected typo"
+  createdAt DateTime @default(now())
+
+  @@index([postId])
 }
 
 model PostLike {
@@ -182,35 +203,74 @@ model PostLike {
 }
 
 model Comment {
-  id        String        @id @default(cuid())
+  id        String    @id @default(cuid())
   content   String
-  createdAt DateTime      @default(now())
+  createdAt DateTime  @default(now())
   authorId  String
   postId    String
-  parentId  String? // Self-referencing for infinite-level threading
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+
+  // --- Relations for Threading ---
+  parentId  String?
+  parent    Comment?  @relation("Replies", fields: [parentId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  replies   Comment[] @relation("Replies")
+
+  // --- Standard Relations ---
   author    User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
   post      Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
-  parent    Comment?      @relation("Replies", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  replies   Comment[]     @relation("Replies")
   likes     CommentLike[]
-  isDeleted Boolean       @default(false)
-  // NOTE: For soft delete, add a 'deletedAt' field and filter in queries.
 }
 
 model CommentLike {
   userId    String
   commentId String
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  comment   Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
 
   @@id([userId, commentId])
 }
 
-// Social Graph Models
+model NewsArticle {
+  id          String   @id @default(cuid())
+  title       String
+  link        String   @unique
+  description String?  @db.Text
+  imageUrl    String?
+  publishedAt DateTime?
+  sourceName  String
+  createdAt   DateTime @default(now())
+  category    String? // e.g., 'ai', 'startup', 'culture'
+  tags        String[]
+  content     Json? // For rich text content
+
+  // --- Relations ---
+  likes       NewsArticleLike[]
+  posts       Post[]
+
+  @@index([publishedAt(sort: Desc)])
+  @@index([category])
+}
+
+model NewsArticleLike {
+  userId        String
+  newsArticleId String
+  createdAt     DateTime    @default(now())
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  newsArticle   NewsArticle @relation(fields: [newsArticleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, newsArticleId])
+}
+
+// #############################################################################
+// ## Social Graph & Community Models
+// #############################################################################
+
 model Friendship {
   requesterId String
   receiverId  String
-  status      FriendshipStatus @default(PENDING) // PENDING, ACCEPTED, DECLINED, BLOCKED
+  status      FriendshipStatus @default(PENDING)
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
   requester   User             @relation("sentFriendships", fields: [requesterId], references: [id], onDelete: Cascade)
@@ -218,30 +278,40 @@ model Friendship {
 
   @@id([requesterId, receiverId])
   @@index([receiverId])
+  @@index([status])
 }
 
-// Gamification Models
-model Achievement {
-  id               String            @id @default(cuid())
-  name             String            @unique
-  description      String
-  icon             String
-  xpReward         Int
-  userAchievements UserAchievement[]
+model Block {
+  blockerId String
+  blockedId String
+  createdAt DateTime @default(now())
+  blocker   User     @relation("blockedBy", fields: [blockerId], references: [id], onDelete: Cascade)
+  blocked   User     @relation("blocking", fields: [blockedId], references: [id], onDelete: Cascade)
+
+  @@id([blockerId, blockedId])
 }
 
-model UserAchievement {
-  id            String      @id @default(cuid())
-  userId        String
-  achievementId String
-  earnedAt      DateTime    @default(now())
-  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, achievementId])
+model Circle {
+  id          String             @id @default(cuid())
+  name        String
+  ownerId     String
+  owner       User               @relation(fields: [ownerId], references: [id])
+  memberships CircleMembership[]
 }
 
-// Auxiliary and Feature Models
+model CircleMembership {
+  circleId String
+  userId   String
+  circle   Circle @relation(fields: [circleId], references: [id], onDelete: Cascade)
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([circleId, userId])
+}
+
+// #############################################################################
+// ## Feature: Polls
+// #############################################################################
+
 model Poll {
   id       String       @id @default(cuid())
   question String
@@ -268,54 +338,90 @@ model Vote {
   @@id([userId, pollOptionId])
 }
 
-model Circle {
-  id          String             @id @default(cuid())
-  name        String
-  ownerId     String
-  owner       User               @relation(fields: [ownerId], references: [id])
-  memberships CircleMembership[]
+// #############################################################################
+// ## Gamification, Achievements & Monetization
+// #############################################################################
+
+model Achievement {
+  id                 String              @id @default(cuid())
+  name               String              @unique
+  description        String
+  icon               String
+  xpReward           Int
+  userAchievements   UserAchievement[]
 }
 
-model CircleMembership {
-  circleId String
-  userId   String
-  circle   Circle @relation(fields: [circleId], references: [id], onDelete: Cascade)
-  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+model UserAchievement {
+  userId        String
+  achievementId String
+  earnedAt      DateTime    @default(now())
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
 
-  @@id([circleId, userId])
+  @@id([userId, achievementId])
 }
+
+model Badge {
+  id          String      @id @default(cuid())
+  name        String      @unique
+  description String
+  imageUrl    String
+  userBadges  UserBadge[]
+}
+
+model UserBadge {
+  userId    String
+  badgeId   String
+  earnedAt  DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge     Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  @@id([userId, badgeId])
+}
+
+model Tip {
+  id        String   @id @default(cuid())
+  tipperId  String
+  creatorId String
+  postId    String?  // Tip can be on a post or directly on a profile
+  amount    Float
+  message   String?
+  createdAt DateTime @default(now())
+  tipper    User     @relation("Tipper", fields: [tipperId], references: [id], onDelete: Restrict)
+  creator   User     @relation("Creator", fields: [creatorId], references: [id], onDelete: Restrict)
+  post      Post?    @relation(fields: [postId], references: [id], onDelete: SetNull)
+
+  @@index([tipperId])
+  @@index([creatorId])
+}
+
+// #############################################################################
+// ## Feature: Job Board & Company Profiles
+// #############################################################################
 
 model Company {
-  id          String @id @default(cuid())
+  id          String  @id @default(cuid())
   name        String
   description String
   websiteUrl  String?
   logoUrl     String?
-  ownerId     String @unique
-  owner       User   @relation(fields: [ownerId], references: [id])
+  ownerId     String  @unique
+  owner       User    @relation(fields: [ownerId], references: [id])
   jobs        Job[]
 }
 
 model Job {
-  id           String         @id @default(cuid())
+  id           String           @id @default(cuid())
   title        String
-  description  String         @db.Text // Ensure description is Text for long postings
+  description  String           @db.Text
   location     String
   type         String
   salaryRange  String?
-  isActive     Boolean        @default(true)
-  isFeatured   Boolean        @default(false)
-  createdAt    DateTime       @default(now())
-  
-  // --- MODIFICATIONS & ADDITIONS ---
-  companyId    String?        // Make this optional
-  companyName  String         // Add a field to store the company name directly
-  externalUrl  String?        @unique // The direct link to the job post, must be unique
-  source       String?        // e.g., "Stack Overflow Jobs"
-  publishedAt  DateTime?
-  // Keep the relation, but it's now optional
-  company      Company?       @relation(fields: [companyId], references: [id])
+  isActive     Boolean          @default(true)
+  companyId    String
+  company      Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
   applications JobApplication[]
+  createdAt    DateTime         @default(now())
 
   @@index([companyId])
 }
@@ -332,12 +438,134 @@ model JobApplication {
   @@unique([applicantId, jobId])
 }
 
-model ApiKey {
+// #############################################################################
+// ## Feature: EverestHood - Life Simplification Suite
+// #############################################################################
+
+model Family {
   id        String   @id @default(cuid())
-  key       String   @unique
+  name      String
   createdAt DateTime @default(now())
+  users     User[]
+  events    Event[]
+}
+
+model Event {
+  id            String          @id @default(cuid())
+  familyId      String
+  family        Family          @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  createdById   String
+  createdBy     User            @relation("CreatedEvents", fields: [createdById], references: [id], onDelete: Cascade)
+  title         String
+  description   String?
+  startTime     DateTime
+  endTime       DateTime
+  recurringRule String?         // To store iCalendar RRULE strings for recurring events
+  attendees     EventAttendee[]
+}
+
+model EventAttendee {
+  eventId String
+  userId  String
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([eventId, userId])
+}
+
+model Budget {
+  id           String        @id @default(cuid())
+  userId       String
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name         String
+  limitAmount  Float
+  category     String?
+  createdAt    DateTime      @default(now())
+  transactions Transaction[]
+}
+
+model Bill {
+  id        String   @id @default(cuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  amount    Float
+  dueDate   DateTime
+  isPaid    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Subscription {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  amount      Float
+  renewalDate DateTime
+  createdAt   DateTime @default(now())
+}
+
+model Transaction {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  budgetId    String?
+  budget      Budget?  @relation(fields: [budgetId], references: [id], onDelete: SetNull)
+  amount      Float
+  description String
+  date        DateTime
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Task {
+  id          String    @id @default(cuid())
+  content     String
+  details     String?
+  link        String?
+  isCompleted Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  completedAt DateTime?
+  ownerId     String
+  owner       User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@index([ownerId])
+}
+
+model ProductivityTip {
+  id   String @id @default(cuid())
+  text String
+}
+
+// #############################################################################
+// ## Admin, Moderation & System Models
+// #############################################################################
+
+model Notification {
+  id          String           @id @default(cuid())
+  recipientId String
+  actorId     String
+  type        NotificationType
+  entityId    String? // e.g., postId, commentId
+  isRead      Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+  recipient   User             @relation("notifications", fields: [recipientId], references: [id], onDelete: Cascade)
+  actor       User             @relation("triggeredNotifications", fields: [actorId], references: [id], onDelete: Cascade)
+
+  @@index([recipientId])
+}
+
+model Report {
+  id             String           @id @default(cuid())
+  reporterId     String
+  reporter       User             @relation("Reporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  entityId       String
+  entityType     ReportEntityType
+  reason         String
+  status         ReportStatus     @default(PENDING)
+  createdAt      DateTime         @default(now())
+  moderatorNotes String?
 }
 
 model CustomPersona {
@@ -352,87 +580,37 @@ model CustomPersona {
   @@index([ownerId])
 }
 
-model Notification {
-  id           String           @id @default(cuid())
-  recipientId  String
-  actorId      String
-  type         NotificationType
-  entityId     String?
-  isRead       Boolean          @default(false)
-  createdAt    DateTime         @default(now())
-
-  recipient    User             @relation("notifications", fields: [recipientId], references: [id], onDelete: Cascade)
-  actor        User             @relation("triggeredNotifications", fields: [actorId], references: [id], onDelete: Cascade)
-
-  @@index([recipientId])
-}
-
-model NewsArticle {
-  id           String    @id @default(cuid())
-  title        String
-  link         String    @unique
-  description  String?   @db.Text
-  imageUrl     String?
-  publishedAt  DateTime?
-  sourceName   String
-  createdAt    DateTime  @default(now())
-  // Added for GenZ content and categorization
-  category     String?   // e.g. 'ai', 'startup', 'culture', etc.
-  tags         String[]  // Array of tags/keywords
-  content      Json?     // CHANGED: was String/Text, now Json for rich text
-  likes        NewsArticleLike[]
-  posts        Post[]    // Relation from Post.newsArticle
-
-  @@index([publishedAt])
-}
-
-model NewsArticleLike {
-  userId String
-  newsArticleId String
+model ApiKey {
+  id        String   @id @default(cuid())
+  key       String   @unique
   createdAt DateTime @default(now())
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  newsArticle NewsArticle @relation(fields: [newsArticleId], references: [id], onDelete: Cascade)
-
-  @@id([userId, newsArticleId])
-  @@index([newsArticleId])
-}
-
-model GenZContent {
-  id          String   @id @default(cuid())
-  title       String
-  content     String
-  description String?
-  sourceUrl   String   @unique
-  engagement  Int      @default(0)
-  sourceName  String?
-  imageUrl    String?
-  publishedAt DateTime?
-  category    String?
-  tags        String[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model AmbassadorMetric {
-  id                String   @id @default(cuid())
-  ambassadorId      String
-  referredUserId    String
-  createdAt         DateTime @default(now())
-
-  ambassador        User     @relation("AmbassadorReferrer", fields: [ambassadorId], references: [id])
-  referredUser      User     @relation("AmbassadorReferral", fields: [referredUserId], references: [id])
+  /// Added to trigger migration for missing table
+  id             String   @id @default(cuid())
+  ambassadorId   String
+  referredUserId String   @unique // A user can only be referred once
+  createdAt      DateTime @default(now())
+  ambassador     User     @relation("AmbassadorReferrer", fields: [ambassadorId], references: [id])
+  referredUser   User     @relation("AmbassadorReferral", fields: [referredUserId], references: [id])
 
   @@unique([ambassadorId, referredUserId])
 }
 
-// Enums
+// #############################################################################
+// ## Enums
+// #############################################################################
+
 enum PostType {
   TEXT
   POLL
-  LINK
-  PREDICTION
   IMAGE
   VIDEO
+  LINK
+  PREDICTION
 }
 
 enum SubscriptionTier {
@@ -455,11 +633,11 @@ enum NotificationType {
   COMMENT_LIKE
   NEW_COMMENT
   REPLY
-  NEW_POST
-  NEWS
   MENTION
   ACHIEVEMENT
   SYSTEM
+  NEW_POST
+  NEWS
 }
 
 enum UserRole {
@@ -468,119 +646,14 @@ enum UserRole {
   ADMIN
 }
 
-// --- MIGRATION: Rich Text & Hierarchical Comments ---
-// 1. Post.content and NewsArticle.content are now Json for rich text editor support.
-// 2. Comment model supports infinite-level threading via parentId and replies self-relation.
-// 3. onDelete: Cascade for parentId to cascade delete nested replies.
-
-model Badge {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  description String
-  imageUrl    String
-  userBadges  UserBadge[]
+enum ReportEntityType {
+  POST
+  COMMENT
+  USER
 }
 
-model UserBadge {
-  id        String   @id @default(cuid())
-  userId    String
-  badgeId   String
-  earnedAt  DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  badge     Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, badgeId])
-}
-
-model Tip {
-  id         String   @id @default(cuid())
-  tipperId   String
-  creatorId  String
-  postId     String
-  amount     Float
-  createdAt  DateTime @default(now())
-  tipper     User     @relation("Tipper", fields: [tipperId], references: [id])
-  creator    User     @relation("Creator", fields: [creatorId], references: [id])
-  post       Post     @relation(fields: [postId], references: [id])
-
-  @@index([tipperId])
-  @@index([creatorId])
-  @@index([postId])
-}
-
-model Family {
-  id        String   @id @default(cuid())
-  name      String
-  createdAt DateTime @default(now())
-  users     User[]
-  events    Event[]
-}
-
-model Budget {
-  id         String   @id @default(cuid())
-  userId     String
-  user       User     @relation(fields: [userId], references: [id])
-  category   String
-  limitAmount Float
-  createdAt  DateTime @default(now())
-}
-
-model Bill {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  name      String
-  amount    Float
-  dueDate   DateTime
-  isPaid    Boolean  @default(false)
-  createdAt DateTime @default(now())
-}
-
-model Subscription {
-  id         String   @id @default(cuid())
-  userId     String
-  user       User     @relation(fields: [userId], references: [id])
-  name       String
-  amount     Float
-  renewalDate DateTime
-  createdAt  DateTime @default(now())
-}
-
-model Event {
-  id           String   @id @default(cuid())
-  familyId     String
-  family       Family   @relation(fields: [familyId], references: [id])
-  createdById  String
-  createdBy    User     @relation("CreatedEvents", fields: [createdById], references: [id])
-  title        String
-  description  String?
-  startTime    DateTime
-  endTime      DateTime
-  attendees    EventAttendee[]
-}
-
-model EventAttendee {
-  eventId String
-  userId  String
-  event   Event   @relation(fields: [eventId], references: [id])
-  user    User    @relation(fields: [userId], references: [id])
-
-  @@id([eventId, userId])
-}
-
-model Task {
-  id          String   @id @default(cuid())
-  content     String
-  details     String?
-  link        String?
-  isCompleted Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  completedAt DateTime?
-  ownerId     String
-  owner       User     @relation(fields: [ownerId], references: [id])
-}
-
-model ProductivityTip {
-  id   String @id @default(cuid())
-  text String
+enum ReportStatus {
+  PENDING
+  REVIEWED
+  RESOLVED
 }

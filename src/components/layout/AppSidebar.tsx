@@ -25,6 +25,7 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
 import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import CampaignIcon from '@mui/icons-material/Campaign';
+import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 
 // Add logical section headers and new features
 type NavSection = { header?: string; items: { text: string; icon: React.ReactElement; href: string; }[] };
@@ -49,6 +50,7 @@ const navSections: NavSection[] = [
       { text: 'Docs & Vault', icon: <DescriptionIcon />, href: '/docs' },
       { text: 'Health & Wellness', icon: <LocalHospitalIcon />, href: '/health' },
       { text: 'Shopping', icon: <ShoppingCartIcon />, href: '/shopping' },
+      { text: 'Productivity Hub', icon: <AssignmentTurnedInIcon />, href: '/hub' },
     ],
   },
   {
@@ -97,15 +99,19 @@ export default function AppSidebar() {
           <ListItemButton
             component={Link}
             href={item.href}
+            aria-current={isActive ? 'page' : undefined}
             sx={{
               borderRadius: 2,
               mb: 1,
-              bgcolor: isActive ? 'rgba(139, 92, 246, 0.2)' : 'transparent',
-              borderRight: isActive ? '3px solid #8B5CF6' : 'none',
-              '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.1)' },
+              bgcolor: isActive ? 'rgba(139, 92, 246, 0.18)' : 'transparent',
+              borderLeft: isActive ? '4px solid #8B5CF6' : '4px solid transparent',
+              boxShadow: isActive ? '0 2px 8px 0 rgba(139,92,246,0.10)' : 'none',
+              borderRight: 'none',
+              '&:hover': { bgcolor: 'rgba(139, 92, 246, 0.08)' },
+              minHeight: 48,
             }}
           >
-            <ListItemIcon sx={{ color: 'white', minWidth: '40px' }}>{item.icon}</ListItemIcon>
+            <ListItemIcon sx={{ color: 'white', minWidth: '40px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>{item.icon}</ListItemIcon>
             <ListItemText primary={item.text} />
           </ListItemButton>
         </Tooltip>
@@ -141,14 +147,6 @@ export default function AppSidebar() {
       ))}
       <Divider sx={{ my: 2, borderColor: 'rgba(255, 255, 255, 0.1)' }} />
       <OpportunityColumn />
-      <ListItem button component="a" href="/docs">
-        <ListItemIcon><DescriptionIcon /></ListItemIcon>
-        <ListItemText primary="Docs" />
-      </ListItem>
-      <ListItem button component="a" href="/health">
-        <ListItemIcon><FavoriteIcon /></ListItemIcon>
-        <ListItemText primary="Health" />
-      </ListItem>
     </Box>
   );
 }

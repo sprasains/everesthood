@@ -98,7 +98,6 @@ async function seedPostsForUsers(users: User[], prisma: PrismaClient) {
       await prisma.post.create({
         data: {
           authorId: user.id,
-          title: faker.lorem.sentence(7),
           content: createRichTextContent(),
           type: PostType.TEXT,
         },
@@ -119,6 +118,8 @@ async function main() {
   await prisma.post.deleteMany();
   await prisma.friendship.deleteMany();
   await prisma.newsArticleLike.deleteMany();
+  await prisma.ambassadorMetric.deleteMany();
+  await prisma.tip.deleteMany();
   await prisma.user.deleteMany();
   await prisma.notification.deleteMany(); // Remove all notification model variants, use only prisma.notification
 
@@ -133,12 +134,11 @@ async function main() {
     data: {
       name: 'Admin User',
       email: 'admin@example.com',
-      password: hashedPassword,
+      passwordHash: hashedPassword,
       bio: 'Platform administrator',
       role: 'ADMIN',
       languagePreference: 'en',
-      profileImageUrl: 'https://randomuser.me/api/portraits/men/1.jpg',
-      headerImageUrl: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb',
+      profilePictureUrl: 'https://randomuser.me/api/portraits/men/1.jpg',
       socialLinks: { twitter: 'https://twitter.com/admin', github: 'https://github.com/admin' },
     },
   });
@@ -149,15 +149,12 @@ async function main() {
       data: {
         name: `Test User ${i}`,
         email: `test${i}@example.com`,
-        password: hashedPassword,
+        passwordHash: hashedPassword,
         bio: 'I am a test user for the Everesthood beta!',
-        profilePicture: faker.image.avatarGitHub(),
-        coverPicture: faker.image.urlLoremFlickr({ category: 'technics' }),
+        profilePictureUrl: faker.image.avatarGitHub(),
         languagePreference: i % 2 === 0 ? 'en' : 'es',
         isBanned: i === 4, // Ban the last test user
         banReason: i === 4 ? 'Violation of community guidelines' : null,
-        profileImageUrl: faker.image.avatarGitHub(),
-        headerImageUrl: faker.image.urlLoremFlickr({ category: 'nature' }),
         socialLinks: { twitter: `https://twitter.com/testuser${i}` },
       },
     });
@@ -175,22 +172,22 @@ async function main() {
     data: {
       name: 'Ambassador Alice',
       email: 'alice.ambassador@example.com',
-      password: hashedPassword,
+      passwordHash: hashedPassword,
       isAmbassador: true,
       referralCode: 'ALICE123',
       bio: 'Campus ambassador and influencer',
-      profileImageUrl: 'https://randomuser.me/api/portraits/women/10.jpg',
+      profilePictureUrl: 'https://randomuser.me/api/portraits/women/10.jpg',
     },
   });
   const ambassador2 = await prisma.user.create({
     data: {
       name: 'Ambassador Bob',
       email: 'bob.ambassador@example.com',
-      password: hashedPassword,
+      passwordHash: hashedPassword,
       isAmbassador: true,
       referralCode: 'BOB456',
       bio: 'Ambassador for Everesthood',
-      profileImageUrl: 'https://randomuser.me/api/portraits/men/11.jpg',
+      profilePictureUrl: 'https://randomuser.me/api/portraits/men/11.jpg',
     },
   });
   console.log('🎓 Ambassador Alice: alice.ambassador@example.com / password123, code: ALICE123');
@@ -201,18 +198,18 @@ async function main() {
     data: {
       name: 'Referred User 1',
       email: 'referred1@example.com',
-      password: hashedPassword,
+      passwordHash: hashedPassword,
       bio: 'Joined via Alice',
-      profileImageUrl: 'https://randomuser.me/api/portraits/men/12.jpg',
+      profilePictureUrl: 'https://randomuser.me/api/portraits/men/12.jpg',
     },
   });
   const referredUser2 = await prisma.user.create({
     data: {
       name: 'Referred User 2',
       email: 'referred2@example.com',
-      password: hashedPassword,
+      passwordHash: hashedPassword,
       bio: 'Joined via Bob',
-      profileImageUrl: 'https://randomuser.me/api/portraits/women/13.jpg',
+      profilePictureUrl: 'https://randomuser.me/api/portraits/women/13.jpg',
     },
   });
   await prisma.ambassadorMetric.create({
@@ -236,15 +233,15 @@ async function main() {
       data: {
         name: faker.person.fullName(),
         email: faker.internet.email(),
-        password: hashedPassword,
+        passwordHash: hashedPassword,
         bio: faker.lorem.sentence(),
-        profilePicture: faker.image.avatarGitHub(),
-        coverPicture: faker.image.urlLoremFlickr({ category: 'nature' }),
+        profilePictureUrl: faker.image.avatarGitHub(),
       },
     });
     users.push(user);
   }
   console.log(`👤 Created ${users.length} users.`);
+  console.log('👤 Sample users:', users.slice(0,2));
 
   // --- Friendships ---
   console.log('🤝 Creating friendships...');
@@ -289,7 +286,6 @@ async function main() {
     };
     const post = await prisma.post.create({
       data: {
-        title: faker.lorem.words(5),
         content: contentJson,
         authorId: author.id,
         createdAt: faker.date.recent({ days: 30 }),
@@ -298,6 +294,7 @@ async function main() {
     posts.push(post);
   }
   console.log(`📝 Created ${posts.length} posts.`);
+  console.log('📝 Sample posts:', posts.slice(0,2));
 
   // --- Comments ---
   console.log('💬 Creating comments...');
@@ -375,15 +372,19 @@ async function main() {
   }
 
   // --- Badges ---
-  const topTipperBadge = await prisma.badge.create({
-    data: {
+  const topTipperBadge = await prisma.badge.upsert({
+    where: { name: 'Top Tipper' },
+    update: {},
+    create: {
       name: 'Top Tipper',
       description: 'Awarded to the user who tipped the most in the last month.',
       imageUrl: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png',
     },
   });
-  const topCreatorBadge = await prisma.badge.create({
-    data: {
+  const topCreatorBadge = await prisma.badge.upsert({
+    where: { name: 'Top Creator' },
+    update: {},
+    create: {
       name: 'Top Creator',
       description: 'Awarded to the creator who earned the most tips in the last month.',
       imageUrl: 'https://cdn-icons-png.flaticon.com/512/3135/3135768.png',
@@ -437,7 +438,39 @@ async function main() {
   });
   console.log('🏆 Awarded demo badges to top tipper and creator.');
 
+  // Seed demo user and tasks
+  const demoUser = await prisma.user.upsert({
+    where: { email: 'demo@everesthood.com' },
+    update: {},
+    create: {
+      email: 'demo@everesthood.com',
+      name: 'Demo User',
+      passwordHash: await bcrypt.hash('password123', 10),
+    },
+  });
+
+  // Seed demo tasks
+  await prisma.task.createMany({
+    data: [
+      { content: 'Try out the Productivity Hub!', ownerId: demoUser.id },
+      { content: 'Complete your first task', ownerId: demoUser.id },
+      { content: 'Read a productivity tip', ownerId: demoUser.id },
+    ],
+    skipDuplicates: true,
+  });
+
+  // Seed productivity tips
+  await prisma.productivityTip.createMany({
+    data: productivityTips.map(tip => ({ text: tip.text })),
+    skipDuplicates: true,
+  });
+
   console.log('🌱 Seeding complete!');
+
+  const allTasks = await prisma.task.findMany();
+  console.log('✅ Sample tasks:', allTasks.slice(0,2));
+  const allTips = await prisma.productivityTip.findMany();
+  console.log('💡 Sample productivity tips:', allTips.slice(0,2));
 }
 
 main()
