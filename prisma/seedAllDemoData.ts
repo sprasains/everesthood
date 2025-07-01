@@ -3,6 +3,14 @@ import bcrypt from "bcryptjs";
 
 // 20 Gen-Z users with bios and avatars
 const demoUsers = [
+  // AuthForm test users
+  { name: "Admin", email: "admin@example.com", password: "password123", image: "https://randomuser.me/api/portraits/men/1.jpg", bio: "Admin user for testing." },
+  { name: "Demo User", email: "demo@everesthood.com", password: "password123", image: "https://randomuser.me/api/portraits/men/2.jpg", bio: "Demo user for testing." },
+  { name: "Test User 0", email: "test0@example.com", password: "password123", image: "https://randomuser.me/api/portraits/men/3.jpg", bio: "Test user 0." },
+  { name: "Test User 1", email: "test1@example.com", password: "password123", image: "https://randomuser.me/api/portraits/men/4.jpg", bio: "Test user 1." },
+  { name: "Test User 2", email: "test2@example.com", password: "password123", image: "https://randomuser.me/api/portraits/men/5.jpg", bio: "Test user 2." },
+  { name: "Test User 3", email: "test3@example.com", password: "password123", image: "https://randomuser.me/api/portraits/men/6.jpg", bio: "Test user 3." },
+  { name: "Test User 4", email: "test4@example.com", password: "password123", image: "https://randomuser.me/api/portraits/men/7.jpg", bio: "Test user 4." },
   { name: "Ava Drip", email: "ava@zenz.com", password: "dripfire123", image: "https://randomuser.me/api/portraits/women/65.jpg", bio: "Glow up queen. No cap." },
   { name: "Noah Bet", email: "noah@zenz.com", password: "betbetbet", image: "https://randomuser.me/api/portraits/men/32.jpg", bio: "Bet. Always vibing." },
   { name: "Mia GlowUp", email: "mia@zenz.com", password: "glowup!", image: "https://randomuser.me/api/portraits/women/44.jpg", bio: "Slaying 24/7. Periodt." },
@@ -247,6 +255,42 @@ const demoImages = [
   "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
   "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
   "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99",
+  "https://images.unsplash.com/photo-1444065381814-865dc9da92c0",
+  "https://images.unsplash.com/photo-1502082553048-f009c37129b9",
+  "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
+  "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99",
+  "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
+  "https://images.unsplash.com/photo-1519681393784-d120267933ba",
+  "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
+  "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
+  "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99",
+  "https://images.unsplash.com/photo-1444065381814-865dc9da92c0",
+  "https://images.unsplash.com/photo-1502082553048-f009c37129b9",
+  "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
+  "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99",
+  "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
+  "https://images.unsplash.com/photo-1519681393784-d120267933ba",
+  "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
+  "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
+  "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99",
+  "https://images.unsplash.com/photo-1444065381814-865dc9da92c0",
+  "https://images.unsplash.com/photo-1502082553048-f009c37129b9",
+  "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
+  "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99",
+  "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
+  "https://images.unsplash.com/photo-1519681393784-d120267933ba",
+  "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
+  "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
+  "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99",
+  "https://images.unsplash.com/photo-1444065381814-865dc9da92c0",
+  "https://images.unsplash.com/photo-1502082553048-f009c37129b9",
+  "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
+  "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99",
+  "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
+  "https://images.unsplash.com/photo-1519681393784-d120267933ba",
+  "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
+  "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
+  "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99",
 ];
 
 async function main() {
@@ -260,8 +304,8 @@ async function main() {
       create: {
         name: user.name,
         email: user.email,
-        password: hashed,
-        image: user.image,
+        passwordHash: hashed,
+        profilePicture: user.image,
         bio: user.bio,
       },
     });
@@ -289,8 +333,7 @@ async function main() {
     const authorIdx = i % userIds.length;
     const post = await prisma.post.create({
       data: {
-        title: demoPosts[i % demoPosts.length],
-        content: demoContent[i % demoContent.length],
+        content: { text: demoPosts[i % demoPosts.length], body: demoContent[i % demoContent.length] },
         authorId: userIds[authorIdx],
         metadata: { image: demoImages[i % demoImages.length] },
       },

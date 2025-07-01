@@ -49,20 +49,10 @@ const fetchAchievementsCount = async () => {
 export default function DashboardPage() {
   const { user, loading } = useUser();
   const router = useRouter();
-  // Redirect if not authenticated
-  useEffect(() => {
-    if (!loading && !user) {
-      router.replace("/auth/signin");
-    }
-  }, [user, loading, router]);
-  if (loading || !user) {
-    return <CircularProgress />;
-  }
   const theme = useTheme();
-
   const { data: postsData, isLoading: postsLoading } = useQuery({
     queryKey: ["userPosts", user?.id],
-    queryFn: () => fetchUserPosts(user!.id),
+    queryFn: () => user ? fetchUserPosts(user.id) : Promise.resolve({ posts: [] }),
     enabled: !!user,
   });
   const { data: friendsCount, isLoading: friendsCountLoading } = useQuery({
@@ -78,6 +68,15 @@ export default function DashboardPage() {
     { id: 1, text: "🔥 Your drip is valid! Glow up, fam!" },
     { id: 2, text: "Bet! You just got a W with that post." },
   ], []);
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (!loading && !user) {
+      router.replace("/auth/signin");
+    }
+  }, [user, loading, router]);
+  if (loading || !user) {
+    return <CircularProgress />;
+  }
   // Use image or fallback
   const avatar = user?.image || "https://i.pravatar.cc/150?u=everhood";
 

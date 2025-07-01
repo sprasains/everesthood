@@ -13,6 +13,18 @@ export default function Navbar() {
   const { data: session } = useSession();
   const { user } = useUser();
 
+  // List of test user emails
+  const testUserEmails = [
+    "admin@example.com",
+    "demo@everesthood.com",
+    "test0@example.com",
+    "test1@example.com",
+    "test2@example.com",
+    "test3@example.com",
+    "test4@example.com",
+  ];
+  const isTestUser = user && testUserEmails.includes(user.email);
+
   return (
     <AppBar
       data-testid="navbar"
@@ -71,9 +83,15 @@ export default function Navbar() {
             </Button>
           </Link>
         </Box>
+        {/* Welcome message for logged-in user */}
+        {user?.name && (
+          <Typography variant="subtitle1" sx={{ color: "white", fontWeight: 500, mx: 2 }}>
+            Welcome, {user.name}!
+          </Typography>
+        )}
         {/* Right-aligned icons, upgrade, avatar, logout */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          {user?.subscriptionTier === "FREE" && (
+          {user?.subscriptionTier === "FREE" && !isTestUser && (
             <Link href="/subscribe" style={{ textDecoration: "none" }}>
               <Button
                 variant="contained"

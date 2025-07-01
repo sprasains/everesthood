@@ -50,6 +50,7 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
+          console.log('CredentialsProvider: Missing email or password');
           return null;
         }
 
@@ -57,16 +58,24 @@ export const authOptions: NextAuthOptions = {
           where: { email: credentials.email },
         });
 
-        if (!user || !user.password) {
+        console.log('CredentialsProvider: user from DB:', user);
+        if (!user || !user.passwordHash) {
+          console.log('CredentialsProvider: No user or no password field');
           return null;
         }
 
+        console.log('CredentialsProvider: comparing passwords', {
+          provided: credentials.password,
+          storedHash: user.passwordHash,
+        });
         const isPasswordValid = await bcrypt.compare(
           credentials.password,
-          user.password
+          user.passwordHash
         );
+        console.log('CredentialsProvider: isPasswordValid:', isPasswordValid);
 
         if (!isPasswordValid) {
+          console.log('CredentialsProvider: Password mismatch');
           return null;
         }
 
