@@ -51,3 +51,17 @@ export async function POST(req: NextRequest, { params }: { params: { postId: str
     return NextResponse.json({ liked: false, likeCount });
   }
 }
+
+// GET like status and count for a post
+export async function GET(req: NextRequest, { params }: { params: { postId: string } }) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) return new NextResponse("Unauthorized", { status: 401 });
+  const { postId } = params;
+
+  const likeCount = await prisma.postLike.count({ where: { postId } });
+  const liked = !!(await prisma.postLike.findUnique({
+    where: { userId_postId: { userId: session.user.id, postId } },
+  }));
+
+  return NextResponse.json({ liked, likeCount });
+}

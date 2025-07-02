@@ -41,7 +41,19 @@ export async function GET(request: NextRequest) {
         orderBy,
         skip,
         take: limit,
-        include: {
+        select: {
+          id: true,
+          content: true,
+          authorId: true,
+          createdAt: true,
+          updatedAt: true,
+          type: true,
+          mediaUrls: true,
+          metadata: true,
+          viewCount: true,
+          isDeleted: true,
+          deletedAt: true,
+          commentsJson: true,
           author: { select: { id: true, name: true, profilePicture: true } },
           likes: true,
           _count: { select: { likes: true } },
@@ -51,13 +63,32 @@ export async function GET(request: NextRequest) {
       prisma.post.count({ where }),
     ]);
 
-    const result = posts.map(post => ({
-      ...post,
-      likeCount: post._count.likes,
-      isLiked: userId ? post.likes.some((like: any) => like.userId === userId) : false,
-      likes: undefined,
-      _count: undefined,
-    }));
+    // Helper to add like info to comments recursively
+    function addCommentLikeInfo(comments, userId) {
+      if (!Array.isArray(comments)) return [];
+      return comments.map(comment => ({
+        ...comment,
+        likeCount: Array.isArray(comment.likes) ? comment.likes.length : (comment.likeCount ?? 0),
+        isLiked: Array.isArray(comment.likes) && userId ? comment.likes.some(like => like.userId === userId) : false,
+        replies: addCommentLikeInfo(comment.replies, userId),
+      }));
+    }
+
+    const result = posts.map(post => {
+      // If commentsJson exists, add like info to each comment
+      let commentsJson = post.commentsJson;
+      if (commentsJson) {
+        commentsJson = addCommentLikeInfo(commentsJson, userId);
+      }
+      return {
+        ...post,
+        likeCount: post._count.likes,
+        isLiked: userId ? post.likes.some((like: any) => like.userId === userId) : false,
+        commentsJson,
+        likes: undefined,
+        _count: undefined,
+      };
+    });
 
     return NextResponse.json({
       posts: result,

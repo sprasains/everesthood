@@ -13,6 +13,7 @@ import {
   TextField,
   Button,
 } from "@mui/material";
+import ThreadedComments from '@/components/ui/ThreadedComments';
 // Define minimal Post, User, and Article types for frontend use
 type Post = {
   id: string;
@@ -54,8 +55,6 @@ export default function PostDetailPage() {
   const postId = params?.postId as string | undefined;
 
   const [post, setPost] = useState<PostWithDetails | null>(null);
-  const [comments, setComments] = useState<CommentWithAuthor[]>([]);
-  const [newComment, setNewComment] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -66,10 +65,6 @@ export default function PostDetailPage() {
           // Fetch the main post
           const postRes = await fetch(`/api/v1/posts/${postId}`);
           if (postRes.ok) setPost(await postRes.json());
-
-          // Fetch the comments
-          const commentsRes = await fetch(`/api/v1/posts/${postId}/comments`);
-          if (commentsRes.ok) setComments(await commentsRes.json());
         } catch (error) {
           console.error("Failed to fetch post details:", error);
         } finally {
@@ -79,20 +74,6 @@ export default function PostDetailPage() {
       fetchPostAndComments();
     }
   }, [postId]);
-
-  const handleCommentSubmit = async () => {
-    if (!newComment.trim()) return;
-    const response = await fetch(`/api/v1/posts/${postId}/comments`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ content: newComment }),
-    });
-    if (response.ok) {
-      const addedComment = await response.json();
-      setComments((prev) => [...prev, addedComment]);
-      setNewComment("");
-    }
-  };
 
   if (loading) {
     return (
@@ -157,45 +138,11 @@ export default function PostDetailPage() {
           <Typography variant="h6" sx={{ mt: 4, mb: 2 }}>
             Comments
           </Typography>
-          <Box className="space-y-4">
-            {comments.map((comment) => (
-              <Box key={comment.id} sx={{ display: "flex", gap: 2 }}>
-                <Avatar
-                  src={comment.author.profilePicture || undefined}
-                  sx={{ width: 32, height: 32 }}
-                />
-                <Box>
-                  <Typography variant="body2" fontWeight="bold">
-                    {comment.author.name}
-                  </Typography>
-                  <Typography variant="body2">{comment.content}</Typography>
-                </Box>
-              </Box>
-            ))}
-          </Box>
-
-          {/* Add a Comment */}
-          {user && (
-            <Box sx={{ mt: 4, display: "flex", gap: 2 }}>
-              <Avatar src={user.image || undefined} />
-              <TextField
-                fullWidth
-                variant="outlined"
-                placeholder="Add a comment..."
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    color: "white",
-                    borderRadius: 2,
-                  },
-                }}
-              />
-              <Button variant="contained" onClick={handleCommentSubmit}>
-                Post
-              </Button>
-            </Box>
-          )}
+          <ThreadedComments
+            postId={post.id}
+            currentUserId={user?.id || ''}
+            initialComments={Array.isArray(post.commentsJson) ? post.commentsJson.filter((c: any) => !c.parentId) : []}
+          />
         </Paper>
       </Container>
     </Box>

@@ -7,7 +7,19 @@ import { z } from "zod";
 export async function GET(request: NextRequest, { params }: { params: { postId: string } }) {
   const post = await prisma.post.findUnique({
     where: { id: params.postId, isDeleted: false },
-    include: {
+    select: {
+      id: true,
+      content: true,
+      authorId: true,
+      createdAt: true,
+      title: true,
+      type: true,
+      mediaUrls: true,
+      metadata: true,
+      viewCount: true,
+      isDeleted: true,
+      newsArticleId: true,
+      commentsJson: true,
       author: { select: { id: true, name: true, profilePicture: true } },
     },
   });

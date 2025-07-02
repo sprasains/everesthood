@@ -23,6 +23,7 @@ import { useSnackbar } from 'notistack';
 import RichTextRenderer from './RichTextRenderer';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
+import { useUser } from '@/hooks/useUser';
 
 type PostWithDetails = Post & {
   author: Partial<User>;
@@ -30,6 +31,7 @@ type PostWithDetails = Post & {
   likeCount?: number; // Add likeCount for UI
   viewCount?: number;
   commentCount?: number;
+  isLiked?: boolean;
 };
 
 interface PostCardProps {
@@ -39,7 +41,7 @@ interface PostCardProps {
 export default function PostCard({ post }: PostCardProps) {
   const [refreshComments, setRefreshComments] = useState(0);
   const [likeCount, setLikeCount] = useState(post.likeCount ?? 0);
-  const [liked, setLiked] = useState(false);
+  const [liked, setLiked] = useState(post.isLiked ?? false);
   const [likeLoading, setLikeLoading] = useState(false);
   const { data: session } = useSession();
   const isAuthor = post.authorId === session?.user?.id;
@@ -50,6 +52,9 @@ export default function PostCard({ post }: PostCardProps) {
   const queryClient = useQueryClient();
   const [pop, setPop] = useState(false); // For pop animation
   const commentCount = post.commentCount ?? 0;
+  const { user, updateUser } = useUser();
+  const [tipAmount, setTipAmount] = useState(100);
+  const [tipping, setTipping] = useState(false);
 
   // Edit form
   const { register, handleSubmit, formState: { errors }, reset } = useForm({
@@ -115,21 +120,9 @@ export default function PostCard({ post }: PostCardProps) {
 
   // Fetch like status for current user
   useEffect(() => {
-    async function fetchLikeStatus() {
-      if (!session?.user?.id) return;
-      const res = await fetch(`/api/v1/posts/${post.id}/like`, { method: "GET" });
-      if (res.ok) {
-        const data = await res.json();
-        setLiked(!!data.liked);
-        if (typeof data.likeCount === "number") setLikeCount(data.likeCount);
-      } else {
-        // fallback: fetch like count directly if available
-        setLiked(false);
-        setLikeCount(post.likeCount ?? 0);
-      }
-    }
-    fetchLikeStatus();
-  }, [post.id, session?.user?.id, post.likeCount]);
+    setLikeCount(post.likeCount ?? 0);
+    setLiked(post.isLiked ?? false);
+  }, [post.likeCount, post.isLiked, post.id]);
 
   // Optimistic like mutation
   const likeMutation = useMutation({
@@ -208,7 +201,7 @@ export default function PostCard({ post }: PostCardProps) {
             </Typography>
           </Box>
         </Box>
-        {post.title && (
+        {post?.title && (
           <Typography variant="h6" fontWeight="bold" sx={{ mb: 1 }}>
             {post.title}
           </Typography>
@@ -300,11 +293,6 @@ export default function PostCard({ post }: PostCardProps) {
         )}
       </CardContent>
       <CardActions sx={{ display: 'flex', gap: 2, alignItems: 'center', px: 3, pb: 2 }}>
-        <MuiLink component={Link} href={`/posts/${post.id}`} underline="none">
-          <Button variant="outlined" size="small" color="primary" startIcon={<span role="img" aria-label="comment">💬</span>}>
-            Drop a comment
-          </Button>
-        </MuiLink>
         <Button
           variant={liked ? "contained" : "outlined"}
           size="small"
@@ -370,13 +358,15 @@ export default function PostCard({ post }: PostCardProps) {
         <DialogTitle>Edit Post</DialogTitle>
         <form onSubmit={handleSubmit((data) => editMutation.mutate(data))}>
           <DialogContent>
-            <TextField
-              label="Title"
-              fullWidth
-              margin="normal"
-              defaultValue={post.title}
-              {...register('title' as const)}
-            />
+            {post?.title !== undefined && (
+              <TextField
+                label="Title"
+                fullWidth
+                margin="normal"
+                defaultValue={post.title}
+                {...register('title' as const)}
+              />
+            )}
             <TextField
               label="Content"
               fullWidth
@@ -413,21 +403,63 @@ export default function PostCard({ post }: PostCardProps) {
       </Dialog>
       <CardContent sx={{ pt: 0 }}>
         {/* Threaded Comments Section (Facebook-style) */}
-        <ThreadedComments postId={post.id} currentUserId={session?.user?.id || ""} />
+        <ThreadedComments
+          postId={post.id}
+          currentUserId={session?.user?.id || ""}
+          isAuthor={isAuthor}
+          initialComments={Array.isArray(post.commentsJson) ? post.commentsJson.filter((c: any) => !c.parentId) : []}
+        />
         {/* Tipping Section */}
-        <Box sx={{ display: 'flex', gap: 2, mt: 2, alignItems: 'center' }}>
-          <Typography variant="body2" color="text.secondary">
-            Support the creator by tipping! <span role="img" aria-label="money">💸</span>
-          </Typography>
-          <Button
-            variant="contained"
-            size="small"
-            color="success"
-            onClick={() => enqueueSnackbar('Tipping coming soon! Stay tuned for more ways to support your faves! 🚀', { variant: 'info' })}
-          >
-            Tip Creator
-          </Button>
-        </Box>
+        {!isAuthor && user && (
+          <Box sx={{ display: 'flex', gap: 2, mt: 2, alignItems: 'center', flexWrap: 'wrap' }}>
+            <Typography variant="body2" color="text.secondary">
+              Your Balance: <b>{user.tippingBalance ?? 0} coins</b> (${((user.tippingBalance ?? 0) / 100).toFixed(2)})
+            </Typography>
+            <TextField
+              type="number"
+              size="small"
+              label="Tip (coins)"
+              value={tipAmount}
+              onChange={e => setTipAmount(Math.max(1, Number(e.target.value)))}
+              inputProps={{ min: 1, max: user.tippingBalance ?? 0, step: 1 }}
+              sx={{ width: 120 }}
+              disabled={tipping}
+            />
+            <Typography variant="body2" color="text.secondary">
+              (${(tipAmount / 100).toFixed(2)})
+            </Typography>
+            <Button
+              variant="contained"
+              size="small"
+              color="success"
+              disabled={tipping || tipAmount < 1 || (user.tippingBalance ?? 0) < tipAmount}
+              onClick={async () => {
+                setTipping(true);
+                try {
+                  const res = await fetch(`/api/v1/posts/${post.id}/tip`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount: tipAmount }),
+                  });
+                  if (res.ok) {
+                    enqueueSnackbar('Tip sent!', { variant: 'success' });
+                    // Update user balance in UI
+                    await updateUser({ tippingBalance: (user.tippingBalance ?? 0) - tipAmount });
+                  } else {
+                    const err = await res.text();
+                    enqueueSnackbar(err || 'Failed to tip', { variant: 'error' });
+                  }
+                } catch (e) {
+                  enqueueSnackbar('Failed to tip', { variant: 'error' });
+                } finally {
+                  setTipping(false);
+                }
+              }}
+            >
+              {tipping ? <CircularProgress size={18} /> : 'Tip Creator'}
+            </Button>
+          </Box>
+        )}
         {/* End of Tipping Section */}
       </CardContent>
     </Card>

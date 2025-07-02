@@ -7,8 +7,14 @@ const fetchJobs = async () => {
     const res = await fetch('/api/v1/jobs'); // This endpoint should fetch all jobs
     if (!res.ok) throw new Error('Failed to fetch jobs');
     const data = await res.json();
-    return data.jobs || data; // Adapt based on your API response structure
-}
+    if (Array.isArray(data)) {
+        return data;
+    } else if (Array.isArray(data.jobs)) {
+        return data.jobs;
+    } else {
+        throw new Error(data.error || 'Unknown error');
+    }
+};
 
 export default function OpportunityColumn() {
     const { data: jobs, isLoading, error } = useQuery({ queryKey: ['jobs'], queryFn: fetchJobs });

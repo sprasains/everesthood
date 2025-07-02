@@ -42,6 +42,8 @@ export function useUser() {
           publicProfile: true,
           articlesRead: 0,
           sharesCount: 0,
+          tippingBalance: 0,
+          creatorBalance: 0,
         }
       );
       fetchUserData(session.user.id);
@@ -114,4 +116,6 @@ export interface User {
   sharesCount: number;
   createdAt?: string;
   subscriptionTier?: string;
+  tippingBalance?: number;
+  creatorBalance?: number;
 }

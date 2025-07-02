@@ -1,5 +1,6 @@
 import { prisma } from "../src/lib/prisma";
-import bcrypt from "bcryptjs";
+import * as bcrypt from "bcryptjs";
+import * as crypto from "crypto";
 
 // 20 Gen-Z users with bios and avatars
 const demoUsers = [
@@ -142,20 +143,6 @@ const demoContent = [
 ];
 
 const demoImages = [
-  "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
-  "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
-  "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
-  "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99",
-  "https://images.unsplash.com/photo-1444065381814-865dc9da92c0",
-  "https://images.unsplash.com/photo-1519681393784-d120267933ba",
-  "https://images.unsplash.com/photo-1502082553048-f009c37129b9",
-  "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
-  "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99",
-  "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
-  "https://images.unsplash.com/photo-1519681393784-d120267933ba",
-  "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
-  "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
-  "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99",
   "https://images.unsplash.com/photo-1444065381814-865dc9da92c0",
   "https://images.unsplash.com/photo-1502082553048-f009c37129b9",
   "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
@@ -163,202 +150,26 @@ const demoImages = [
   "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
   "https://images.unsplash.com/photo-1519681393784-d120267933ba",
   "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
-  "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
-  "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99",
-  "https://images.unsplash.com/photo-1444065381814-865dc9da92c0",
-  "https://images.unsplash.com/photo-1502082553048-f009c37129b9",
-  "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
-  "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99",
-  "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
-  "https://images.unsplash.com/photo-1519681393784-d120267933ba",
-  "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
-  "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
-  "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99",
-  "https://images.unsplash.com/photo-1444065381814-865dc9da92c0",
-  "https://images.unsplash.com/photo-1502082553048-f009c37129b9",
-  "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
-  "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99",
-  "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
-  "https://images.unsplash.com/photo-1519681393784-d120267933ba",
-  "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
-  "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
-  "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99",
-  "https://images.unsplash.com/photo-1444065381814-865dc9da92c0",
-  "https://images.unsplash.com/photo-1502082553048-f009c37129b9",
-  "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
-  "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99",
-  "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
-  "https://images.unsplash.com/photo-1519681393784-d120267933ba",
-  "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
-  "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
-  "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99",
-  "https://images.unsplash.com/photo-1444065381814-865dc9da92c0",
-  "https://images.unsplash.com/photo-1502082553048-f009c37129b9",
-  "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
-  "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99",
-  "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
-  "https://images.unsplash.com/photo-1519681393784-d120267933ba",
-  "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
-  "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
-  "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99",
-  "https://images.unsplash.com/photo-1444065381814-865dc9da92c0",
-  "https://images.unsplash.com/photo-1502082553048-f009c37129b9",
-  "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
-  "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99",
-  "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
-  "https://images.unsplash.com/photo-1519681393784-d120267933ba",
-  "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
-  "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
-  "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99",
-  "https://images.unsplash.com/photo-1444065381814-865dc9da92c0",
-  "https://images.unsplash.com/photo-1502082553048-f009c37129b9",
-  "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
-  "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99",
-  "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
-  "https://images.unsplash.com/photo-1519681393784-d120267933ba",
-  "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
-  "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
-  "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99",
-  "https://images.unsplash.com/photo-1444065381814-865dc9da92c0",
-  "https://images.unsplash.com/photo-1502082553048-f009c37129b9",
-  "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
-  "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99",
-  "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
-  "https://images.unsplash.com/photo-1519681393784-d120267933ba",
-  "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
-  "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
-  "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99",
-  "https://images.unsplash.com/photo-1444065381814-865dc9da92c0",
-  "https://images.unsplash.com/photo-1502082553048-f009c37129b9",
-  "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
-  "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99",
-  "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
-  "https://images.unsplash.com/photo-1519681393784-d120267933ba",
-  "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
-  "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
-  "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99",
-  "https://images.unsplash.com/photo-1444065381814-865dc9da92c0",
-  "https://images.unsplash.com/photo-1502082553048-f009c37129b9",
-  "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
-  "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99",
-  "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
-  "https://images.unsplash.com/photo-1519681393784-d120267933ba",
-  "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
-  "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
-  "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99",
-  "https://images.unsplash.com/photo-1444065381814-865dc9da92c0",
-  "https://images.unsplash.com/photo-1502082553048-f009c37129b9",
-  "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
-  "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99",
-  "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
-  "https://images.unsplash.com/photo-1519681393784-d120267933ba",
-  "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
-  "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
-  "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99",
-  "https://images.unsplash.com/photo-1444065381814-865dc9da92c0",
-  "https://images.unsplash.com/photo-1502082553048-f009c37129b9",
-  "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
-  "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99",
-  "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
-  "https://images.unsplash.com/photo-1519681393784-d120267933ba",
-  "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
-  "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
-  "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99",
-  "https://images.unsplash.com/photo-1444065381814-865dc9da92c0",
-  "https://images.unsplash.com/photo-1502082553048-f009c37129b9",
-  "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
-  "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99",
-  "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
-  "https://images.unsplash.com/photo-1519681393784-d120267933ba",
-  "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
-  "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
-  "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99",
-  "https://images.unsplash.com/photo-1444065381814-865dc9da92c0",
-  "https://images.unsplash.com/photo-1502082553048-f009c37129b9",
-  "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
-  "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99",
-  "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
-  "https://images.unsplash.com/photo-1519681393784-d120267933ba",
-  "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
-  "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
-  "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99",
-  "https://images.unsplash.com/photo-1444065381814-865dc9da92c0",
-  "https://images.unsplash.com/photo-1502082553048-f009c37129b9",
-  "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
-  "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99",
-  "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
-  "https://images.unsplash.com/photo-1519681393784-d120267933ba",
-  "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
-  "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
-  "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99",
+  "https://images.unsplash.com/photo-1465101054584-6d4a5b0b0b8e",
+  "https://images.unsplash.com/photo-1465101060973-3c2c1b1b1b1b",
+  "https://images.unsplash.com/photo-1465101071234-4d4d4d4d4d4d",
+  "https://images.unsplash.com/photo-1465101082345-5e5e5e5e5e5e",
+  "https://images.unsplash.com/photo-1465101093456-6f6f6f6f6f6f",
+  "https://images.unsplash.com/photo-1465101104567-7a7a7a7a7a7a",
+  "https://images.unsplash.com/photo-1465101115678-8b8b8b8b8b8b",
+  "https://images.unsplash.com/photo-1465101126789-9c9c9c9c9c9c",
+  "https://images.unsplash.com/photo-1465101137890-0d0d0d0d0d0d",
+  "https://images.unsplash.com/photo-1465101148901-1e1e1e1e1e1e",
+  "https://images.unsplash.com/photo-1465101159012-2f2f2f2f2f2f",
+  "https://images.unsplash.com/photo-1465101160123-3a3a3a3a3a3a",
+  "https://images.unsplash.com/photo-1465101171234-4b4b4b4b4b4b",
+  "https://images.unsplash.com/photo-1465101182345-5c5c5c5c5c5c",
+  "https://images.unsplash.com/photo-1465101193456-6d6d6d6d6d6d",
+  "https://images.unsplash.com/photo-1465101204567-7e7e7e7e7e7e",
+  "https://images.unsplash.com/photo-1465101215678-8f8f8f8f8f8f",
+  "https://images.unsplash.com/photo-1465101226789-9a9a9a9a9a9a",
+  "https://images.unsplash.com/photo-1465101237890-0b0b0b0b0b0b",
+  "https://images.unsplash.com/photo-1465101248901-1c1c1c1c1c1c",
+  "https://images.unsplash.com/photo-1465101259012-2d2d2d2d2d2d",
+  "https://images.unsplash.com/photo-1465101260123-3e3e3e3e3e3e",
 ];
-
-async function main() {
-  // Seed users
-  const userIds: string[] = [];
-  for (const user of demoUsers) {
-    const hashed = await bcrypt.hash(user.password, 10);
-    const dbUser = await prisma.user.upsert({
-      where: { email: user.email },
-      update: {},
-      create: {
-        name: user.name,
-        email: user.email,
-        passwordHash: hashed,
-        profilePicture: user.image,
-        bio: user.bio,
-      },
-    });
-    userIds.push(dbUser.id);
-  }
-
-  // Main test user follows 7 others (not everyone)
-  const mainUserId = userIds[0];
-  for (let i = 1; i <= 7; i++) {
-    await prisma.friendship.upsert({
-      where: { requesterId_receiverId: { requesterId: mainUserId, receiverId: userIds[i] } },
-      update: {},
-      create: { requesterId: mainUserId, receiverId: userIds[i], status: "ACCEPTED" },
-    });
-    await prisma.friendship.upsert({
-      where: { requesterId_receiverId: { requesterId: userIds[i], receiverId: mainUserId } },
-      update: {},
-      create: { requesterId: userIds[i], receiverId: mainUserId, status: "ACCEPTED" },
-    });
-  }
-
-  // Seed posts (50+), distributed among users
-  let postIds: string[] = [];
-  for (let i = 0; i < 50; i++) {
-    const authorIdx = i % userIds.length;
-    const post = await prisma.post.create({
-      data: {
-        content: { text: demoPosts[i % demoPosts.length], body: demoContent[i % demoContent.length] },
-        authorId: userIds[authorIdx],
-        metadata: { image: demoImages[i % demoImages.length] },
-      },
-    });
-    postIds.push(post.id);
-  }
-
-  // Add likes to make some posts popular
-  for (let i = 0; i < postIds.length; i++) {
-    // First 10 posts get 10 likes each, next 10 get 5, rest get 1-3
-    let likeCount = i < 10 ? 10 : i < 20 ? 5 : Math.floor(Math.random() * 3) + 1;
-    const shuffled = [...userIds].sort(() => 0.5 - Math.random());
-    for (let j = 0; j < likeCount; j++) {
-      await prisma.postLike.upsert({
-        where: { userId_postId: { userId: shuffled[j], postId: postIds[i] } },
-        update: {},
-        create: { userId: shuffled[j], postId: postIds[i] },
-      });
-    }
-  }
-
-  console.log("Seeded 20 users, 50+ posts, realistic follows, and likes for a vibrant Gen-Z feed.");
-}
-
-main().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});

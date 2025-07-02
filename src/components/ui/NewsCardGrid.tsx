@@ -2,6 +2,7 @@
 import { Card, CardActionArea, CardMedia, CardContent, Typography } from '@mui/material';
 import { motion } from 'framer-motion';
 import NewsLikeButton from './NewsLikeButton';
+import { orange } from '@mui/material/colors';
 
 interface NewsCardGridProps {
   article: {
@@ -30,6 +31,7 @@ export default function NewsCardGrid({ article }: NewsCardGridProps) {
           flexDirection: 'column',
           borderRadius: 4,
           boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+          border: `2.5px solid ${orange[500]}`
         }}
       >
         <CardActionArea href={article.link} target="_blank" rel="noopener noreferrer" sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>

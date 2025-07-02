@@ -108,6 +108,41 @@ async function seedPostsForUsers(users: User[], prisma: PrismaClient) {
   console.log(`✅  Successfully created ${postsCreated} additional posts.`);
 }
 
+// --- Guided Journaling Prompts Seed ---
+const journalPrompts = [
+  { promptText: "What are three things you're grateful for today?", category: "GRATITUDE" },
+  { promptText: "Who made a positive impact on your life recently?", category: "GRATITUDE" },
+  { promptText: "Describe a small joy you experienced today.", category: "GRATITUDE" },
+  { promptText: "What is something about your health you appreciate?", category: "GRATITUDE" },
+  { promptText: "Recall a recent act of kindness you received.", category: "GRATITUDE" },
+  { promptText: "What challenged you today, and how did you respond?", category: "REFLECTION" },
+  { promptText: "Describe a moment you felt proud of yourself.", category: "REFLECTION" },
+  { promptText: "What did you learn about yourself this week?", category: "REFLECTION" },
+  { promptText: "How did you handle stress or frustration today?", category: "REFLECTION" },
+  { promptText: "What would you do differently if you could relive today?", category: "REFLECTION" },
+  { promptText: "What is one goal you want to focus on tomorrow?", category: "GOAL_SETTING" },
+  { promptText: "List a habit you want to build and why.", category: "GOAL_SETTING" },
+  { promptText: "What is a small step you can take toward a big dream?", category: "GOAL_SETTING" },
+  { promptText: "How will you measure your progress this week?", category: "GOAL_SETTING" },
+  { promptText: "What is a skill you want to improve?", category: "GOAL_SETTING" },
+  { promptText: "Describe a place where you feel most at peace.", category: "REFLECTION" },
+  { promptText: "What is something you're looking forward to?", category: "GOAL_SETTING" },
+  { promptText: "Who inspires you and why?", category: "REFLECTION" },
+  { promptText: "What is a recent accomplishment you're proud of?", category: "GRATITUDE" },
+  { promptText: "How did you show kindness to yourself today?", category: "GRATITUDE" },
+];
+
+async function seedJournalPrompts(prisma: any) {
+  for (const prompt of journalPrompts) {
+    await prisma.journalPrompt.upsert({
+      where: { promptText: prompt.promptText },
+      update: {},
+      create: prompt,
+    });
+  }
+  console.log('Seeded journal prompts!');
+}
+
 async function main() {
   console.log('🧹 Clearing old data...');
   // await prisma.appnotification.deleteMany(); // Remove or comment out, as this model does not exist
@@ -466,12 +501,139 @@ async function main() {
     skipDuplicates: true,
   });
 
+  // Seed Money & Hustle Guides
+  // @ts-expect-error: guide model may not exist until migration is run
+  await prisma.guide.createMany({
+    data: [
+      {
+        title: "How to Create Your First Budget",
+        slug: "create-your-first-budget",
+        shortDescription: "A step-by-step guide to building your first personal budget.",
+        coverImageUrl: "/images/guides/budget.jpg",
+        category: "FINANCE",
+        content: `# How to Create Your First Budget\n\nLearn how to take control of your money with a simple, effective budget.\n\n## Step 1: List Your Income\n...`,
+        author: "Alex Morgan",
+        publishedAt: new Date("2024-06-01T10:00:00Z"),
+      },
+      {
+        title: "Decoding Your Paycheck",
+        slug: "decoding-your-paycheck",
+        shortDescription: "Understand what all those deductions and numbers mean on your pay stub.",
+        coverImageUrl: "/images/guides/paycheck.jpg",
+        category: "FINANCE",
+        content: `# Decoding Your Paycheck\n\nEver wondered where your money goes? Let's break down your pay stub.\n\n## Gross vs. Net Pay\n...`,
+        author: "Jamie Lee",
+        publishedAt: new Date("2024-06-05T14:30:00Z"),
+      },
+      {
+        title: "5 Steps to Start a Side Hustle",
+        slug: "5-steps-to-start-a-side-hustle",
+        shortDescription: "Turn your skills and passions into extra income with these actionable steps.",
+        coverImageUrl: "/images/guides/side-hustle.jpg",
+        category: "CAREER",
+        content: `# 5 Steps to Start a Side Hustle\n\nReady to earn more? Here are five steps to launch your side gig.\n\n## 1. Identify Your Skills\n...`,
+        author: "Taylor Brooks",
+        publishedAt: new Date("2024-06-10T09:00:00Z"),
+      },
+      {
+        title: "Building a Winning Resume",
+        slug: "building-a-winning-resume",
+        shortDescription: "Tips and tricks to make your resume stand out to employers.",
+        coverImageUrl: "/images/guides/resume.jpg",
+        category: "CAREER",
+        content: `# Building a Winning Resume\n\nYour resume is your first impression. Make it count!\n\n## Highlight Your Achievements\n...`,
+        author: "Morgan Smith",
+        publishedAt: new Date("2024-06-15T16:45:00Z"),
+      },
+    ],
+    skipDuplicates: true,
+  });
+
+  // Seed demo Digital Detox Plans
+  await prisma.digitalDetoxPlan.create({
+    data: {
+      title: "7-Day Social Media Detox",
+      description: "Take a break from social media and reclaim your focus with this 7-day plan.",
+      coverImage: "/images/detox/social-media.jpg",
+      tasks: {
+        create: [
+          { day: 1, title: "Awareness Day", content: "Track your social media usage today.", order: 1 },
+          { day: 2, title: "Notification Cleanse", content: "Turn off non-essential notifications.", order: 1 },
+          { day: 3, title: "App Audit", content: "Uninstall or hide distracting apps.", order: 1 },
+          { day: 4, title: "Offline Challenge", content: "Spend 2 hours device-free.", order: 1 },
+          { day: 5, title: "Mindful Mornings", content: "No phone for 1 hour after waking.", order: 1 },
+          { day: 6, title: "Social Swap", content: "Replace 30 minutes of scrolling with a hobby.", order: 1 },
+          { day: 7, title: "Reflection & Plan", content: "Reflect on your week and set new boundaries.", order: 1 },
+        ],
+      },
+    },
+  });
+
+  await prisma.digitalDetoxPlan.create({
+    data: {
+      title: "5-Day Digital Declutter",
+      description: "Declutter your digital life and boost productivity in 5 days.",
+      coverImage: "/images/detox/declutter.jpg",
+      tasks: {
+        create: [
+          { day: 1, title: "Inbox Zero", content: "Clean up your email inbox.", order: 1 },
+          { day: 2, title: "Photo Purge", content: "Delete unnecessary photos from your phone.", order: 1 },
+          { day: 3, title: "Unsubscribe Day", content: "Unsubscribe from unwanted emails.", order: 1 },
+          { day: 4, title: "File Organization", content: "Organize files on your desktop/cloud.", order: 1 },
+          { day: 5, title: "App Audit", content: "Remove unused apps and update passwords.", order: 1 },
+        ],
+      },
+    },
+  });
+
   console.log('🌱 Seeding complete!');
 
   const allTasks = await prisma.task.findMany();
   console.log('✅ Sample tasks:', allTasks.slice(0,2));
   const allTips = await prisma.productivityTip.findMany();
   console.log('💡 Sample productivity tips:', allTips.slice(0,2));
+
+  // At the end of your main seed function:
+  await seedJournalPrompts(prisma);
+
+  // Place this at the end of your main seed function, after all other seeding
+  const analyticsGuides = await prisma.guide.findMany();
+  const analyticsUsers = await prisma.user.findMany({ take: 3 });
+  if (analyticsGuides.length && analyticsUsers.length) {
+    for (const guide of analyticsGuides) {
+      // Add random views
+      for (let i = 0; i < Math.floor(Math.random() * 20) + 5; i++) {
+        await prisma.guideView.create({
+          data: {
+            guideId: guide.id,
+            userId: analyticsUsers[Math.floor(Math.random() * analyticsUsers.length)].id,
+            viewedAt: new Date(Date.now() - Math.floor(Math.random() * 7) * 24 * 60 * 60 * 1000),
+          },
+        });
+      }
+      // Add random favorites
+      for (let i = 0; i < Math.floor(Math.random() * analyticsUsers.length); i++) {
+        await prisma.guideFavorite.create({
+          data: {
+            guideId: guide.id,
+            userId: analyticsUsers[i].id,
+            favoritedAt: new Date(Date.now() - Math.floor(Math.random() * 7) * 24 * 60 * 60 * 1000),
+          },
+        });
+      }
+    }
+  }
+
+  // Seed Digital Detox Achievements
+  await prisma.achievement.createMany({
+    data: [
+      { name: "First Detox Day", description: "Complete your first digital detox task.", icon: "��", xpReward: 10 },
+      { name: "Streak Starter", description: "Complete tasks 2 days in a row.", icon: "��", xpReward: 20 },
+      { name: "Detox Master", description: "Complete all tasks in a digital detox plan.", icon: "🏆", xpReward: 50 },
+      { name: "Consistency Champ", description: "Complete a task every day for a week.", icon: "💪", xpReward: 100 },
+    ],
+    skipDuplicates: true,
+  });
 }
 
 main()

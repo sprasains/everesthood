@@ -5,14 +5,18 @@ import { authOptions } from "@/lib/auth";
 
 // GET all active jobs (publicly accessible)
 export async function GET(req: NextRequest) {
-    const jobs = await prisma.job.findMany({
-        where: { isActive: true },
-        orderBy: [
-          { createdAt: 'desc' }
-        ],
-        take: 50,
-    });
-    return NextResponse.json({ jobs });
+    try {
+        const jobs = await prisma.job.findMany({
+            where: { isActive: true },
+            orderBy: [
+              { createdAt: 'desc' }
+            ],
+            take: 50,
+        });
+        return NextResponse.json({ jobs });
+    } catch (error) {
+        return NextResponse.json({ jobs: [], error: 'Failed to fetch jobs.' }, { status: 500 });
+    }
 }
 
 // POST a new job (protected, requires a company profile)
