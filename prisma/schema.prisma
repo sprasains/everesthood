@@ -270,6 +270,27 @@ model NewsArticleLike {
   @@id([userId, newsArticleId])
 }
 
+model GenZContent {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  content     String?
+  sourceName  String
+  sourceUrl   String   @unique
+  imageUrl    String?
+  publishedAt DateTime?
+  category    String?
+  tags        String[]
+  engagement  Int      @default(0)
+  createdAt   DateTime @default(now())
+}
+
+model DailyDigest {
+  id      Int      @id @default(1)
+  content String
+  createdAt DateTime @default(now())
+}
+
 // #############################################################################
 // ## Social Graph & Community Models
 // #############################################################################
@@ -429,6 +450,10 @@ model Job {
   company      Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
   applications JobApplication[]
   createdAt    DateTime         @default(now())
+  externalUrl  String? @unique
+  publishedAt  DateTime?
+  source       String?
+  companyName  String?
 
   @@index([companyId])
 }
@@ -783,4 +808,12 @@ model DigitalDetoxProgress {
   completedAt DateTime?
 
   @@unique([userId, taskId])
+}
+
+model AICache {
+  id        String   @id @default(cuid())
+  prompt    String   @unique
+  content   String
+  provider  String
+  createdAt DateTime @default(now())
 }
