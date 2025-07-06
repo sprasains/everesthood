@@ -1,87 +1,10 @@
 # Page snapshot
 
 ```yaml
-- complementary:
-  - heading "Everhood" [level=5]
-  - text: Main
-  - list:
-    - listitem:
-      - link "Dashboard":
-        - /url: /dashboard
-    - listitem:
-      - link "News Feed":
-        - /url: /news
-    - listitem:
-      - link "Community":
-        - /url: /community
-    - listitem:
-      - link "Opportunities":
-        - /url: /careers
-    - listitem:
-      - link "Exclusive Content":
-        - /url: /exclusive
-  - separator
-  - text: User
-  - list:
-    - listitem:
-      - link "My Profile":
-        - /url: /profile
-    - listitem:
-      - link "My Friends":
-        - /url: /friends
-    - listitem:
-      - link "Achievements":
-        - /url: /achievements
-    - listitem:
-      - link "AI Personas":
-        - /url: /settings/personas
-    - listitem:
-      - link "Settings":
-        - /url: /settings
-    - listitem:
-      - link "Subscription":
-        - /url: /billing
-  - separator
-  - text: Tools
-  - list:
-    - listitem:
-      - link "Analytics Dashboard":
-        - /url: /dashboard/analytics
-    - listitem:
-      - link "Resume Vibe Check":
-        - /url: /tools/resume-checker
-    - listitem:
-      - link "Creator API":
-        - /url: /settings/api
-  - separator
-  - text: Monetization
-  - list:
-    - listitem:
-      - link "Profile Spotlight":
-        - /url: /profile/spotlight
-    - listitem:
-      - link "Tipping Credits":
-        - /url: /wallet
-  - separator
-  - heading "AI Opportunities" [level=6]
-  - list
-  - link "View All...":
-    - /url: /careers
-- main:
-  - link "E Everesthood":
-    - /url: /
-    - heading "E Everesthood" [level=6]
-  - link "📊 Dashboard":
-    - /url: /dashboard
-    - button "📊 Dashboard"
-  - link "🌟 Gen-Z Content":
-    - /url: /genz
-    - button "🌟 Gen-Z Content"
-  - button "notifications": "0"
-  - button
-  - button
-  - heading "Opportunities" [level=3]
-  - textbox "Search jobs..."
-  - paragraph: No jobs found.
 - alert
+- dialog "Failed to compile":
+  - heading "Failed to compile" [level=4]
+  - text: "./app/(main)/careers/page.tsx:3:0 Module not found: Can't resolve '@heroicons/react/24/outline' 1 | \"use client\"; 2 | import React, { useEffect, useState } from \"react\"; > 3 | import { BriefcaseIcon, MapPinIcon, BuildingOffice2Icon, ArrowTopRightOnSquareIcon, Squares2X2Icon, Bars3Icon, GlobeAltIcon } from '@heroicons/react/24/outline'; 4 | import { Card, CardActionArea, CardMedia, CardContent, Typography, Box, Button, Paper, Container, ToggleButton, ToggleButtonGroup, Grid, CircularProgress } from '@mui/material'; 5 | import ArrowForwardIcon from '@mui/icons-material/ArrowForward'; 6 | import ViewModuleIcon from '@mui/icons-material/ViewModule'; https://nextjs.org/docs/messages/module-not-found"
+  - contentinfo:
+    - paragraph: This error occurred during the build process and can only be dismissed by fixing the error.
 ```

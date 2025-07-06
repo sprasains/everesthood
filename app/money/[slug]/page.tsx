@@ -1,3 +1,6 @@
+"use client";
+
+import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -81,7 +84,7 @@ function GuideClient({ guide }: { guide: any }) {
         )}
       </div>
       <h1 className="text-3xl font-bold mb-4">{guide.title}</h1>
-      <img src={guide.coverImageUrl} alt={guide.title} className="rounded-lg mb-6 w-full max-h-72 object-cover" />
+      <Image src={guide.coverImageUrl} alt={guide.title} width={800} height={400} className="rounded-lg mb-6 w-full max-h-72 object-cover" />
       <div className="flex gap-2 mb-6">
         <button className="text-xs bg-gray-100 px-2 py-1 rounded hover:bg-gray-200" onClick={() => share("copy")}>Copy Link</button>
         <button className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200" onClick={() => share("twitter")}>Share on Twitter</button>

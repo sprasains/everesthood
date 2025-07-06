@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 
@@ -106,7 +107,7 @@ export default function MoneyHubPage() {
             <div key={guide.slug} className="relative group">
               <Link href={`/money/${guide.slug}`} className="block">
                 <div className="rounded-lg shadow-lg bg-white hover:shadow-2xl transition overflow-hidden flex flex-col h-full">
-                  <img src={guide.coverImageUrl} alt={guide.title} className="h-40 w-full object-cover" />
+                  <Image src={guide.coverImageUrl} alt={guide.title} width={400} height={160} className="h-40 w-full object-cover" />
                   <div className="p-4 flex-1 flex flex-col">
                     <span className={`inline-block mb-2 px-2 py-1 text-xs rounded-full font-semibold ${guide.category === "FINANCE" ? "bg-green-100 text-green-700" : "bg-blue-100 text-blue-700"}`}>{guide.category === "FINANCE" ? "Finance" : "Career"}</span>
                     <h2 className="text-lg font-semibold mb-1 group-hover:text-blue-600 transition">{guide.title}</h2>

@@ -140,7 +140,7 @@ export default function AnalyticsPage() {
       <div className="bg-white rounded-lg shadow p-6">
         <h2 className="text-xl font-semibold mb-4">Insights & Tips</h2>
         <ul className="list-disc pl-6 text-gray-700 space-y-2">
-          <li>"5 Steps to Start a Side Hustle" is the most favorited guide.</li>
+          <li>&quot;5 Steps to Start a Side Hustle&quot; is the most favorited guide.</li>
           <li>Finance and Career guides are equally popular among users.</li>
           <li>Reading activity peaks mid-week; consider publishing new guides on Wednesdays.</li>
           <li>Encourage users to favorite guides for quick access and recommendations.</li>

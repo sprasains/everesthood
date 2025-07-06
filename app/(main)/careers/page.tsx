@@ -227,7 +227,7 @@ export default function CareersPage() {
         ) : view === 'grid' ? (
           <Grid container spacing={2}>
             {jobs.map((job) => (
-              <Grid item xs={12} sm={6} md={4} key={job.job_id}>
+              <Grid xs={12} sm={6} md={4} key={job.job_id}>
                 <JobCardGrid job={job} onSalary={() => setSalaryModal({ open: true, jobTitle: job.job_title, location: job.job_city || job.job_state || '' })} />
               </Grid>
             ))}

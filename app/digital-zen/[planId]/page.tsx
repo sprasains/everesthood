@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import React, { useEffect, useState, useMemo } from "react";
 import { useParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -168,7 +169,7 @@ export default function DigitalZenPlanPage() {
             </div>
           )}
           <div className="flex flex-col sm:flex-row gap-6 mb-8 items-center">
-            <img src={plan.coverImage} alt={plan.title} className="rounded-lg w-full sm:w-64 h-40 object-cover" />
+            <Image src={plan.coverImage} alt={plan.title} width={256} height={160} className="rounded-lg w-full sm:w-64 h-40 object-cover" />
             <div>
               <h1 className="text-3xl font-bold mb-2">{plan.title}</h1>
               <p className="text-gray-600 mb-2">{plan.description}</p>

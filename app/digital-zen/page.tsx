@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 
@@ -34,7 +35,7 @@ export default function DigitalZenPlansPage() {
           {plans.map((plan) => (
             <Link key={plan.id} href={`/digital-zen/${plan.id}`} className="block group">
               <div className="rounded-lg shadow-lg bg-white hover:shadow-2xl transition overflow-hidden flex flex-col h-full border border-gray-100 hover:border-blue-400">
-                <img src={plan.coverImage} alt={plan.title} className="h-40 w-full object-cover" />
+                <Image src={plan.coverImage} alt={plan.title} width={400} height={160} className="h-40 w-full object-cover" />
                 <div className="p-4 flex-1 flex flex-col">
                   <h2 className="text-lg font-semibold mb-2 group-hover:text-blue-600 transition">{plan.title}</h2>
                   <p className="text-gray-600 text-sm flex-1">{plan.description}</p>

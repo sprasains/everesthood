@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "prisma generate",
+    "postinstall": "prisma generate --schema=src/prisma/schema.prisma",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
@@ -61,6 +61,7 @@
     "next": "14.0.0",
     "next-auth": "^4.24.5",
     "next-pwa": "^5.6.0",
+    "node-cron": "^4.2.0",
     "notistack": "^3.0.2",
     "nprogress": "^0.2.0",
     "react": "^18.2.0",
@@ -69,6 +70,7 @@
     "react-hook-form": "^7.58.1",
     "react-intersection-observer": "^9.16.0",
     "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
     "rss-parser": "^3.13.0",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
@@ -100,6 +102,6 @@
     "typescript": "^5.8.3"
   },
   "prisma": {
-    "seed": "ts-node prisma/seed.ts"
+    "seed": "ts-node src/prisma/seed.ts"
   }
 }

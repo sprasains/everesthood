@@ -4,12 +4,12 @@ import { Box, Container, Typography, Button, Paper, CircularProgress } from '@mu
 import { useRequireAuth, AuthLoading } from "@/hooks/useRequireAuth";
 
 export default function ResumeCheckerPage() {
-    const { user, loading } = useRequireAuth();
-    if (loading || !user) return <AuthLoading />;
-
+    const { user, loading: authLoading } = useRequireAuth();
     const [file, setFile] = useState<File | null>(null);
     const [feedback, setFeedback] = useState("");
     const [loading, setLoading] = useState(false);
+
+    if (authLoading || !user) return <AuthLoading />;
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) setFile(e.target.files[0]);
