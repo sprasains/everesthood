@@ -50,7 +50,7 @@ const fetchAchievementsCount = async () => {
 };
 
 export default function DashboardPage() {
-  const { user, loading } = useUser();
+  const { user, isLoading } = useUser();
   const router = useRouter();
   const theme = useTheme();
   const { data: postsData, isLoading: postsLoading } = useQuery({
@@ -73,11 +73,11 @@ export default function DashboardPage() {
   ], []);
   // Redirect if not authenticated
   useEffect(() => {
-    if (!loading && !user) {
+    if (!isLoading && !user) {
       router.replace("/auth/signin");
     }
-  }, [user, loading, router]);
-  if (loading || !user) {
+  }, [user, isLoading, router]);
+  if (isLoading || !user) {
     return <CircularProgress />;
   }
   // Use image or fallback

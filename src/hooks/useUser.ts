@@ -19,6 +19,9 @@ export function useUser() {
   };
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const error = status === "unauthenticated" ? "Not authenticated" : undefined;
+  // If your user object has a 'role' property, use it; otherwise, default to false
+  const isAdmin = session && (session.user as any).role === "ADMIN";
 
   useEffect(() => {
     if (status === "loading") return;
@@ -89,7 +92,10 @@ export function useUser() {
 
   return {
     user,
-    loading,
+    status,
+    isLoading,
+    isAdmin,
+    error,
     updateUser,
     isAuthenticated: !!session,
     isPremium: user?.subscriptionTier === "PREMIUM",

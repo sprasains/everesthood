@@ -1,21 +1,21 @@
+import { useUser } from '@/hooks/useUser';
 import { useEffect } from "react";
-import { useUser } from "@/hooks/useUser";
 import { useRouter } from "next/navigation";
 import CircularProgress from "@mui/material/CircularProgress";
 
 /**
  * Hook to require authentication on a page. Redirects to /auth/signin if not logged in.
- * Returns { user, loading } from useUser().
+ * Returns { user, isLoading } from useUser().
  */
 export function useRequireAuth() {
-  const { user, loading } = useUser();
+  const { user, isLoading } = useUser();
   const router = useRouter();
   useEffect(() => {
-    if (!loading && !user) {
+    if (!isLoading && !user) {
       router.replace("/auth/signin");
     }
-  }, [user, loading, router]);
-  return { user, loading };
+  }, [user, isLoading, router]);
+  return { user, isLoading };
 }
 
 /**

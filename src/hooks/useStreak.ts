@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { useUser } from "./useUser"
+import { useUser } from "@/hooks/useUser"
 
 export function useStreak() {
   const { user, updateUser } = useUser()

@@ -1,7 +1,7 @@
 "use client";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
-import { useUser } from "@/hooks/useUser"; // Assuming this hook is correctly set up
+import { useUser } from "@/hooks/useUser";
 import PersonaSelector from "@/components/ui/PersonaSelector";
 import StreakDisplay from "@/components/ui/StreakDisplay";
 import PersonIcon from "@mui/icons-material/Person";
@@ -34,7 +34,7 @@ const SkeletonLoader = () => (
 );
 
 export default function ProfilePage() {
-  const { user, updateUser, loading } = useUser();
+  const { user, updateUser, isLoading } = useUser();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("overview");
   const [isEditing, setIsEditing] = useState(false);
@@ -63,10 +63,10 @@ export default function ProfilePage() {
   }, [session?.user?.id]);
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!isLoading && !user) {
       router.replace("/auth/signin");
     }
-  }, [user, loading, router]);
+  }, [user, isLoading, router]);
 
   const handleSave = async () => {
     await updateUser(formData);
@@ -97,7 +97,7 @@ export default function ProfilePage() {
     { id: "settings", name: "Settings", icon: <SettingsIcon /> },
   ];
 
-  if (loading || !user) {
+  if (isLoading || !user) {
     return <CircularProgress />;
   }
 

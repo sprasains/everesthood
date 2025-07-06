@@ -6,14 +6,14 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function SettingsPage() {
-  const { user, loading } = useUser();
+  const { user, isLoading } = useUser();
   const router = useRouter();
   useEffect(() => {
-    if (!loading && !user) {
+    if (!isLoading && !user) {
       router.replace("/auth/signin");
     }
-  }, [user, loading, router]);
-  if (loading || !user) {
+  }, [user, isLoading, router]);
+  if (isLoading || !user) {
     return <CircularProgress />;
   }
   return (
