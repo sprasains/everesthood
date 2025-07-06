@@ -24,6 +24,7 @@ interface AgentInstance {
   configOverride: Record<string, any> | null;
   webhookUrl?: string | null;
   nextAgentInstanceId?: string | null;
+  cronSchedule?: string | null;
 }
 
 interface AgentInstanceListItem {
@@ -45,6 +46,7 @@ export default function AgentInstanceDetailPage() {
   const [nextAgent, setNextAgent] = useState<string | null>(null);
   const [customConfig, setCustomConfig] = useState<string>('{}'); // For JSON string input
   const [availableAgents, setAvailableAgents] = useState<AgentInstanceListItem[]>([]);
+  const [cronSchedule, setCronSchedule] = useState('');
 
   useEffect(() => {
     if (id) {
@@ -63,6 +65,7 @@ export default function AgentInstanceDetailPage() {
           setWebhookUrl(instanceData.webhookUrl || '');
           setNextAgent(instanceData.nextAgentInstanceId || null);
           setCustomConfig(JSON.stringify(instanceData.configOverride || {}, null, 2));
+          setCronSchedule(instanceData.cronSchedule || '');
 
           // Fetch all available agent instances for chaining
           const agentsResponse = await fetch('/api/v1/agent-instances');
@@ -102,7 +105,8 @@ export default function AgentInstanceDetailPage() {
           name: instanceName,
           configOverride: configOverride,
           webhookUrl: webhookUrl,
-          nextAgentInstanceId: nextAgent, // Save the selected next agent
+          nextAgentInstanceId: nextAgent,
+          cronSchedule: cronSchedule || null,
         }),
       });
 
@@ -209,6 +213,19 @@ export default function AgentInstanceDetailPage() {
             </Select>
             <p className="text-sm text-gray-500 mt-2">
               Select another agent to automatically run after this agent completes successfully.
+            </p>
+          </div>
+          <div>
+            <Label htmlFor="cronSchedule">Cron Schedule</Label>
+            <Input
+              id="cronSchedule"
+              value={cronSchedule}
+              onChange={(e) => setCronSchedule(e.target.value)}
+              placeholder="e.g., 0 5 * * *"
+            />
+            <p className="text-sm text-gray-500 mt-1">
+              Set a cron expression to run this agent on a schedule (UTC). Leave blank for manual runs.<br />
+              <a href="https://crontab.guru/" target="_blank" rel="noopener noreferrer" className="underline text-blue-600">Learn cron syntax</a>
             </p>
           </div>
         </CardContent>

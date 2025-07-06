@@ -903,6 +903,7 @@ model AgentInstance {
   configOverride  Json?    // JSON field for overriding default prompts, models, etc.
   webhookUrl      String?  // URL to send the output to upon completion
   nextAgentInstanceId String? // ID of the next agent instance to run upon completion
+  cronSchedule    String?  // CRON expression for scheduled runs (nullable)
   sharedWith      AgentShare[]
   configRevisions AgentConfigRevision[]
 

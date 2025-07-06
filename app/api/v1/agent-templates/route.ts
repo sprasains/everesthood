@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
+import { getAgentTemplatesWithCache } from '@/../../lib/agentTemplates';
 import prisma from '@/lib/prisma';
 
 export async function GET() {
@@ -11,18 +12,8 @@ export async function GET() {
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    // For now, return all public templates and any private templates owned by the user
-    const agentTemplates = await prisma.agentTemplate.findMany({
-      where: {
-        OR: [
-          { isPublic: true },
-          // { ownerId: session.user.id }, // Uncomment if AgentTemplate has an ownerId
-        ],
-      },
-      orderBy: {
-        name: 'asc',
-      },
-    });
+    // Only cache public templates for now
+    const agentTemplates = (await getAgentTemplatesWithCache()).filter(t => t.isPublic);
 
     return NextResponse.json(agentTemplates);
   } catch (error) {

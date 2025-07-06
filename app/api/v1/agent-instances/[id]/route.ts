@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 
 export async function GET(req: Request, { params }: { params: { id: string } }) {
   try {
@@ -45,7 +45,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 
     const { id } = params;
     const userId = session.user.id;
-    const { name, configOverride, webhookUrl } = await req.json();
+    const { name, configOverride, webhookUrl, nextAgentInstanceId, cronSchedule } = await req.json();
 
     // Ensure the user owns the agent instance before updating
     const existingInstance = await prisma.agentInstance.findUnique({
@@ -66,7 +66,9 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
       data: {
         name: name || existingInstance.name,
         configOverride: configOverride !== undefined ? configOverride : existingInstance.configOverride,
-        webhookUrl: webhookUrl !== undefined ? webhookUrl : existingInstance.webhookUrl, // Allow updating webhook URL
+        webhookUrl: webhookUrl !== undefined ? webhookUrl : existingInstance.webhookUrl,
+        nextAgentInstanceId: nextAgentInstanceId !== undefined ? nextAgentInstanceId : existingInstance.nextAgentInstanceId,
+        cronSchedule: cronSchedule !== undefined ? cronSchedule : existingInstance.cronSchedule,
       },
     });
 
