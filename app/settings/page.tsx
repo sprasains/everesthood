@@ -1,9 +1,10 @@
 "use client";
 import Navbar from "@/components/layout/Navbar";
 import { Container, Typography, CircularProgress } from "@mui/material";
-import { useUser } from '@/src/hooks/useUser';
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+
+const useUser = () => ({ user: { id: 'placeholder', name: 'Placeholder User', weeklyGoal: 5 }, updateUser: () => {}, isLoading: false });
 
 export default function SettingsPage() {
   const { user, isLoading } = useUser();

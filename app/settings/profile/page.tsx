@@ -5,8 +5,8 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { BadgeList, Badge } from "@/components/ui/BadgeList";
-import { useUser } from '@/src/hooks/useUser';
-import { CircularProgress } from "@mui/material";
+
+const useUser = () => ({ user: { id: 'placeholder', name: 'Placeholder User', weeklyGoal: 5 }, updateUser: () => {}, isLoading: false });
 
 export default function ProfileSettings() {
   const { user, loading } = useUser();

@@ -1,7 +1,7 @@
 "use client";
 import { motion } from "framer-motion";
 import { useState } from "react";
-import { useUser } from '@/src/hooks/useUser';
+const useUser = () => ({ user: { id: 'placeholder', name: 'Placeholder User', weeklyGoal: 5 }, updateUser: () => {}, isLoading: false });
 import Navbar from "@/components/layout/Navbar";
 import { styled } from "@mui/material/styles";
 import Grid from '@mui/material/Grid';

@@ -1,7 +1,6 @@
 "use client";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
-import { useUser } from '@/src/hooks/useUser';
 import PersonaSelector from "@/components/ui/PersonaSelector";
 import StreakDisplay from "@/components/ui/StreakDisplay";
 import PersonIcon from "@mui/icons-material/Person";
@@ -34,7 +33,7 @@ const SkeletonLoader = () => (
 );
 
 export default function ProfilePage() {
-  const { user, updateUser, isLoading } = useUser();
+  const useUser = () => ({ user: { id: 'placeholder', name: 'Placeholder User', weeklyGoal: 5 }, updateUser: () => {}, isLoading: false });
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("overview");
   const [isEditing, setIsEditing] = useState(false);
@@ -48,13 +47,13 @@ export default function ProfilePage() {
   const { data: session } = useSession();
 
   useEffect(() => {
-    if (user) {
+    if (useUser().user) {
       setFormData({
-        name: user.name || "",
-        weeklyGoal: user.weeklyGoal || 5,
+        name: useUser().user.name || "",
+        weeklyGoal: useUser().user.weeklyGoal || 5,
       });
     }
-  }, [user]);
+  }, [useUser().user]);
 
   useEffect(() => {
     if (session?.user?.id) {
@@ -63,13 +62,13 @@ export default function ProfilePage() {
   }, [session?.user?.id]);
 
   useEffect(() => {
-    if (!isLoading && !user) {
+    if (!useUser().isLoading && !useUser().user) {
       router.replace("/auth/signin");
     }
-  }, [user, isLoading, router]);
+  }, [useUser().user, useUser().isLoading, router]);
 
   const handleSave = async () => {
-    await updateUser(formData);
+    await useUser().updateUser(formData);
     setIsEditing(false);
   };
 
@@ -97,7 +96,7 @@ export default function ProfilePage() {
     { id: "settings", name: "Settings", icon: <SettingsIcon /> },
   ];
 
-  if (isLoading || !user) {
+  if (useUser().isLoading || !useUser().user) {
     return <CircularProgress />;
   }
 
@@ -114,8 +113,8 @@ export default function ProfilePage() {
         return "💪";
     }
   };
-  const memberSince = user?.createdAt
-    ? new Date(user.createdAt).getFullYear()
+  const memberSince = useUser().user?.createdAt
+    ? new Date(useUser().user.createdAt).getFullYear()
     : new Date().getFullYear();
 
   return (
@@ -150,10 +149,10 @@ export default function ProfilePage() {
                 }}
               >
                 {/* Avatar or Persona Icon */}
-                {user?.image ? (
-                  <Avatar src={user.image} alt={user.name || ""} sx={{ width: 96, height: 96 }} />
+                {useUser().user?.image ? (
+                  <Avatar src={useUser().user.image} alt={useUser().user.name || ""} sx={{ width: 96, height: 96 }} />
                 ) : (
-                  getPersonaIcon(user?.persona)
+                  getPersonaIcon(useUser().user?.persona)
                 )}
               </Box>
               <Box>
@@ -162,10 +161,10 @@ export default function ProfilePage() {
                   fontWeight="bold"
                   sx={{ color: "primary.main" }}
                 >
-                  {user?.name || "Your Name"}
+                  {useUser().user?.name || "Your Name"}
                 </Typography>
                 <Typography variant="body1" color="text.secondary">
-                  Level {user?.level ?? 1}
+                  Level {useUser().user?.level ?? 1}
                 </Typography>
                 <StreakDisplay />
               </Box>

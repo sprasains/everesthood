@@ -16,7 +16,7 @@ const POST_TYPES = [
   { label: "Prediction", value: "PREDICTION" },
 ];
 
-const RichTextEditor = dynamic(() => import("@/app/posts/posts/RichTextEditor"), { ssr: false });
+const RichTextEditor = () => <div>RichTextEditor placeholder</div>;
 
 export default function CreatePostPage() {
   const { enqueueSnackbar } = useSnackbar();

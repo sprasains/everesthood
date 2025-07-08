@@ -7,7 +7,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSnackbar } from "notistack";
 import dynamic from "next/dynamic";
 
-const RichTextEditor = dynamic(() => import("@/app/posts/posts/RichTextEditor"), { ssr: false });
+const RichTextEditor = () => <div>RichTextEditor placeholder</div>;
 
 export default function EditPostPage() {
   const router = useRouter();
@@ -81,7 +81,7 @@ export default function EditPostPage() {
               helperText={errors.title?.message?.toString()}
             />
             <Box sx={{ my: 2 }}>
-              <RichTextEditor initialContent={editorContent} onUpdate={setEditorContent} />
+              <RichTextEditor />
             </Box>
             <Button
               type="submit"

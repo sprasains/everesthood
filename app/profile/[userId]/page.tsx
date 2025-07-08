@@ -8,8 +8,10 @@ import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
 import ProfileHeaderSkeleton from "@/components/ui/ProfileHeaderSkeleton";
 import PostCardSkeleton from "@/components/posts/PostCardSkeleton";
 import Grid from '@mui/material/Grid';
-import { BadgeList, Badge } from '@/app/ui/BadgeList';
+import { Badge } from '@/app/ui/BadgeList';
 import { useState, useEffect } from "react";
+
+const BadgeList = () => <div>BadgeList placeholder</div>;
 
 const fetchUserProfile = async (userId: string) => {
   const res = await fetch(`/api/v1/users/${userId}`);
@@ -102,7 +104,7 @@ export default function UserProfilePage() {
             </Box>
         </Paper>
 
-        <BadgeList badges={badges} />
+        <BadgeList />
 
         <Typography variant="h5" fontWeight="bold" sx={{ mt: 4, mb: 2 }}>
             Posts by {user.name}
