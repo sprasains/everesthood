@@ -2,15 +2,15 @@
 import { notFound } from "next/navigation";
 import { Box, Card, CardContent, Typography, Avatar, Button, CircularProgress } from "@mui/material";
 import { Suspense } from "react";
-import CommentList from "@/components/ui/CommentList";
-import CommentForm from "@/components/ui/CommentForm";
-import PostPageSkeleton from "@/components/ui/PostPageSkeleton";
+import CommentList from "@/app/posts/posts/CommentList";
+import CommentForm from "@/app/posts/posts/CommentForm";
+import PostPageSkeleton from "@/app/posts/posts/PostPageSkeleton";
 import dynamic from "next/dynamic";
-import ThreadedComments from '@/components/ui/ThreadedComments';
+import ThreadedComments from '@/app/posts/posts/ThreadedComments';
 import Image from 'next/image';
-import { useUser } from '@/hooks/useUser';
+import { useUser } from '@/src/hooks/useUser';
 
-const EditPostButton = dynamic(() => import("@/components/ui/EditPostButton"), { ssr: false });
+const EditPostButton = dynamic(() => import("@/app/posts/posts/EditPostButton"), { ssr: false });
 
 // NOTE: This fetch runs on the server. NEXT_PUBLIC_BASE_URL must be set in your environment (e.g., https://yourdomain.com)
 async function fetchPost(id: string) {

@@ -1,4 +1,4 @@
-import { useUser } from '@/hooks/useUser';
+import { useUser } from '../../src/hooks/useUser';
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import CircularProgress from "@mui/material/CircularProgress";

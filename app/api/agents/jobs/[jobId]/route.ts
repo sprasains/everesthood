@@ -3,20 +3,19 @@
 // TECHNICAL: Fetches job status, result, and error from Redis using the job ID.
 
 import { NextResponse } from 'next/server';
-import { redis } from '@/../../lib/redis';
+// import { redis } from '@/../../lib/redis';
+
+// TODO: Replace with your actual worker service URL
+const WORKER_API_URL = process.env.WORKER_API_URL || 'http://worker:3001';
 
 export async function GET(_req: Request, { params }: { params: { jobId: string } }) {
   const { jobId } = params;
-  // LAYMAN: Look up the job's status and result in Redis.
-  // BUSINESS: Allows the frontend or other services to track job progress and display results/errors to users.
-  // TECHNICAL: Uses Redis keys to fetch status, result, and error for the given job ID.
-  const status = await redis.get(`agent-job:${jobId}:status`);
-  const result = await redis.get(`agent-job:${jobId}:result`);
-  const error = await redis.get(`agent-job:${jobId}:error`);
-  return NextResponse.json({
-    jobId,
-    status,
-    result: result ? JSON.parse(result) : null,
-    error,
-  });
+  // Call the worker service HTTP API to get job status/result
+  const response = await fetch(`${WORKER_API_URL}/api/jobs/${jobId}`);
+  if (!response.ok) {
+    const errorText = await response.text();
+    return new NextResponse(`Worker error: ${errorText}`, { status: 500 });
+  }
+  const data = await response.json();
+  return NextResponse.json(data);
 } 

@@ -1,15 +1,16 @@
+"use client";
 import { useState } from "react";
-import { useAdminRealtimeHealth } from "@/hooks/useAdminRealtimeHealth";
-import { useExecutionLogs } from "@/hooks/useExecutionLogs";
-import { useAlerts } from "@/hooks/useAlerts";
-import HealthSummaryCards from "./HealthSummaryCards";
-import LiveChart from "./LiveChart";
-import BreakdownTable from "./BreakdownTable";
-import RecentFailuresTable from "./RecentFailuresTable";
-import ExportButtons from "./ExportButtons";
-import FilterBar from "./FilterBar";
-import LogViewerModal from "./LogViewerModal";
-import AlertBanner from "./AlertBanner";
+import { useAdminRealtimeHealth } from '../../../src/hooks/useAdminRealtimeHealth';
+import { useExecutionLogs } from '../../../src/hooks/useExecutionLogs';
+import { useAlerts } from '../../../src/hooks/useAlerts';
+import HealthSummaryCards from './HealthSummaryCards';
+import LiveChart from './LiveChart';
+import BreakdownTable from './BreakdownTable';
+import RecentFailuresTable from './RecentFailuresTable';
+import ExportButtons from './ExportButtons';
+import FilterBar from './FilterBar';
+import LogViewerModal from './LogViewerModal';
+import AlertBanner from './AlertBanner';
 
 export default function HealthDashboard() {
   const [filters, setFilters] = useState({});

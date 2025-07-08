@@ -1,5 +1,8 @@
+"use client";
 import { useState } from "react";
-import { Input, Button, Card } from "@/components/ui";
+import Input from '@mui/material/Input';
+import Button from '@mui/material/Button';
+import Card from '@mui/material/Card';
 
 export default function SettingsPage() {
   const [webhook, setWebhook] = useState("");

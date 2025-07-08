@@ -102,7 +102,9 @@ services:
       - KONG_URL=http://kong:8000
 
   worker:
-    build: ./worker
+    build:
+      context: .
+      dockerfile: worker/Dockerfile
     depends_on:
       - postgres
       - redis

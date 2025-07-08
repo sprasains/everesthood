@@ -1,4 +1,5 @@
-import { Card } from "@/components/ui";
+import Card from '@mui/material/Card';
+import Typography from '@mui/material/Typography';
 import { CheckCircle, XCircle, Clock, ActivitySquare, HeartPulse } from "lucide-react";
 
 interface HealthSummaryCardsProps {

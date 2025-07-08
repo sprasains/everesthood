@@ -1,5 +1,11 @@
-import { useRealtimeMetrics } from '@/hooks/useRealtimeMetrics';
-import { Card, Table, Badge, Input, Button, Select } from '@/components/ui';
+"use client";
+import { useRealtimeMetrics } from '@/src/hooks/useRealtimeMetrics';
+import Card from '@mui/material/Card';
+import Table from '@mui/material/Table';
+import Chip from '@mui/material/Chip';
+import Input from '@mui/material/Input';
+import Button from '@mui/material/Button';
+import Select from '@mui/material/Select';
 import { useSession } from 'next-auth/react';
 import { useState, useMemo, ChangeEvent } from 'react';
 import * as XLSX from 'xlsx'; // Excel export
@@ -130,9 +136,7 @@ export default function LiveDashboard() {
             <tr key={log.id}>
               <td>{log.agent_name}</td>
               <td>
-                <Badge variant={log.status === 'SUCCESS' ? 'success' : log.status === 'ERROR' ? 'destructive' : 'default'}>
-                  {log.status}
-                </Badge>
+                <Chip label={log.status} variant={log.status === 'SUCCESS' ? 'filled' : log.status === 'ERROR' ? 'filled' : 'outlined'} />
               </td>
               <td><pre>{JSON.stringify(log.input, null, 2)}</pre></td>
               <td><pre>{log.output ? JSON.stringify(log.output, null, 2) : '-'}</pre></td>
