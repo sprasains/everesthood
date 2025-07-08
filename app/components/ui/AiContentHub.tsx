@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { Box, Typography, Paper, Button, CircularProgress, Alert, Chip, Stack } from '@mui/material';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
-import { logger, newCorrelationId } from '@/src/services/logger';
+import { logger, newCorrelationId } from '@/services/logger';
 
 const fetchAiContent = async (topic: string) => {
     const correlationId = newCorrelationId();

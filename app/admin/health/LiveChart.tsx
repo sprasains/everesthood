@@ -1,4 +1,4 @@
-import { useLiveChart } from '../../../src/hooks/useLiveChart';
+import { useLiveChart } from '@/hooks/useLiveChart';
 
 export default function LiveChart({ data, errorData, labels }: any) {
   const chart = useLiveChart();

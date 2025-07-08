@@ -1,7 +1,7 @@
 "use client"
 import { motion } from "framer-motion"
 import { Persona, PersonaConfig } from "@/types"
-import { useUser } from "../../src/hooks/useUser"
+import { useUser } from "@/hooks/useUser";
 import { useEffect, useState } from "react"
 
 interface PersonaSelectorProps {

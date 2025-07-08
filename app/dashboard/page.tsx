@@ -1,22 +1,22 @@
 "use client";
 import { Box, Container, Typography, Grid, Paper, Button, CircularProgress, Stack, Avatar } from "@mui/material";
-import PostCard from "@/app/posts/posts/PostCard";
+import PostCard from "@/components/posts/PostCard";
 import Link from "next/link";
-import { useUser } from '@/src/hooks/useUser';
+import { useUser } from '@/hooks/useUser';
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import EditIcon from '@mui/icons-material/Edit';
 import { useTheme } from '@mui/material/styles';
 import { useMemo, useEffect } from 'react';
 import Skeleton from "@mui/material/Skeleton";
-import NewsTicker from '@/app/news/news/NewsTicker';
-import AiContentHub from '@/app/ui/AiContentHub';
-import { logger, newCorrelationId, getCorrelationId } from '@/src/services/logger';
-import PostCardSkeleton from "@/app/posts/posts/PostCardSkeleton";
+import NewsTicker from '@/components/news/NewsTicker';
+import AiContentHub from '@/components/ui/AiContentHub';
+import { logger, newCorrelationId, getCorrelationId } from '@/services/logger';
+import PostCardSkeleton from "@/components/posts/PostCardSkeleton";
 import { useRouter } from "next/navigation";
-import DailyDigest from '@/app/dashboard/dashboard/DailyDigest';
-import MarketSnapshot from '@/app/dashboard/dashboard/MarketSnapshot';
-import AICacheDisplay from '@/app/dashboard/dashboard/AICacheDisplay';
+import DailyDigest from '@/components/dashboard/DailyDigest';
+import MarketSnapshot from '@/components/dashboard/MarketSnapshot';
+import AICacheDisplay from '@/components/dashboard/AICacheDisplay';
 
 const fetchUserPosts = async (userId: string) => {
   const res = await fetch(`/api/v1/posts?authorId=${userId}`);

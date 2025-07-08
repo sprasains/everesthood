@@ -26,7 +26,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CommentForm from './CommentForm';
 import { v4 as uuidv4 } from 'uuid';
-import { logger, newCorrelationId, getCorrelationId } from '@/src/services/logger';
+import { logger, newCorrelationId, getCorrelationId } from '@/services/logger';
 import MuiButton from '@mui/material/Button';
 import { motion, AnimatePresence } from 'framer-motion';
 

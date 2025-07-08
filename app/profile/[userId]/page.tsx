@@ -2,11 +2,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { Container, Paper, Avatar, Typography, Box, Button, Divider } from "@mui/material";
-import PostCard from "@/app/posts/posts/PostCard";
+import PostCard from "@/components/posts/PostCard";
 import AddReactionIcon from '@mui/icons-material/AddReaction';
 import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
-import ProfileHeaderSkeleton from "@/app/ui/ProfileHeaderSkeleton";
-import PostCardSkeleton from "@/app/posts/posts/PostCardSkeleton";
+import ProfileHeaderSkeleton from "@/components/ui/ProfileHeaderSkeleton";
+import PostCardSkeleton from "@/components/posts/PostCardSkeleton";
 import Grid from '@mui/material/Grid';
 import { BadgeList, Badge } from '@/app/ui/BadgeList';
 import { useState, useEffect } from "react";

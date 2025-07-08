@@ -4,7 +4,7 @@ import { useState, ChangeEvent, FormEvent, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { BadgeList, Badge } from "@/app/ui/BadgeList";
+import { BadgeList, Badge } from "@/components/ui/BadgeList";
 import { useUser } from '@/src/hooks/useUser';
 import { CircularProgress } from "@mui/material";
 

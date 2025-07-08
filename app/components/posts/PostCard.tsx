@@ -23,7 +23,7 @@ import { useSnackbar } from 'notistack';
 import RichTextRenderer from './RichTextRenderer';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
-import { useUser } from '@/src/hooks/useUser';
+import { useUser } from '@/hooks/useUser';
 
 type PostWithDetails = Post & {
   author: Partial<User>;

@@ -4,7 +4,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import { useParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { useUser } from '../../../src/hooks/useUser';
+import { useUser } from '@/hooks/useUser';
 import { useSnackbar } from 'notistack';
 
 const MOTIVATIONAL_MESSAGES = [

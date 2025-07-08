@@ -5,7 +5,7 @@ import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS } from 'chart.js/auto';
 import { motion } from "framer-motion";
 import Grid from '@mui/material/Grid';
-import { logger, newCorrelationId, getCorrelationId } from '@/src/services/logger';
+import { logger, newCorrelationId, getCorrelationId } from '@/services/logger';
 
 // Fetches analytics data for the user, logs the process, and handles errors
 const fetchAnalytics = async () => {

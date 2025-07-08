@@ -1,4 +1,4 @@
-import { useExportButtons } from '../../../src/hooks/useExportButtons';
+import { useExportButtons } from '@/hooks/useExportButtons';
 
 export default function ExportButtons({ data }: any) {
   const { exportCSV, exportExcel, exportPDF } = useExportButtons(data);

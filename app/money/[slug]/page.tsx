@@ -18,11 +18,22 @@ async function fetchGuide(slug: string) {
   return res.json();
 }
 
-export default async function GuidePage({ params }: { params: { slug: string } }) {
-  const guide = await fetchGuide(params.slug);
-  if (!guide) return notFound();
+export default function GuidePage({ params }: { params: { slug: string } }) {
+  // Use a state and useEffect to fetch data if needed
+  const [guide, setGuide] = useState<any>(null);
 
-  // For client-side features (read/favorite/share), use a client component
+  useEffect(() => {
+    async function fetchData() {
+      const data = await fetchGuide(params.slug);
+      if (data) {
+        setGuide(data);
+      } else {
+        notFound();
+      }
+    }
+    fetchData();
+  }, [params.slug]);
+
   return <GuideClient guide={guide} />;
 }
 
@@ -39,7 +50,7 @@ function GuideClient({ guide }: { guide: any }) {
       setRead(updated);
       localStorage.setItem("readGuides", JSON.stringify(updated));
     }
-  }, [guide.slug]);
+  }, [read, guide.slug]);
   function toggleFavorite() {
     let updated;
     if (favorites.includes(guide.slug)) {

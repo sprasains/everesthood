@@ -3,8 +3,8 @@ import { useState, useEffect } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useInView } from "react-intersection-observer";
 import { Container, Typography, Box, Tabs, Tab, CircularProgress } from "@mui/material";
-import PostCard from "@/app/posts/posts/PostCard";
-import PostCardSkeleton from "@/app/posts/posts/PostCardSkeleton";
+import PostCard from "@/components/posts/PostCard";
+import PostCardSkeleton from "@/components/posts/PostCardSkeleton";
 
 interface Post {
   id: string;

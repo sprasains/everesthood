@@ -2,7 +2,7 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { useUser } from '@/src/hooks/useUser';
-import Navbar from "@/app/layout/Navbar";
+import Navbar from "@/components/layout/Navbar";
 import { styled } from "@mui/material/styles";
 import Grid from '@mui/material/Grid';
 import Paper from "@mui/material/Paper";

@@ -4,7 +4,7 @@ import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import { motion } from "framer-motion";
 import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
-import { useUser } from "../../src/hooks/useUser";
+import { useUser } from "@/hooks/useUser";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import MailOutlineIcon from "@mui/icons-material/MailOutline";
 import NotificationDropdown from '@/components/ui/NotificationDropdown';

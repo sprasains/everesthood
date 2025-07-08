@@ -1,5 +1,5 @@
 "use client";
-import Navbar from "@/app/layout/Navbar";
+import Navbar from "@/components/layout/Navbar";
 import { Container, Typography, CircularProgress } from "@mui/material";
 import { useUser } from '@/src/hooks/useUser';
 import { useRouter } from "next/navigation";

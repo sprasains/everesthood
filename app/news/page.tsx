@@ -27,8 +27,8 @@ import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import SearchIcon from "@mui/icons-material/Search";
 import ViewModuleIcon from "@mui/icons-material/ViewModule";
 import ViewListIcon from "@mui/icons-material/ViewList";
-import NewsCardGrid from "@/app/news/news/NewsCardGrid";
-import NewsCardList from "@/app/news/news/NewsCardList";
+import NewsCardGrid from "@/components/news/NewsCardGrid";
+import NewsCardList from "@/components/news/NewsCardList";
 
 // Define categories with icons
 const categories = [

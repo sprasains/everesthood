@@ -1,8 +1,8 @@
 "use client";
 import { useState } from "react";
-import { useAdminRealtimeHealth } from '../../../src/hooks/useAdminRealtimeHealth';
-import { useExecutionLogs } from '../../../src/hooks/useExecutionLogs';
-import { useAlerts } from '../../../src/hooks/useAlerts';
+import { useAdminRealtimeHealth } from '@/hooks/useAdminRealtimeHealth';
+import { useExecutionLogs } from '@/hooks/useExecutionLogs';
+import { useAlerts } from '@/hooks/useAlerts';
 import HealthSummaryCards from './HealthSummaryCards';
 import LiveChart from './LiveChart';
 import BreakdownTable from './BreakdownTable';

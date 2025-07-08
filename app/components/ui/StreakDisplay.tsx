@@ -1,6 +1,6 @@
 "use client"
 import { motion } from "framer-motion"
-import { useStreak } from "../../src/hooks/useStreak"
+import { useStreak } from "@/hooks/useStreak";
 
 interface StreakDisplayProps {
   className?: string

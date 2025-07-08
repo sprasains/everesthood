@@ -2,9 +2,9 @@
 import { notFound } from "next/navigation";
 import { Box, Card, CardContent, Typography, Avatar, Button, CircularProgress } from "@mui/material";
 import { Suspense } from "react";
-import CommentList from "@/app/posts/posts/CommentList";
-import CommentForm from "@/app/posts/posts/CommentForm";
-import PostPageSkeleton from "@/app/posts/posts/PostPageSkeleton";
+import CommentList from "@/components/posts/CommentList";
+import CommentForm from "@/components/posts/CommentForm";
+import PostPageSkeleton from "@/components/posts/PostPageSkeleton";
 import dynamic from "next/dynamic";
 import ThreadedComments from '@/app/posts/posts/ThreadedComments';
 import Image from 'next/image';
@@ -65,8 +65,7 @@ function PostPageClient({ post }: { post: any }) {
   );
 }
 
-export default async function PostPage({ params }: { params: { id: string } }) {
-  const post = await fetchPost(params.id);
-  if (!post) return notFound();
+export default function PostPage({ params }: { params: { id: string } }) {
+  // Use a state and useEffect to fetch data if needed
   return <PostPageClient post={post} />;
 }

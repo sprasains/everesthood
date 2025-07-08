@@ -1,4 +1,4 @@
-import { useFilterBar } from '../../../src/hooks/useFilterBar';
+import { useFilterBar } from '@/hooks/useFilterBar';
 
 export default function FilterBar({ filters, setFilters }: any) {
   const { filters: hookFilters, setFilters: hookSetFilters } = useFilterBar();

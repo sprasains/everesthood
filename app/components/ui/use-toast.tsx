@@ -2,15 +2,17 @@
 
 import * as React from "react"
 
-import { ToastProvider } from "./toast"
+import { ToastProvider, Toast, ToastViewport } from "./toast"
 
-const ToastContext = React.createContext<{
-  toast: ({ ...props }: any) => void
-} | null>(null)
+type ToastContextType = {
+  toast: (props: Record<string, any>) => void;
+} | null;
+
+const ToastContext = React.createContext<ToastContextType>(null);
 
 export function ToastProviderWrapper({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = React.useState<any[]>([])
-  const addToast = React.useCallback((props: any) => {
+  const addToast = React.useCallback((props: Record<string, any>) => {
     setToasts((prev) => [...prev, { id: Date.now(), ...props }])
   }, [])
 
@@ -19,7 +21,7 @@ export function ToastProviderWrapper({ children }: { children: React.ReactNode }
   }, [])
 
   return (
-    <ToastContext.Provider value={{ toast: addToast as ({ ...props }: any) => void }}>
+    <ToastContext.Provider value={{ toast: addToast }}>
       <ToastProvider>
         {children}
         {toasts.map(({ id, ...props }) => (
@@ -38,6 +40,3 @@ export function useToast() {
   }
   return context
 }
-
-// Re-exporting shadcn/ui toast components (assuming they are in the same directory)
-export { Toast, ToastViewport } from "./toast"

@@ -1,4 +1,4 @@
-import { useAlertBanner } from '../../../src/hooks/useAlertBanner';
+import { useAlertBanner } from '@/hooks/useAlertBanner';
 
 export default function AlertBanner({ alerts }: any) {
   const hookAlerts = useAlertBanner();

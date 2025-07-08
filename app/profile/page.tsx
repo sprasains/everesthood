@@ -2,14 +2,14 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { useUser } from '@/src/hooks/useUser';
-import PersonaSelector from "@/app/ui/PersonaSelector";
-import StreakDisplay from "@/app/ui/StreakDisplay";
+import PersonaSelector from "@/components/ui/PersonaSelector";
+import StreakDisplay from "@/components/ui/StreakDisplay";
 import PersonIcon from "@mui/icons-material/Person";
 import SettingsIcon from "@mui/icons-material/Settings";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import { CircularProgress, Box, Container, Paper, Tabs, Tab, Typography, Avatar } from "@mui/material";
-import { BadgeList, Badge } from "@/app/ui/BadgeList";
+import { BadgeList, Badge } from "@/components/ui/BadgeList";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 

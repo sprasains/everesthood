@@ -11,7 +11,7 @@ import Box from "@mui/material/Box";
 import Avatar from "@mui/material/Avatar";
 import CircularProgress from "@mui/material/CircularProgress";
 import Button from "@mui/material/Button";
-import PostCard from "@/app/posts/posts/PostCard";
+import PostCard from "@/components/posts/PostCard";
 import { useInfiniteQuery } from "@tanstack/react-query";
 
 const PAGE_SIZE = 10;

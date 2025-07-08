@@ -1,5 +1,6 @@
 "use client";
-import { Box, Typography, Grid, Card, CardContent, CircularProgress } from "@mui/material";
+import { Box, Typography, Card, CardContent, CircularProgress } from "@mui/material";
+import Grid from "@mui/material/Grid";
 import { useQuery } from "@tanstack/react-query";
 
 function fetchMetrics() {
@@ -18,8 +19,8 @@ export default function AdminAnalyticsPage() {
       {isLoading ? (
         <CircularProgress />
       ) : (
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={3}>
+        <Grid container="true" spacing={3}>
+          <Grid item="true" xs={12} md={3}>
             <Card>
               <CardContent>
                 <Typography variant="h6">New Users Today</Typography>
@@ -27,7 +28,7 @@ export default function AdminAnalyticsPage() {
               </CardContent>
             </Card>
           </Grid>
-          <Grid item xs={12} md={3}>
+          <Grid item="true" xs={12} md={3}>
             <Card>
               <CardContent>
                 <Typography variant="h6">Posts Today</Typography>
@@ -35,7 +36,7 @@ export default function AdminAnalyticsPage() {
               </CardContent>
             </Card>
           </Grid>
-          <Grid item xs={12} md={3}>
+          <Grid item="true" xs={12} md={3}>
             <Card>
               <CardContent>
                 <Typography variant="h6">Total Users</Typography>
@@ -43,7 +44,7 @@ export default function AdminAnalyticsPage() {
               </CardContent>
             </Card>
           </Grid>
-          <Grid item xs={12} md={3}>
+          <Grid item="true" xs={12} md={3}>
             <Card>
               <CardContent>
                 <Typography variant="h6">Total Posts</Typography>

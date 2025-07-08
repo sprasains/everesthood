@@ -21,21 +21,18 @@
     "baseUrl": ".",
     "paths": {
       "@/app/*": ["./app/*"],
-      "@/components/*": ["./app/*"],
+      "@/components/*": ["./app/components/*"],
       "@/lib/*": ["./lib/*"],
-      "@/src/*": ["./src/*"]
-    }
+      "@/hooks/*": ["./app/hooks/*"],
+      "@/services/*": ["./app/services/*"]
+      }
   },
-  "include": ["next-env.d.ts", "app/**/*.ts", "app/**/*.tsx", "lib/**/*.ts", "lib/**/*.tsx", "src/**/*.ts", "src/**/*.tsx", ".next/types/**/*.ts"],
+  "include": ["next-env.d.ts", "app/**/*.ts", "app/**/*.tsx", "app/components/**/*.ts", "app/components/**/*.tsx", "app/hooks/**/*.ts", "app/hooks/**/*.tsx", "app/services/**/*.ts", "app/services/**/*.tsx", "lib/**/*.ts", "lib/**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules"],
   "ts-node": {
     "compilerOptions": {
       "module": "commonjs",
-      "baseUrl": ".",
-      "paths": {
-      "@/*": ["./src/*"],
-      "@/scripts/*": ["./src/scripts/*"]
-    }
+      "baseUrl": "."
     }
   }
 }

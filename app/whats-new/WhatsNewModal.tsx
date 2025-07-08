@@ -88,7 +88,7 @@ export function WhatsNewModal() {
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>What's New in EverestHood!</DialogTitle>
+          <DialogTitle>What&apos;s New in EverestHood!</DialogTitle>
           <DialogDescription>
             Check out the latest features, improvements, and bug fixes.
           </DialogDescription>

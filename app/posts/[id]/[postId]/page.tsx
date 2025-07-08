@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { useUser } from '@/src/hooks/useUser';
+import { useUser } from '@/hooks/useUser';
 import {
   Box,
   Container,
@@ -13,7 +13,7 @@ import {
   TextField,
   Button,
 } from "@mui/material";
-import ThreadedComments from '@/app/posts/posts/ThreadedComments';
+import ThreadedComments from '@/components/posts/ThreadedComments';
 // Define minimal Post, User, and Article types for frontend use
 type Post = {
   id: string;

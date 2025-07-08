@@ -1,5 +1,5 @@
 "use client";
-import { useRealtimeMetrics } from '@/src/hooks/useRealtimeMetrics';
+import { useRealtimeMetrics } from '@/hooks/useRealtimeMetrics';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Chip from '@mui/material/Chip';

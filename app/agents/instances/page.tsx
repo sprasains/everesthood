@@ -57,7 +57,7 @@ export default function AgentInstancesPage() {
 
       {agentInstances.length === 0 ? (
         <div className="text-center text-gray-500 mt-12">
-          <p className="mb-4">You haven't created any agent instances yet.</p>
+          <p className="mb-4">You haven&apos;t created any agent instances yet.</p>
           <Link href="/agents/templates/create">
             <Button variant="outline">Start by creating one!</Button>
           </Link>

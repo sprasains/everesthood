@@ -1,4 +1,4 @@
-import { useRecentFailuresTable } from '../../../src/hooks/useRecentFailuresTable';
+import { useRecentFailuresTable } from '@/hooks/useRecentFailuresTable';
 
 export default function RecentFailuresTable({ data, onRowClick }: any) {
   const failures = useRecentFailuresTable();

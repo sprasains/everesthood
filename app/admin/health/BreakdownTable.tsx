@@ -1,4 +1,4 @@
-import { useBreakdownTable } from '../../../src/hooks/useBreakdownTable';
+import { useBreakdownTable } from '@/hooks/useBreakdownTable';
 
 export default function BreakdownTable({ data, onRowClick }: any) {
   const { perAgent } = useBreakdownTable();

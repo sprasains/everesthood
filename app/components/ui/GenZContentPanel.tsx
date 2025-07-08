@@ -1,6 +1,6 @@
 "use client";
 import { motion } from "framer-motion";
-import { useGenZContent } from "../../src/hooks/useGenZContent";
+import { useGenZContent } from "@/hooks/useGenZContent";
 import { Box, Typography, Chip, Card, CardContent, CardMedia, Stack, Grid, CircularProgress } from "@mui/material";
 
 // Helper to check if a URL is valid (starts with http/https)

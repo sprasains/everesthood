@@ -1,4 +1,4 @@
-import { useLogViewerModal } from '../../../src/hooks/useLogViewerModal';
+import { useLogViewerModal } from '@/hooks/useLogViewerModal';
 
 export default function LogViewerModal({ log, onClose }: any) {
   const { selectedLog, setSelectedLog } = useLogViewerModal();
