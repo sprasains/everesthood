@@ -6,9 +6,9 @@ import { stripe } from '@/lib/stripe';
 
 // Define a mapping for price IDs to execution limits
 const priceIdToLimitMap: { [key: string]: number } = {
-  process.env.STRIPE_FREE_PRICE_ID!: 100, // Example: Free tier gets 100 executions
-  process.env.STRIPE_STARTER_PRICE_ID!: 1000, // Example: Starter tier gets 1000 executions
-  process.env.STRIPE_PRO_PRICE_ID!: 10000, // Example: Pro tier gets 10000 executions
+  [process.env.STRIPE_FREE_PRICE_ID as string]: 100, // Example: Free tier gets 100 executions
+  [process.env.STRIPE_STARTER_PRICE_ID as string]: 1000, // Example: Starter tier gets 1000 executions
+  [process.env.STRIPE_PRO_PRICE_ID as string]: 10000, // Example: Pro tier gets 10000 executions
 };
 
 export async function POST(req: Request) {

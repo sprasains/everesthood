@@ -19,7 +19,7 @@ export function ToastProviderWrapper({ children }: { children: React.ReactNode }
   }, [])
 
   return (
-    <ToastContext.Provider value={{ toast: addToast }}>
+    <ToastContext.Provider value={{ toast: addToast as ({ ...props }: any) => void }}>
       <ToastProvider>
         {children}
         {toasts.map(({ id, ...props }) => (
