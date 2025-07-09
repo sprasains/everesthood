@@ -7,8 +7,8 @@ import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
 import Navbar from "@/components/layout/Navbar";
 import { Container, Typography, CircularProgress } from "@mui/material";
-import NewsCard from "@/components/ui/NewsCard";
-import type { Article } from "@/types";
+import NewsCard from '@/components/news/NewsCard';
+import type { Article } from "@/types/index";
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: "#fff",

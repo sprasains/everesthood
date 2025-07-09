@@ -1,6 +1,6 @@
 "use client"
 import { motion } from "framer-motion"
-import { Achievement } from "@/types"
+import { Achievement } from "@/types/index"
 
 interface AchievementCardProps {
   achievement: Achievement

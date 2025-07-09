@@ -97,6 +97,7 @@ async function seedPostsForUsers(users: User[], prisma: PrismaClient) {
     for (let i = 0; i < postCount; i++) {
       await prisma.post.create({
         data: {
+          title: faker.lorem.sentence(),
           authorId: user.id,
           content: createRichTextContent(),
           type: PostType.TEXT,
@@ -321,6 +322,7 @@ async function main() {
     };
     const post = await prisma.post.create({
       data: {
+        title: faker.lorem.sentence(),
         content: contentJson,
         authorId: author.id,
         createdAt: faker.date.recent({ days: 30 }),
@@ -502,7 +504,6 @@ async function main() {
   });
 
   // Seed Money & Hustle Guides
-  // @ts-expect-error: guide model may not exist until migration is run
   await prisma.guide.createMany({
     data: [
       {
@@ -627,8 +628,8 @@ async function main() {
   // Seed Digital Detox Achievements
   await prisma.achievement.createMany({
     data: [
-      { name: "First Detox Day", description: "Complete your first digital detox task.", icon: "��", xpReward: 10 },
-      { name: "Streak Starter", description: "Complete tasks 2 days in a row.", icon: "��", xpReward: 20 },
+      { name: "First Detox Day", description: "Complete your first digital detox task.", icon: "", xpReward: 10 },
+      { name: "Streak Starter", description: "Complete tasks 2 days in a row.", icon: "", xpReward: 20 },
       { name: "Detox Master", description: "Complete all tasks in a digital detox plan.", icon: "🏆", xpReward: 50 },
       { name: "Consistency Champ", description: "Complete a task every day for a week.", icon: "💪", xpReward: 100 },
     ],

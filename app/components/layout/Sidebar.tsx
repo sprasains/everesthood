@@ -2,7 +2,7 @@
 import { motion } from "framer-motion"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useUser } from "../../src/hooks/useUser"
+import { useUser } from "app/hooks/useUser"
 import { Drawer, List, ListItemButton, ListItemIcon, ListItemText, Box, Typography, LinearProgress } from "@mui/material";
 
 export default function Sidebar() {

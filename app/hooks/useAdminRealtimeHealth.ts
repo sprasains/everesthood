@@ -18,6 +18,17 @@ export function useAdminRealtimeHealth() {
   const lastHour = logs.filter(l => now - new Date(l.created_at).getTime() < 3600_000);
   const total = lastHour.length;
   const success = lastHour.filter(l => l.status === "SUCCESS").length;
+  const error = lastHour.filter(l => l.status === "ERROR").length;
+  const running = lastHour.filter(l => l.status === "RUNNING").length;
   const avgTime = lastHour.length ? lastHour.reduce((a, l) => a + (l.duration_ms || 0), 0) / lastHour.length / 1000 : 0;
-  return { total, successRate: total ? success / total : 1, avgTime };
+  // Placeholder healthStatus logic
+  let healthStatus = 'green';
+  if (error / (total || 1) > 0.2) healthStatus = 'red';
+  else if (error / (total || 1) > 0.05) healthStatus = 'yellow';
+  // Placeholder timeline, errorTimeline, timelineLabels, perAgent
+  const timeline = [];
+  const errorTimeline = [];
+  const timelineLabels = [];
+  const perAgent = [];
+  return { total, success, error, running, avgTime, healthStatus, timeline, errorTimeline, timelineLabels, perAgent };
 } 

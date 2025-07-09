@@ -46,6 +46,7 @@ interface Comment {
   canDelete?: boolean;
   pending?: boolean;
   isDeleted?: boolean;
+  mentionedUserIds?: string[];
 }
 
 interface ThreadedCommentsProps {
@@ -77,6 +78,7 @@ function normalizeComment(raw: any): Comment {
     canDelete: raw.canDelete ?? false,
     pending: raw.pending ?? false,
     isDeleted: raw.isDeleted ?? false,
+    mentionedUserIds: raw.mentionedUserIds || [],
   };
 }
 
@@ -181,6 +183,29 @@ const ThreadedComments: React.FC<ThreadedCommentsProps> = ({
     setEditContent(comment.content);
   };
 
+  // Submits the edited comment content
+  const submitEdit = async (commentId: string) => {
+    setSubmitting(true);
+    try {
+      const res = await fetch(`/api/v1/posts/${postId}/comments/${commentId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: editContent }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setSortedComments(Array.isArray(data.commentsJson) ? data.commentsJson.map(normalizeComment) : []);
+        setEditing(null);
+        setEditContent("");
+        enqueueSnackbar('Comment updated!', { variant: 'success' });
+      } else {
+        enqueueSnackbar('Failed to update comment.', { variant: 'error' });
+      }
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   // Helper to update a comment in the tree by id
   function updateCommentInTree(comments: Comment[], commentId: string, updater: (c: Comment) => Comment): Comment[] {
     return comments.map(comment => {
@@ -224,7 +249,6 @@ const ThreadedComments: React.FC<ThreadedCommentsProps> = ({
     } catch (error: any) {
       logger.error('Failed to dislike comment.', { error: error.message, stack: error.stack });
     }
-    fetchInitialComments();
   };
 
   // Helper to find and remove a comment, but also return the removed comment

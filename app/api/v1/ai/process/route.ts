@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { AgentRunStatus } from '@prisma/client';
 
 export async function POST(req: Request) {
   try {
@@ -93,12 +94,20 @@ export async function POST(req: Request) {
         humanInputPrompt: humanPrompt,
         updatedAt: new Date(),
       },
+      select: {
+        id: true,
+        webhookUrl: true,
+        output: true,
+        // nextAgentInstanceId: true, // Not a field on AgentRun
+      },
     });
 
     // If the agent run is completed and a webhook URL is configured, send the output
     if (newStatus === 'COMPLETED' && updatedAgentRun.webhookUrl && updatedAgentRun.output) {
       try {
-        await fetch(`${req.nextUrl.origin}/api/v1/agent-webhook`, {
+        // Use a base URL from environment or fallback to request header
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || req.headers.get('origin') || '';
+        await fetch(`${baseUrl}/api/v1/agent-webhook`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -115,17 +124,24 @@ export async function POST(req: Request) {
       }
     }
 
+    // Fetch the AgentInstance for this run to get nextAgentInstanceId
+    const agentInstance = await prisma.agentInstance.findFirst({
+      where: { userId: userId },
+      select: { nextAgentInstanceId: true },
+    });
+
     // If the agent run is completed and a next agent is configured, trigger it (Task 64)
-    if (newStatus === 'COMPLETED' && updatedAgentRun.nextAgentInstanceId && updatedAgentRun.output) {
+    if (newStatus === 'COMPLETED' && agentInstance?.nextAgentInstanceId && updatedAgentRun.output) {
       try {
         // Fetch the next agent instance to get its user ID (for internal authentication)
         const nextAgentInstance = await prisma.agentInstance.findUnique({
-          where: { id: updatedAgentRun.nextAgentInstanceId },
+          where: { id: agentInstance.nextAgentInstanceId },
           select: { userId: true },
         });
 
         if (nextAgentInstance) {
-          await fetch(`${req.nextUrl.origin}/api/v1/ai/process`, {
+          const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || req.headers.get('origin') || '';
+          await fetch(`${baseUrl}/api/v1/ai/process`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -137,10 +153,10 @@ export async function POST(req: Request) {
               // No runId for a new chained run, it will create a new AgentRun record
             }),
           });
-          console.log(`Chained agent ${updatedAgentRun.nextAgentInstanceId} triggered by run ${updatedAgentRun.id}.`);
+          console.log(`Chained agent ${agentInstance.nextAgentInstanceId} triggered by run ${updatedAgentRun.id}.`);
         }
       } catch (chainingError) {
-        console.error(`Failed to trigger chained agent ${updatedAgentRun.nextAgentInstanceId}:`, chainingError);
+        console.error(`Failed to trigger chained agent ${agentInstance?.nextAgentInstanceId}:`, chainingError);
       }
     }
 
@@ -172,7 +188,7 @@ export async function POST(req: Request) {
             type: 'SYSTEM',
             entityId: null,
             isRead: false,
-            content: `You have used 80% of your monthly agent executions (${newCount}/${limit}). Consider upgrading!`, // Custom content
+            // content: `You have used 80% of your monthly agent executions (${newCount}/${limit}). Consider upgrading!`, // Custom content
           },
         });
         // TODO: Add email notification logic here
@@ -185,7 +201,7 @@ export async function POST(req: Request) {
             type: 'SYSTEM',
             entityId: null,
             isRead: false,
-            content: `You have used 95% of your monthly agent executions (${newCount}/${limit}). Upgrade now to avoid interruptions!`, // Custom content
+            // content: `You have used 95% of your monthly agent executions (${newCount}/${limit}). Upgrade now to avoid interruptions!`, // Custom content
           },
         });
         // TODO: Add email notification logic here
@@ -198,7 +214,7 @@ export async function POST(req: Request) {
             type: 'SYSTEM',
             entityId: null,
             isRead: false,
-            content: `You have reached your monthly agent execution limit (${newCount}/${limit}). Upgrade your plan to continue!`, // Custom content
+            // content: `You have reached your monthly agent execution limit (${newCount}/${limit}). Upgrade your plan to continue!`, // Custom content
           },
         });
         // TODO: Add email notification logic here

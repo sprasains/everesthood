@@ -2,9 +2,8 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
 const useUser = () => ({ user: { id: 'placeholder', name: 'Placeholder User', weeklyGoal: 5 }, updateUser: () => {}, isLoading: false });
-import Navbar from "@/components/layout/Navbar";
+import Navbar from "app/components/layout/Navbar";
 import { styled } from "@mui/material/styles";
-import Grid from '@mui/material/Grid';
 import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -114,9 +113,10 @@ export default function SubscribePage() {
 
           {/* Plan Comparison */}
           <Box sx={{ width: "100%" }} className="mb-12">
-            <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
+            {/* Responsive flexbox grid for plans */}
+            <Box display="flex" flexWrap="wrap" gap={3}>
               {plans.map((plan, index) => (
-                <Grid key={plan.id} sx={{ width: { xs: '100%', sm: '50%', md: '33.33%' } }}>
+                <Box key={plan.id} flexBasis={{ xs: '100%', sm: '48%', md: '31%' }} flexGrow={1} minWidth={280} maxWidth={{ xs: '100%', sm: '48%', md: '31%' }}>
                   <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -172,9 +172,9 @@ export default function SubscribePage() {
                       {loading ? "Processing..." : plan.cta}
                     </motion.button>
                   </motion.div>
-                </Grid>
+                </Box>
               ))}
-            </Grid>
+            </Box>
           </Box>
 
           {/* Features Comparison */}

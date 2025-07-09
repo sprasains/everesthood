@@ -1,5 +1,5 @@
 "use client";
-import { Box, Typography, Card, CardContent, Grid, Button } from "@mui/material";
+import { Box, Typography, Card, CardContent, Button } from "@mui/material";
 import Link from "next/link";
 
 export default function AdminDashboardPage() {
@@ -8,8 +8,8 @@ export default function AdminDashboardPage() {
       <Typography variant="h3" gutterBottom>
         Admin Dashboard
       </Typography>
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={4}>
+      <Box display="flex" flexWrap="wrap" gap={3}>
+        <Box flex="1 1 300px" minWidth={280} maxWidth={400}>
           <Card>
             <CardContent>
               <Typography variant="h5">User Management</Typography>
@@ -21,8 +21,8 @@ export default function AdminDashboardPage() {
               </Button>
             </CardContent>
           </Card>
-        </Grid>
-        <Grid item xs={12} md={4}>
+        </Box>
+        <Box flex="1 1 300px" minWidth={280} maxWidth={400}>
           <Card>
             <CardContent>
               <Typography variant="h5">Content Moderation</Typography>
@@ -34,8 +34,8 @@ export default function AdminDashboardPage() {
               </Button>
             </CardContent>
           </Card>
-        </Grid>
-        <Grid item xs={12} md={4}>
+        </Box>
+        <Box flex="1 1 300px" minWidth={280} maxWidth={400}>
           <Card>
             <CardContent>
               <Typography variant="h5">Analytics</Typography>
@@ -47,8 +47,8 @@ export default function AdminDashboardPage() {
               </Button>
             </CardContent>
           </Card>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
     </Box>
   );
 } 

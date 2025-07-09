@@ -1,5 +1,5 @@
 "use client";
-import Navbar from "@/components/layout/Navbar";
+import Navbar from "app/components/layout/Navbar";
 import { Box, Container, Typography, Button, CircularProgress, Paper } from "@mui/material";
 import { useState } from "react";
 

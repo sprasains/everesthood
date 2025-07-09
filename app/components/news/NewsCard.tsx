@@ -12,8 +12,8 @@ import {
 } from "@mui/material";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Article } from "@/types";
-import { useUser } from "../../src/hooks/useUser";
+import { Article } from "src/types";
+import { useUser } from "app/hooks/useUser";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import CommentIcon from "@mui/icons-material/Comment";

@@ -1,6 +1,6 @@
 import Parser from 'rss-parser';
 import { PrismaClient } from '@prisma/client';
-import { logger } from '../services/logger';
+import { logger } from '@/services/logger';
 
 const prisma = new PrismaClient();
 const parser = new Parser();

@@ -1,5 +1,5 @@
 "use client";
-import Navbar from "@/components/layout/Navbar";
+import Navbar from "app/components/layout/Navbar";
 import { Container, Typography, CircularProgress } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";

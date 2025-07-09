@@ -34,7 +34,8 @@ interface AgentInstanceListItem {
 }
 
 export default function AgentInstanceDetailPage() {
-  const { id } = useParams();
+  const params = useParams();
+  const id = typeof params?.id === 'string' ? params.id : Array.isArray(params?.id) ? params.id[0] : '';
   const { toast } = useToast();
   const [agentInstance, setAgentInstance] = useState<AgentInstance | null>(null);
   const [loading, setLoading] = useState(true);

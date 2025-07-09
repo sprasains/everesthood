@@ -1,7 +1,7 @@
 import React from 'react';
 import useSWR from 'swr';
 import { Box, Typography, Paper, Avatar, CircularProgress } from '@mui/material';
-import RichTextRenderer from './RichTextRenderer';
+import RichTextRenderer from '../posts/RichTextRenderer';
 
 const fetcher = (url: string) => fetch(url).then(res => res.json());
 

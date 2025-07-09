@@ -24,10 +24,25 @@
       "@/components/*": ["./app/components/*"],
       "@/lib/*": ["./lib/*"],
       "@/hooks/*": ["./app/hooks/*"],
-      "@/services/*": ["./app/services/*"]
+      "@/services/*": ["./app/services/*"],
+      "@/types/*": ["./src/types/*"]
       }
   },
-  "include": ["next-env.d.ts", "app/**/*.ts", "app/**/*.tsx", "app/components/**/*.ts", "app/components/**/*.tsx", "app/hooks/**/*.ts", "app/hooks/**/*.tsx", "app/services/**/*.ts", "app/services/**/*.tsx", "lib/**/*.ts", "lib/**/*.tsx", ".next/types/**/*.ts"],
+  "include": [
+    "next-env.d.ts",
+    "app/**/*.ts",
+    "app/**/*.tsx",
+    "app/components/**/*.ts",
+    "app/components/**/*.tsx",
+    "app/hooks/**/*.ts",
+    "app/hooks/**/*.tsx",
+    "app/services/**/*.ts",
+    "app/services/**/*.tsx",
+    "lib/**/*.ts",
+    "lib/**/*.tsx",
+    ".next/types/**/*.ts",
+    "src/types/index.ts"
+  ],
   "exclude": ["node_modules"],
   "ts-node": {
     "compilerOptions": {

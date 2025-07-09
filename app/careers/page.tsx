@@ -225,13 +225,14 @@ export default function CareersPage() {
             <Typography color="text.secondary" variant="h6">No jobs found. Try adjusting your search or filters.</Typography>
           </Box>
         ) : view === 'grid' ? (
-          <Grid container spacing={2}>
+          // Use Box and flexbox instead of MUI Grid for layout
+          <Box display="flex" flexWrap="wrap" gap={2}>
             {jobs.map((job) => (
-              <Grid xs={12} sm={6} md={4} key={job.job_id}>
+              <Box key={job.job_id} flexBasis={{ xs: '100%', sm: '48%', md: '31%' }} flexGrow={1} minWidth={280} maxWidth={{ xs: '100%', sm: '48%', md: '31%' }}>
                 <JobCardGrid job={job} onSalary={() => setSalaryModal({ open: true, jobTitle: job.job_title, location: job.job_city || job.job_state || '' })} />
-              </Grid>
+              </Box>
             ))}
-          </Grid>
+          </Box>
         ) : (
           <Box>
             {jobs.map((job) => (

@@ -83,3 +83,21 @@ export interface PersonaConfig {
   theme: string
   unlocked: boolean
 }
+
+// --- NextAuth type augmentation to include 'role' on User and Session ---
+import NextAuth, { DefaultSession, DefaultUser } from 'next-auth';
+
+declare module 'next-auth' {
+  interface User extends DefaultUser {
+    role?: string;
+  }
+  interface Session {
+    user?: {
+      id: string;
+      name?: string | null;
+      email?: string | null;
+      image?: string | null;
+      role?: string;
+    };
+  }
+}

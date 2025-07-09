@@ -7,21 +7,6 @@ import FacebookProvider from "next-auth/providers/facebook";
 import { prisma } from "./prisma";
 import bcrypt from "bcryptjs";
 
-// Extend the session user type to include id
-import NextAuth from "next-auth";
-declare module "next-auth" {
-  interface Session {
-    user: {
-      id: string;
-      name?: string | null;
-      email?: string | null;
-      image?: string | null;
-      subscriptionTier?: string;
-      level?: number;
-    };
-  }
-}
-
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
@@ -100,12 +85,23 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        // Add role to token if available
+        // If user object does not have role, fetch from DB
+        if ('role' in user && user.role) {
+          token.role = user.role;
+        } else if (user.email) {
+          // Fetch user from DB to get role
+          const dbUser = await prisma.user.findUnique({ where: { email: user.email } });
+          token.role = dbUser?.role || 'USER';
+        }
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
+        // Add role to session.user
+        session.user.role = token.role as string;
       }
       return session;
     },

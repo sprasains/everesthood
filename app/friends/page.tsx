@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { useState } from 'react';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
-import Grid from '@mui/material/Grid';
 
 const fetchFriendsData = async () => {
   const res = await fetch('/api/v1/friends');
@@ -55,21 +54,23 @@ export default function FriendsPage() {
                 </Tabs>
             </Box>
             {tab === 0 && (
-                 <Grid container spacing={3}>
+                 // Responsive flexbox grid for friends
+                 <Box display="flex" flexWrap="wrap" gap={3}>
                     {data.friends.map((friend: any) => (
-                        <Grid key={friend.id} sx={{ width: { xs: '100%', sm: '50%', md: '33.33%' } }}>
+                        <Box key={friend.id} flexBasis={{ xs: '100%', sm: '48%', md: '31%' }} flexGrow={1} minWidth={280} maxWidth={{ xs: '100%', sm: '48%', md: '31%' }}>
                             <Paper sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
                                 <Avatar src={friend.profilePicture} />
                                 <Typography fontWeight="bold" component={Link} href={`/profile/${friend.id}`} sx={{ textDecoration: 'none', color: 'inherit' }}>{friend.name}</Typography>
                             </Paper>
-                        </Grid>
+                        </Box>
                     ))}
-                 </Grid>
+                 </Box>
             )}
             {tab === 1 && (
-                <Grid container columns={12} spacing={2} sx={{ mt: 2 }}>
+                // Responsive flexbox grid for pending requests
+                <Box display="flex" flexWrap="wrap" gap={2} sx={{ mt: 2 }}>
                     {data.pendingReceived.length > 0 ? data.pendingReceived.map((req: any) => (
-                        <Grid key={req.requester.id} sx={{ width: { xs: '100%', sm: '50%', md: '33.33%' } }}>
+                        <Box key={req.requester.id} flexBasis={{ xs: '100%', sm: '48%', md: '31%' }} flexGrow={1} minWidth={280} maxWidth={{ xs: '100%', sm: '48%', md: '31%' }}>
                             <Paper sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2}}>
                                     <Avatar src={req.requester.image || undefined} />
@@ -84,9 +85,9 @@ export default function FriendsPage() {
                                     </Button>
                                 </Box>
                             </Paper>
-                        </Grid>
+                        </Box>
                     )) : <Typography sx={{ mt: 3, width: '100%', textAlign: 'center' }}>No new friend requests.</Typography>}
-                </Grid>
+                </Box>
             )}
         </Container>
     );

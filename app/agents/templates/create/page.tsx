@@ -20,6 +20,8 @@ export default function CreateAgentTemplatePage() {
   const [defaultTools, setDefaultTools] = useState(''); // Comma-separated string
   const [isPublic, setIsPublic] = useState(false);
   const [loading, setLoading] = useState(false);
+  // State to store error messages
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,6 +71,10 @@ export default function CreateAgentTemplatePage() {
   return (
     <div className="container mx-auto py-8">
       <h1 className="text-3xl font-bold mb-6">Create New Agent Template</h1>
+      {/* Show error message if present */}
+      {error && (
+        <div className="text-red-500 text-center mb-4">Error: {error}</div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <Card>

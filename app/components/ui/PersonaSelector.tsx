@@ -1,6 +1,6 @@
 "use client"
 import { motion } from "framer-motion"
-import { Persona, PersonaConfig } from "@/types"
+import { Persona, PersonaConfig } from "@/types/index"
 import { useUser } from "@/hooks/useUser";
 import { useEffect, useState } from "react"
 

@@ -7,7 +7,8 @@ import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import { useQueryClient } from '@tanstack/react-query';
 
-const CommentForm = dynamic(() => import("@/components/ui/CommentForm"), { ssr: false });
+// Corrected import path for CommentForm
+const CommentForm = dynamic(() => import("./CommentForm"), { ssr: false });
 
 interface Comment {
   id: string;

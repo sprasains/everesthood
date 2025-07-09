@@ -1,14 +1,14 @@
 "use client";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
-import PersonaSelector from "@/components/ui/PersonaSelector";
-import StreakDisplay from "@/components/ui/StreakDisplay";
+import PersonaSelector from "app/components/ui/PersonaSelector";
+import StreakDisplay from "app/components/ui/StreakDisplay";
 import PersonIcon from "@mui/icons-material/Person";
 import SettingsIcon from "@mui/icons-material/Settings";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import { CircularProgress, Box, Container, Paper, Tabs, Tab, Typography, Avatar } from "@mui/material";
-import { BadgeList, Badge } from "@/components/ui/BadgeList";
+import { BadgeList, Badge } from "app/components/ui/BadgeList";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
@@ -46,14 +46,16 @@ export default function ProfilePage() {
   const [badges, setBadges] = useState<Badge[]>([]);
   const { data: session } = useSession();
 
+  const { user, updateUser, isLoading } = useUser();
+
   useEffect(() => {
-    if (useUser().user) {
+    if (user) {
       setFormData({
-        name: useUser().user.name || "",
-        weeklyGoal: useUser().user.weeklyGoal || 5,
+        name: user.name || "",
+        weeklyGoal: user.weeklyGoal || 5,
       });
     }
-  }, [useUser().user]);
+  }, [user]);
 
   useEffect(() => {
     if (session?.user?.id) {
@@ -62,13 +64,13 @@ export default function ProfilePage() {
   }, [session?.user?.id]);
 
   useEffect(() => {
-    if (!useUser().isLoading && !useUser().user) {
+    if (!isLoading && !user) {
       router.replace("/auth/signin");
     }
-  }, [useUser().user, useUser().isLoading, router]);
+  }, [user, isLoading, router]);
 
   const handleSave = async () => {
-    await useUser().updateUser(formData);
+    await updateUser(formData);
     setIsEditing(false);
   };
 
@@ -96,7 +98,7 @@ export default function ProfilePage() {
     { id: "settings", name: "Settings", icon: <SettingsIcon /> },
   ];
 
-  if (useUser().isLoading || !useUser().user) {
+  if (isLoading || !user) {
     return <CircularProgress />;
   }
 
@@ -113,8 +115,8 @@ export default function ProfilePage() {
         return "💪";
     }
   };
-  const memberSince = useUser().user?.createdAt
-    ? new Date(useUser().user.createdAt).getFullYear()
+  const memberSince = user?.createdAt
+    ? new Date(user.createdAt).getFullYear()
     : new Date().getFullYear();
 
   return (
@@ -149,10 +151,10 @@ export default function ProfilePage() {
                 }}
               >
                 {/* Avatar or Persona Icon */}
-                {useUser().user?.image ? (
-                  <Avatar src={useUser().user.image} alt={useUser().user.name || ""} sx={{ width: 96, height: 96 }} />
+                {user?.image ? (
+                  <Avatar src={user.image} alt={user.name || ""} sx={{ width: 96, height: 96 }} />
                 ) : (
-                  getPersonaIcon(useUser().user?.persona)
+                  getPersonaIcon(user?.persona)
                 )}
               </Box>
               <Box>
@@ -161,10 +163,10 @@ export default function ProfilePage() {
                   fontWeight="bold"
                   sx={{ color: "primary.main" }}
                 >
-                  {useUser().user?.name || "Your Name"}
+                  {user?.name || "Your Name"}
                 </Typography>
                 <Typography variant="body1" color="text.secondary">
-                  Level {useUser().user?.level ?? 1}
+                  Level {user?.level ?? 1}
                 </Typography>
                 <StreakDisplay />
               </Box>

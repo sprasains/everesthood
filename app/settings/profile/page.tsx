@@ -4,7 +4,8 @@ import { useState, ChangeEvent, FormEvent, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { BadgeList, Badge } from "@/components/ui/BadgeList";
+import { BadgeList, Badge } from "app/components/ui/BadgeList";
+import CircularProgress from '@mui/material/CircularProgress';
 
 const useUser = () => ({ user: { id: 'placeholder', name: 'Placeholder User', weeklyGoal: 5 }, updateUser: () => {}, isLoading: false });
 

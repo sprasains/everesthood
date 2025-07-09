@@ -4,6 +4,8 @@ import { Box, Container, Typography, Button, Paper, CircularProgress } from '@mu
 
 const useRequireAuth = () => { return { user: { id: 'placeholder' } }; };
 
+const AuthLoading = () => <div>Loading...</div>;
+
 export default function ResumeCheckerPage() {
     const { user, loading: authLoading } = useRequireAuth();
     const [file, setFile] = useState<File | null>(null);

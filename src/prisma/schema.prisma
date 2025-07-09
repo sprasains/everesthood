@@ -163,6 +163,7 @@ model VerificationToken {
 
 model Post {
   id             String    @id @default(cuid())
+  title          String    // Title of the post
   content        Json? // For rich text editor support (e.g., TipTap)
   authorId       String
   createdAt      DateTime  @default(now())

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react"
-import { GenZContent } from "@/types"
+import { GenZContent } from "@/types/index"
 
 export function useGenZContent() {
   const [content, setContent] = useState<GenZContent[]>([])

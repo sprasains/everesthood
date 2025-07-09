@@ -1,5 +1,5 @@
 "use client";
-import Navbar from "@/components/layout/Navbar";
+import Navbar from "app/components/layout/Navbar";
 import { Container, Typography } from "@mui/material";
 
 export default function ApiDocsPage() {

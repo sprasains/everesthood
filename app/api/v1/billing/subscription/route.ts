@@ -34,6 +34,7 @@ export async function POST(req: Request) {
         stripeCustomerId: true,
         stripeSubscriptionId: true,
         stripePriceId: true,
+        monthlyExecutionLimit: true, // Needed for fallback
       },
     });
 

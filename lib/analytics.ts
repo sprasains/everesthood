@@ -1,4 +1,4 @@
-import { logger } from '../services/logger';
+import { logger } from '@/services/logger';
 
 export const trackEngagement = {
   articleRead: (articleId: string, timeSpent: number, userId?: string) => {

@@ -2,13 +2,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { Container, Paper, Avatar, Typography, Box, Button, Divider } from "@mui/material";
-import PostCard from "@/components/posts/PostCard";
+import PostCard from "app/components/posts/PostCard";
 import AddReactionIcon from '@mui/icons-material/AddReaction';
 import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
-import ProfileHeaderSkeleton from "@/components/ui/ProfileHeaderSkeleton";
-import PostCardSkeleton from "@/components/posts/PostCardSkeleton";
-import Grid from '@mui/material/Grid';
-import { Badge } from '@/app/ui/BadgeList';
+import ProfileHeaderSkeleton from "app/components/ui/ProfileHeaderSkeleton";
+import PostCardSkeleton from "app/components/posts/PostCardSkeleton";
+import { Badge } from '@/components/ui/BadgeList';
 import { useState, useEffect } from "react";
 
 const BadgeList = () => <div>BadgeList placeholder</div>;
@@ -117,13 +116,14 @@ export default function UserProfilePage() {
               ))}
             </Box>
         ) : postsData && postsData.posts.length > 0 ? (
-            <Grid container spacing={2}>
+            // Responsive flexbox grid for posts
+            <Box display="flex" flexWrap="wrap" gap={2}>
               {postsData.posts.map((post: any) => (
-                <Grid key={post.id} sx={{ width: '100%' }}>
+                <Box key={post.id} flexBasis={{ xs: '100%', sm: '48%', md: '31%' }} flexGrow={1} minWidth={280} maxWidth={{ xs: '100%', sm: '48%', md: '31%' }}>
                   <PostCard post={post} />
-                </Grid>
+                </Box>
               ))}
-            </Grid>
+            </Box>
         ) : (
             <Box textAlign="center" py={6}>
               <Typography variant="h6" color="text.secondary" gutterBottom>
@@ -149,17 +149,18 @@ export default function UserProfilePage() {
                 ))}
               </Box>
           ) : achievementsData && achievementsData.achievements.length > 0 ? (
-              <Grid container spacing={2}>
+              // Responsive flexbox grid for achievements
+              <Box display="flex" flexWrap="wrap" gap={2}>
                   {achievementsData.achievements.map((ach: any) => (
-                      <Grid key={ach.id} sx={{ width: { xs: '100%', sm: '50%', md: '33.33%' } }}>
+                      <Box key={ach.id} flexBasis={{ xs: '100%', sm: '48%', md: '31%' }} flexGrow={1} minWidth={280} maxWidth={{ xs: '100%', sm: '48%', md: '31%' }}>
                           <Paper sx={{ p: 2, textAlign: 'center' }}>
                               <Typography variant="h4">{ach.icon}</Typography>
                               <Typography fontWeight="bold">{ach.name}</Typography>
                               <Typography variant="body2" color="text.secondary">{ach.description}</Typography>
                           </Paper>
-                      </Grid>
+                      </Box>
                   ))}
-              </Grid>
+              </Box>
           ) : (
               <Box textAlign="center" py={4}>
                 <Typography variant="h6" color="text.secondary" gutterBottom>

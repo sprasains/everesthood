@@ -24,7 +24,9 @@ interface AgentTemplate {
 }
 
 export default function EditAgentTemplatePage() {
-  const { id } = useParams();
+  const params = useParams();
+  // Safely extract the id parameter as a string (handles both string and array cases)
+  const id = Array.isArray(params?.id) ? params.id[0] : params?.id;
   const router = useRouter();
   const { toast } = useToast();
   const [template, setTemplate] = useState<AgentTemplate | null>(null);

@@ -1,6 +1,5 @@
 "use client";
 import { Box, Typography, Card, CardContent, CircularProgress } from "@mui/material";
-import Grid from "@mui/material/Grid";
 import { useQuery } from "@tanstack/react-query";
 
 function fetchMetrics() {
@@ -19,40 +18,40 @@ export default function AdminAnalyticsPage() {
       {isLoading ? (
         <CircularProgress />
       ) : (
-        <Grid container="true" spacing={3}>
-          <Grid item="true" xs={12} md={3}>
+        <Box display="flex" flexWrap="wrap" gap={3}>
+          <Box flex="1 1 220px" minWidth={220} maxWidth={350}>
             <Card>
               <CardContent>
                 <Typography variant="h6">New Users Today</Typography>
                 <Typography variant="h4">{metrics.newUsersToday ?? "-"}</Typography>
               </CardContent>
             </Card>
-          </Grid>
-          <Grid item="true" xs={12} md={3}>
+          </Box>
+          <Box flex="1 1 220px" minWidth={220} maxWidth={350}>
             <Card>
               <CardContent>
                 <Typography variant="h6">Posts Today</Typography>
                 <Typography variant="h4">{metrics.postsToday ?? "-"}</Typography>
               </CardContent>
             </Card>
-          </Grid>
-          <Grid item="true" xs={12} md={3}>
+          </Box>
+          <Box flex="1 1 220px" minWidth={220} maxWidth={350}>
             <Card>
               <CardContent>
                 <Typography variant="h6">Total Users</Typography>
                 <Typography variant="h4">{metrics.totalUsers ?? "-"}</Typography>
               </CardContent>
             </Card>
-          </Grid>
-          <Grid item="true" xs={12} md={3}>
+          </Box>
+          <Box flex="1 1 220px" minWidth={220} maxWidth={350}>
             <Card>
               <CardContent>
                 <Typography variant="h6">Total Posts</Typography>
                 <Typography variant="h4">{metrics.totalPosts ?? "-"}</Typography>
               </CardContent>
             </Card>
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
       )}
     </Box>
   );

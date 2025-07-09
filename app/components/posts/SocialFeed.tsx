@@ -1,7 +1,7 @@
 "use client"
 import { motion } from "framer-motion"
 import { useState, useEffect } from "react"
-import { useUser } from "../../src/hooks/useUser"
+import { useUser } from "@/hooks/useUser"
 import PollCard from "@/components/ui/PollCard"
 import { logger, newCorrelationId, getCorrelationId } from '@/services/logger'
 

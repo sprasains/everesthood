@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Button, Card } from "@/components/ui";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
-export default function SimulatorTab({ agentId }) {
+export default function SimulatorTab({ agentId }: { agentId: string }) {
   const [state, setState] = useState<any>(null);
   const [input, setInput] = useState("{}");
   const [loading, setLoading] = useState(false);

@@ -1,7 +1,9 @@
 "use client";
-import Navbar from "@/components/layout/Navbar";
+import Navbar from "app/components/layout/Navbar";
 import { Container, Typography } from "@mui/material";
 const useRequireAuth = () => { return { user: { id: 'placeholder' } }; };
+
+const AuthLoading = () => <div>Loading...</div>;
 
 export default function TermsPage() {
   const { user, loading } = useRequireAuth();

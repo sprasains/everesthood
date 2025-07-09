@@ -13,7 +13,7 @@ export async function GET() {
     }
 
     // Only cache public templates for now
-    const agentTemplates = (await getAgentTemplatesWithCache()).filter(t => t.isPublic);
+    const agentTemplates = (await getAgentTemplatesWithCache()).filter((t: { isPublic: boolean }) => t.isPublic);
 
     return NextResponse.json(agentTemplates);
   } catch (error) {
