@@ -21,6 +21,32 @@
 
 ---
 
+## Automated Fix Scripts & System Reliability
+
+To support a reliable and maintainable system, a suite of automated fix scripts is provided in the project root. These scripts:
+- Automatically resolve common build, lint, and migration issues
+- Help developers keep the codebase healthy and up-to-date
+- Can be run individually or collectively (see package.json and README)
+
+### Developer Workflow
+- **Onboarding:** Run `npm run fix:all` to resolve common issues before development
+- **CI/CD:** Integrate scripts into pipelines to enforce code quality
+- **Troubleshooting:** Use scripts to quickly fix errors after merges or upgrades
+
+### Usage
+- Run all fixes:
+  ```bash
+  npm run fix:all
+  ```
+- Run a specific fix (see package.json for options)
+
+### Best Practices
+- Review script output and check files for context-specific fixes
+- Use scripts iteratively during refactors or after dependency changes
+- See the README for a full list of scripts and details
+
+---
+
 ## One-Pager System Diagram
 
 ```mermaid

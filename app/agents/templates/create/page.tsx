@@ -52,15 +52,13 @@ export default function CreateAgentTemplatePage() {
 
       const newTemplate = await response.json();
       toast({
-        title: "Success",
-        description: `Agent template "${newTemplate.name}" created successfully.`, 
+        title: `Agent template "${newTemplate.name}" created successfully.`,
       });
       router.push(`/agents/${newTemplate.id}`); // Redirect to the new template's detail page
     } catch (e: any) {
       setError(e.message);
       toast({
-        title: "Error",
-        description: `Failed to create template: ${e.message}`,
+        title: `Failed to create template: ${e.message}`,
         variant: "destructive",
       });
     } finally {

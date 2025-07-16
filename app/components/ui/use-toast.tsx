@@ -2,33 +2,42 @@
 
 import * as React from "react"
 
-import { ToastProvider, Toast, ToastViewport } from "./toast"
+import { Toast, ToastProvider, ToastViewport } from "./toast"
+
+type ToastProps = Omit<React.ComponentPropsWithoutRef<typeof Toast>, "id"> & {
+  id?: string
+}
+
+type ToasterToast = ToastProps & {
+  id: string
+  title?: React.ReactNode
+  description?: React.ReactNode
+  action?: React.ReactNode
+}
 
 type ToastContextType = {
-  toast: (props: Record<string, any>) => void;
-} | null;
+  toasts: ToasterToast[]
+  toast: (props: ToastProps) => void
+} | null
 
-const ToastContext = React.createContext<ToastContextType>(null);
+const ToastContext = React.createContext<ToastContextType>(null)
 
 export function ToastProviderWrapper({ children }: { children: React.ReactNode }) {
-  const [toasts, setToasts] = React.useState<any[]>([])
-  const addToast = React.useCallback((props: Record<string, any>) => {
-    setToasts((prev) => [...prev, { id: Date.now(), ...props }])
+  const [toasts, setToasts] = React.useState<ToasterToast[]>([])
+
+  const toast = React.useCallback((props: ToastProps) => {
+    const id = props.id || Date.now().toString()
+    setToasts((prev) => [...prev, { ...props, id }])
   }, [])
 
-  const removeToast = React.useCallback((id: number) => {
+  const removeToast = React.useCallback((id: string) => {
     setToasts((prev) => prev.filter((toast) => toast.id !== id))
   }, [])
 
   return (
-    <ToastContext.Provider value={{ toast: addToast }}>
-      <ToastProvider>
-        {children}
-        {toasts.map(({ id, ...props }) => (
-          <Toast key={id} onOpenChange={() => removeToast(id)} {...props} />
-        ))}
-        <ToastViewport />
-      </ToastProvider>
+    <ToastContext.Provider value={{ toasts, toast }}>
+      {children}
+      <ToastViewport />
     </ToastContext.Provider>
   )
 }

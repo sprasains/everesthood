@@ -119,14 +119,12 @@ export default function AgentInstanceDetailPage() {
       const updatedInstance: AgentInstance = await response.json();
       setAgentInstance(updatedInstance);
       toast({
-        title: "Success",
-        description: "Agent configuration saved successfully.",
+        title: "Agent configuration saved successfully.",
       });
     } catch (e: any) {
       setError(e.message);
       toast({
-        title: "Error",
-        description: `Failed to save configuration: ${e.message}`,
+        title: `Failed to save configuration: ${e.message}`,
         variant: "destructive",
       });
     } finally {

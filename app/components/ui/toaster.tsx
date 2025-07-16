@@ -1,6 +1,11 @@
 "use client"
 
-import { Toast, ToastDescription, ToastTitle, ToastViewport } from "./toast"
+import {
+  Toast,
+  ToastDescription,
+  ToastTitle,
+  ToastViewport,
+} from "./toast"
 import { useToast } from "./use-toast"
 
 export function Toaster() {

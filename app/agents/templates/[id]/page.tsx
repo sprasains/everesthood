@@ -98,8 +98,7 @@ export default function EditAgentTemplatePage() {
       const updatedTemplate: AgentTemplate = await response.json();
       setTemplate(updatedTemplate);
       toast({
-        title: "Success",
-        description: `Agent template "${updatedTemplate.name}" (v${updatedTemplate.version}) saved successfully.`, 
+        title: `Agent template "${updatedTemplate.name}" (v${updatedTemplate.version}) saved successfully.`,
       });
       // If a new version was created, redirect to its page
       if (createNewVersion) {
@@ -108,8 +107,7 @@ export default function EditAgentTemplatePage() {
     } catch (e: any) {
       setError(e.message);
       toast({
-        title: "Error",
-        description: `Failed to save template: ${e.message}`,
+        title: `Failed to save template: ${e.message}`,
         variant: "destructive",
       });
     } finally {

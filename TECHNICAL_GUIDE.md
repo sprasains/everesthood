@@ -40,6 +40,48 @@ graph TD;
 
 ---
 
+## Automated Fix Scripts & Developer Tooling
+
+To streamline development, reduce manual errors, and ensure a healthy codebase, a suite of automated fix scripts is provided in the project root. These Node.js scripts address common build, lint, and migration issues, and can be run individually or collectively.
+
+### Types of Scripts
+- **Error Handling Fixes:** Automatically patch unsafe error.message access, implicit any, and missing exports.
+- **Linting & Formatting:** Run ESLint with --fix to auto-correct style and code issues.
+- **Import Path Checks:** Log and help fix broken or incorrect import paths.
+- **MUI/Component Refactors:** Identify and help refactor deprecated or problematic MUI usage (e.g., Grid to Box).
+- **Client/Server Boundaries:** Add missing 'use client' directives to React components as needed.
+
+### Usage
+- **Run all fixes at once:**
+  ```bash
+  npm run fix:all
+  ```
+- **Run a specific fix:**
+  ```bash
+  npm run fix:lint
+  npm run fix:use-client-directive
+  # ...and others as listed in package.json
+  ```
+
+### Location
+- All fix scripts are in the project root (e.g., `fix-lint-errors.js`, `fix-use-client-directive.js`, etc.).
+- Scripts are referenced in `package.json` for easy npm usage.
+
+### Workflow Integration
+- **Onboarding:** New developers can run `npm run fix:all` to resolve common issues before starting work.
+- **CI/CD:** Scripts can be integrated into CI pipelines to enforce code quality and prevent regressions.
+- **Pre-commit:** Optionally, run scripts as pre-commit hooks to catch issues early.
+- **Troubleshooting:** Use scripts to quickly resolve build or lint errors after merges or dependency updates.
+
+### Best Practices
+- Always review script output and manually check files for context-specific fixes.
+- Use scripts iteratively during refactors or after large dependency upgrades.
+- Reference the README for a full list of scripts and their descriptions.
+
+These tools help maintain a robust, modern codebase and accelerate development velocity for all contributors.
+
+---
+
 ## 3. Environment Setup, Build, and Run
 
 - **Layman:** Copy the example settings, fill in your secrets, and run one command to start everything.

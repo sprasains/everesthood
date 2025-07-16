@@ -37,6 +37,16 @@ const testUsers = [
   { label: 'Test User 4', email: 'test4@example.com', password: 'password123' },
 ];
 
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  if (typeof error === 'object' && error !== null && 'message' in error) {
+    return String((error as { message: unknown }).message);
+  }
+  return String(error);
+}
+
 export default function AuthForm({ isSignUp = false }: AuthFormProps) {
   const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
@@ -71,14 +81,14 @@ export default function AuthForm({ isSignUp = false }: AuthFormProps) {
           });
           setMode('signin'); // Switch to sign in mode after sign up
         } else {
-          let errorData = {};
+          let errorData: { message?: string } = {};
           try {
             errorData = await res.json();
           } catch (jsonErr) {
             console.error('Error parsing sign up error response:', jsonErr);
           }
           console.error('Sign up error:', errorData, 'Status:', res.status, 'StatusText:', res.statusText);
-          enqueueSnackbar((errorData as any)?.message || `Registration failed: ${res.status} ${res.statusText}` , { variant: "error" });
+          enqueueSnackbar(errorData?.message || `Registration failed: ${res.status} ${res.statusText}` , { variant: "error" });
         }
       } else {
         let result;
@@ -91,7 +101,7 @@ export default function AuthForm({ isSignUp = false }: AuthFormProps) {
           });
         } catch (signInErr) {
           console.error('signIn threw error:', signInErr);
-          enqueueSnackbar("Sign in failed: " + (signInErr?.message || signInErr), { variant: "error" });
+          enqueueSnackbar("Sign in failed: " + getErrorMessage(signInErr), { variant: "error" });
           setIsSubmitting(false);
           return;
         }
@@ -111,15 +121,10 @@ export default function AuthForm({ isSignUp = false }: AuthFormProps) {
         }
       }
     } catch (error) {
-      if (error && typeof error === 'object') {
-        const errMsg = (error as any).message || JSON.stringify(error);
-        const errStack = (error as any).stack || '';
-        console.error('AuthForm onSubmit error:', errMsg, errStack);
-        enqueueSnackbar("An unexpected error occurred: " + errMsg, { variant: "error" });
-      } else {
-        console.error('AuthForm onSubmit error:', error);
-        enqueueSnackbar("An unexpected error occurred: " + String(error), { variant: "error" });
-      }
+      const errorMessage = getErrorMessage(error);
+      const errStack = error instanceof Error ? error.stack : '';
+      console.error('AuthForm onSubmit error:', errorMessage, errStack);
+      enqueueSnackbar("An unexpected error occurred: " + errorMessage, { variant: "error" });
     } finally {
       setIsSubmitting(false);
     }
@@ -373,15 +378,10 @@ export default function AuthForm({ isSignUp = false }: AuthFormProps) {
                 console.log('Google signIn result:', result);
                 if (!result?.ok) enqueueSnackbar("Google sign-in failed.", { variant: "error" });
               } catch (e) {
-                if (e && typeof e === 'object') {
-                  const errMsg = (e as any).message || JSON.stringify(e);
-                  const errStack = (e as any).stack || '';
-                  console.error('Google signIn error:', errMsg, errStack);
-                  enqueueSnackbar("Google sign-in failed: " + errMsg, { variant: "error" });
-                } else {
-                  console.error('Google signIn error:', e);
-                  enqueueSnackbar("Google sign-in failed: " + String(e), { variant: "error" });
-                }
+                const errorMessage = getErrorMessage(e);
+                const errStack = e instanceof Error ? e.stack : '';
+                console.error('Google signIn error:', errorMessage, errStack);
+                enqueueSnackbar("Google sign-in failed: " + errorMessage, { variant: "error" });
               } finally {
                 setIsSubmitting(false);
               }
@@ -413,15 +413,10 @@ export default function AuthForm({ isSignUp = false }: AuthFormProps) {
                 console.log('Facebook signIn result:', result);
                 if (!result?.ok) enqueueSnackbar("Facebook sign-in failed.", { variant: "error" });
               } catch (e) {
-                if (e && typeof e === 'object') {
-                  const errMsg = (e as any).message || JSON.stringify(e);
-                  const errStack = (e as any).stack || '';
-                  console.error('Facebook signIn error:', errMsg, errStack);
-                  enqueueSnackbar("Facebook sign-in failed: " + errMsg, { variant: "error" });
-                } else {
-                  console.error('Facebook signIn error:', e);
-                  enqueueSnackbar("Facebook sign-in failed: " + String(e), { variant: "error" });
-                }
+                const errorMessage = getErrorMessage(e);
+                const errStack = e instanceof Error ? e.stack : '';
+                console.error('Facebook signIn error:', errorMessage, errStack);
+                enqueueSnackbar("Facebook sign-in failed: " + errorMessage, { variant: "error" });
               } finally {
                 setIsSubmitting(false);
               }

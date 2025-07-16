@@ -24,7 +24,15 @@
     "test:e2e:report": "playwright show-report",
     "typecheck": "tsc --noEmit",
     "prisma:validate": "prisma validate",
-    "check": "npm run lint && npm run typecheck && npm run prisma:validate"
+    "check": "npm run lint && npm run typecheck && npm run prisma:validate",
+    "fix:use-client-directive": "node fix-use-client-directive.js",
+    "fix:import-paths": "node fix-import-paths.js",
+    "fix:missing-exports": "node fix-missing-exports.js",
+    "fix:mui-required-props": "node fix-mui-required-props.js",
+    "fix:mui-grid-to-box": "node fix-mui-grid-to-box.js",
+    "fix:implicit-any": "node fix-implicit-any.js",
+    "fix:all": "npm run fix:use-client-directive && npm run fix:import-paths && npm run fix:missing-exports && npm run fix:mui-required-props && npm run fix:mui-grid-to-box && npm run fix:implicit-any",
+    "fix:lint": "node fix-lint-errors.js"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.10.0",

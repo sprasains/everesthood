@@ -120,51 +120,58 @@ GET    /api/v1/user/achievements        # User's unlocked achievements
 
 ```
 everhood-platform/
+├── app/                       # Next.js 14 App Router (routes, pages, API)
+│   ├── components/            # Reusable UI and feature components
+│   ├── api/                   # API routes (RESTful endpoints)
+│   └── ...                    # Other app features (dashboard, news, etc.)
 ├── src/
-│   ├── app/                    # Next.js 14 App Router
-│   │   ├── (main)/            # Main app pages
-│   │   │   ├── dashboard/     # User dashboard
-│   │   │   ├── news/          # News feed with AI summaries
-│   │   │   ├── subscribe/     # Stripe subscription flow
-│   │   │   └── profile/       # User profile & settings
-│   │   ├── api/v1/            # RESTful API routes
-│   │   │   ├── news/          # Article management
-│   │   │   ├── ai/summarize/  # AI summarization
-│   │   │   ├── genz-content/  # Gen-Z content feeds
-│   │   │   ├── user/          # User management
-│   │   │   └── stripe/        # Payment processing
-│   │   ├── globals.css        # TailwindCSS + custom styles
-│   │   ├── layout.tsx         # Root layout with providers
-│   │   └── page.tsx           # Landing page
-│   ├── components/            # React components
-│   │   ├── ui/                # UI components
-│   │   │   ├── NewsCard.tsx   # Enhanced article cards
-│   │   │   ├── GenZContentPanel.tsx # NEW: Gen-Z content sidebar
-│   │   │   ├── StreakDisplay.tsx    # Gamification streaks
-│   │   │   ├── PersonaSelector.tsx  # AI persona switcher
-│   │   │   └── SocialFeed.tsx       # Community features
-│   │   └── layout/            # Layout components
-│   ├── lib/                   # Core utilities
-│   │   ├── prisma.ts          # Database client
-│   │   ├── auth.ts            # NextAuth configuration
-│   │   ├── stripe.ts          # Stripe integration
-│   │   ├── gemini.ts          # AI summarization
-│   │   └── genz-sources.ts    # NEW: Gen-Z content sources
-│   ├── hooks/                 # React hooks
-│   │   ├── useUser.ts         # User state management
-│   │   ├── useStreak.ts       # Gamification logic
-│   │   └── useGenZContent.ts  # NEW: Gen-Z content hook
-│   └── types/                 # TypeScript definitions
-├── prisma/
-│   └── schema.prisma          # Database schema with gamification
-├── scripts/
-│   ├── fetchNews.ts           # News aggregation cron
-│   └── fetchGenZContent.ts    # NEW: Gen-Z content aggregation
-├── public/
-│   └── manifest.json          # PWA configuration
-├── docker-compose.yml         # Full-stack development
-├── Dockerfile                 # Production deployment
-└── README.md                  # This file
+│   ├── agents/                # Agent logic and registry
+│   ├── scheduler/             # Job scheduling logic
+│   ├── types/                 # TypeScript type definitions (NextAuth, Prisma, etc.)
+│   ├── prisma/                # Prisma schema, seeds, and migrations
+│   ├── tests/                 # E2E and integration tests
+│   └── ...
+├── lib/                       # Shared libraries and utilities (auth, redis, stripe, etc.)
+├── worker/                    # Worker service (job queue, background jobs)
+│   └── Dockerfile             # Worker Dockerfile
+├── migrations/                # Prisma migration files
+├── public/                    # Static assets and PWA files
+├── scripts/                   # Data aggregation and cron scripts
+├── fix-error-message-access.js      # Script: Fix unsafe error.message access
+├── fix-use-client-directive.js      # Script: Add 'use client' directive
+├── fix-import-paths.js              # Script: Log broken import paths
+├── fix-missing-exports.js           # Script: Add missing exports
+├── fix-mui-required-props.js        # Script: Log MUI required prop issues
+├── fix-mui-grid-to-box.js           # Script: Log MUI Grid usages
+├── fix-implicit-any.js              # Script: Log implicit any issues
+├── fix-lint-errors.js               # Script: Auto-fix lint errors
+├── package.json                # NPM scripts and dependencies
+├── Dockerfile                  # Main app Dockerfile
+├── docker-compose.yml          # Multi-service orchestration
+└── README.md                   # This file
+```
+
+---
+
+## 🤖 Automated Fix Scripts
+
+A suite of Node.js scripts is provided in the project root to help you automatically find and fix common build and lint errors. These scripts can be run individually or collectively via npm scripts.
+
+| Command                        | Description                                                      |
+| ------------------------------ | ---------------------------------------------------------------- |
+| `npm run fix:use-client-directive` | Add 'use client' to .tsx files using client-only features         |
+| `npm run fix:import-paths`         | Log potentially broken or incorrect import paths                  |
+| `npm run fix:missing-exports`      | Add missing export statements to top-level declarations           |
+| `npm run fix:mui-required-props`   | Log MUI components missing required props                         |
+| `npm run fix:mui-grid-to-box`      | Log all usages of <Grid> from MUI for refactor                    |
+| `npm run fix:implicit-any`         | Log all function params/vars with implicit any                    |
+| `npm run fix:error-message-access` | Fix unsafe error.message access in catch blocks                   |
+| `npm run fix:lint`                 | Run ESLint with --fix to auto-fix lint errors                     |
+| `npm run fix:all`                  | Run all the above fix scripts in sequence                         |
+
+**Usage Example:**
+```bash
+npm run fix:all
 ```
 
 ---

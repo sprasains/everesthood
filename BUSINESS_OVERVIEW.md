@@ -41,6 +41,31 @@ graph TD;
 
 ---
 
+## Automated Fix Scripts: Business Value
+
+To ensure rapid onboarding, minimize manual errors, and maintain a healthy codebase, the platform includes a suite of automated fix scripts in the project root. These scripts:
+- Automatically fix common build, lint, and migration issues
+- Help developers resolve problems quickly, reducing downtime and support needs
+- Standardize code quality and reduce technical debt
+
+### How They Work
+- Developers can run all fixes at once with:
+  ```bash
+  npm run fix:all
+  ```
+- Or run individual scripts for targeted fixes (see package.json for all options)
+- Scripts are referenced in the project root and documented in the README
+
+### Business Impact
+- **Faster Onboarding:** New team members can resolve common issues in minutes
+- **Fewer Manual Errors:** Automated fixes reduce the risk of human mistakes
+- **Consistent Quality:** Codebase remains modern, maintainable, and ready for scale
+- **Lower Support Burden:** Fewer build/lint issues mean less time spent on troubleshooting
+
+For a full list of scripts and usage details, see the README.
+
+---
+
 ## Requesting Features & Reporting Issues
 - **Layman:** Want something new or found a bug? Let us know!
 - **Business:**

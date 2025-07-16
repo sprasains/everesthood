@@ -58,6 +58,16 @@ interface ThreadedCommentsProps {
 
 const MAX_REPLY_DEPTH = 5;
 
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  if (typeof error === 'object' && error !== null && 'message' in error) {
+    return String((error as { message: unknown }).message);
+  }
+  return String(error);
+}
+
 function normalizeComment(raw: any): Comment {
   return {
     id: raw.id,
@@ -229,8 +239,9 @@ const ThreadedComments: React.FC<ThreadedCommentsProps> = ({
     try {
       await fetch(`/api/v1/comments/${comment.id}/like`, { method: "POST" });
       logger.info('Comment liked.');
-    } catch (error: any) {
-      logger.error('Failed to like comment.', { error: error.message, stack: error.stack });
+    } catch (error) {
+      const errorMessage = getErrorMessage(error);
+      logger.error('Failed to like comment.', { error: errorMessage, stack: error instanceof Error ? error.stack : undefined });
       // Revert optimistic update on error
       setComments(prev => updateCommentInTree(prev, comment.id, c => ({
         ...c,
@@ -246,8 +257,9 @@ const ThreadedComments: React.FC<ThreadedCommentsProps> = ({
     try {
       await fetch(`/api/v1/comments/${comment.id}/dislike`, { method: "POST" });
       logger.info('Comment disliked.');
-    } catch (error: any) {
-      logger.error('Failed to dislike comment.', { error: error.message, stack: error.stack });
+    } catch (error) {
+      const errorMessage = getErrorMessage(error);
+      logger.error('Failed to dislike comment.', { error: errorMessage, stack: error instanceof Error ? error.stack : undefined });
     }
   };
 
@@ -304,8 +316,9 @@ const ThreadedComments: React.FC<ThreadedCommentsProps> = ({
         const data = await res.json();
         setComments(Array.isArray(data.commentsJson) ? data.commentsJson.map(normalizeComment) : []);
       }
-    } catch (error: any) {
-      logger.error('Failed to delete comment.', { error: error.message, stack: error.stack });
+    } catch (error) {
+      const errorMessage = getErrorMessage(error);
+      logger.error('Failed to delete comment.', { error: errorMessage, stack: error instanceof Error ? error.stack : undefined });
     }
   };
 

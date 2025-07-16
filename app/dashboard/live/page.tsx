@@ -5,7 +5,8 @@ import Table from '@mui/material/Table';
 import Chip from '@mui/material/Chip';
 import Input from '@mui/material/Input';
 import Button from '@mui/material/Button';
-import Select from '@mui/material/Select';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
 import { useSession } from 'next-auth/react';
 import { useState, useMemo, ChangeEvent } from 'react';
 import * as XLSX from 'xlsx'; // Excel export
@@ -93,7 +94,7 @@ export default function LiveDashboard() {
   }), [logs, search, status]);
 
   const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => setSearch(e.target.value);
-  const handleStatusChange = (e: ChangeEvent<HTMLSelectElement>) => setStatus(e.target.value);
+  const handleStatusChange = (e: SelectChangeEvent) => setStatus(e.target.value);
 
   return (
     <div className="container py-8">
@@ -111,10 +112,10 @@ export default function LiveDashboard() {
         <div>
           <label className="block text-sm font-medium mb-1">Status</label>
           <Select value={status} onChange={handleStatusChange} className="w-32">
-            <option value="ALL">All</option>
-            <option value="RUNNING">Running</option>
-            <option value="SUCCESS">Success</option>
-            <option value="ERROR">Error</option>
+            <MenuItem value="ALL">All</MenuItem>
+            <MenuItem value="RUNNING">Running</MenuItem>
+            <MenuItem value="SUCCESS">Success</MenuItem>
+            <MenuItem value="ERROR">Error</MenuItem>
           </Select>
         </div>
         <Button onClick={() => exportToCSV(filtered)} className="ml-auto">Export CSV</Button>
