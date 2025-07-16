@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 import { Box, Button, Container, Paper, TextField, Typography, CircularProgress } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -6,7 +7,7 @@ import { useSnackbar } from "notistack";
 import { useState } from "react";
 import MenuItem from "@mui/material/MenuItem";
 import { useRouter } from "next/navigation";
-import dynamic from "next/dynamic";
+import loadable from "next/dynamic";
 import Image from 'next/image';
 
 const POST_TYPES = [
@@ -16,7 +17,7 @@ const POST_TYPES = [
   { label: "Prediction", value: "PREDICTION" },
 ];
 
-const RichTextEditor = () => <div>RichTextEditor placeholder</div>;
+const RichTextEditor = loadable(() => import("@/components/posts/RichTextEditor"), { ssr: false });
 
 export default function CreatePostPage() {
   const { enqueueSnackbar } = useSnackbar();

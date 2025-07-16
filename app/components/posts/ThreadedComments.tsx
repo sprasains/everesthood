@@ -56,7 +56,7 @@ interface ThreadedCommentsProps {
   initialComments?: any[];
 }
 
-const MAX_REPLY_DEPTH = 5;
+export const MAX_REPLY_DEPTH = 5;
 
 function getErrorMessage(error: unknown): string {
   if (error instanceof Error) {
@@ -92,7 +92,7 @@ function normalizeComment(raw: any): Comment {
   };
 }
 
-const ThreadedComments: React.FC<ThreadedCommentsProps> = ({
+export const ThreadedComments: React.FC<ThreadedCommentsProps> = ({
   postId,
   currentUserId,
   isAuthor = false,

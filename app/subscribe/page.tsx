@@ -1,20 +1,13 @@
 "use client";
+export const dynamic = "force-dynamic";
 import { motion } from "framer-motion";
 import { useState } from "react";
 const useUser = () => ({ user: { id: 'placeholder', name: 'Placeholder User', weeklyGoal: 5 }, updateUser: () => {}, isLoading: false });
 import Navbar from "app/components/layout/Navbar";
-import { styled } from "@mui/material/styles";
+import Item from './Item';
 import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-
-const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: "#fff",
-  ...theme.typography.body2,
-  padding: theme.spacing(1),
-  textAlign: "center",
-  color: theme.palette.text.secondary,
-}));
 
 export default function SubscribePage() {
   const { user } = useUser();

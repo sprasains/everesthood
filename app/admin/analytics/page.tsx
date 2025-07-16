@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 import { Box, Typography, Card, CardContent, CircularProgress } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 

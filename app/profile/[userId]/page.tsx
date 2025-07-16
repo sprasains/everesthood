@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { Container, Paper, Avatar, Typography, Box, Button, Divider } from "@mui/material";
@@ -7,10 +8,8 @@ import AddReactionIcon from '@mui/icons-material/AddReaction';
 import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
 import ProfileHeaderSkeleton from "app/components/ui/ProfileHeaderSkeleton";
 import PostCardSkeleton from "app/components/posts/PostCardSkeleton";
-import { Badge } from '@/components/ui/BadgeList';
+import BadgeList from './BadgeList';
 import { useState, useEffect } from "react";
-
-const BadgeList = () => <div>BadgeList placeholder</div>;
 
 const fetchUserProfile = async (userId: string) => {
   const res = await fetch(`/api/v1/users/${userId}`);
@@ -33,7 +32,7 @@ const fetchUserAchievements = async (userId: string) => {
 export default function UserProfilePage() {
   const params = useParams();
   const userId = params?.userId as string | undefined;
-  const [badges, setBadges] = useState<Badge[]>([]);
+  const [badges, setBadges] = useState<any[]>([]);
 
   const { data: user, isLoading: isUserLoading, error: userError } = useQuery({
     queryKey: ["userProfile", userId],
@@ -54,8 +53,9 @@ export default function UserProfilePage() {
   });
 
   useEffect(() => {
+    if (!params || !params.userId) return;
     fetch(`/api/v1/users/${params.userId}/badges`).then(res => res.json()).then(data => setBadges(data.badges || []));
-  }, [params.userId]);
+  }, [params]);
 
   if (isUserLoading) {
     return <ProfileHeaderSkeleton />;

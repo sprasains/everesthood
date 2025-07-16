@@ -93,7 +93,7 @@ export function useUser() {
   return {
     user,
     status,
-    isLoading,
+    loading,
     isAdmin,
     error,
     updateUser,

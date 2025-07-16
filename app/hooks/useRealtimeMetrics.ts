@@ -9,11 +9,11 @@ export function useRealtimeMetrics(userId: string | undefined) {
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
-    const sub = supabase
-      .from(`agent_run_logs:user_id=eq.${userId}`)
-      .on("*", payload => {
+    const channel = supabase.channel('agent_run_logs_changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'agent_run_logs', filter: `user_id=eq.${userId}` }, payload => {
         setLogs(prev => {
-          const idx = prev.findIndex(l => l.id === payload.new.id);
+          if (!payload.new || typeof payload.new !== 'object' || !('id' in payload.new)) return prev;
+          const idx = prev.findIndex(l => l && typeof l === 'object' && 'id' in l && (l as { id: string }).id === (payload.new as { id: string }).id);
           if (idx !== -1) {
             const copy = [...prev];
             copy[idx] = payload.new;
@@ -23,7 +23,7 @@ export function useRealtimeMetrics(userId: string | undefined) {
         });
       })
       .subscribe();
-    return () => { supabase.removeSubscription(sub); };
+    return () => { supabase.removeChannel(channel); };
   }, [userId]);
   return logs;
 } 

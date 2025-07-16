@@ -8,14 +8,14 @@ import CircularProgress from "@mui/material/CircularProgress";
  * Returns { user, isLoading } from useUser().
  */
 export function useRequireAuth() {
-  const { user, isLoading } = useUser();
+  const { user, loading } = useUser();
   const router = useRouter();
   useEffect(() => {
-    if (!isLoading && !user) {
+    if (!loading && !user) {
       router.replace("/auth/signin");
     }
-  }, [user, isLoading, router]);
-  return { user, isLoading };
+  }, [user, loading, router]);
+  return { user, loading };
 }
 
 /**

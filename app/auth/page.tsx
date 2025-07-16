@@ -1,3 +1,5 @@
+"use client";
+export const dynamic = "force-dynamic";
 // /app/auth/page.tsx
 // Auth page hosting the AuthForm component, centered layout
 

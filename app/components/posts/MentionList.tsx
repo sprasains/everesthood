@@ -1,8 +1,9 @@
+"use client";
 import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { Box, Paper, Typography } from '@mui/material';
 
 // TipTap expects a forwardRef component for the mention list
-const MentionList = forwardRef((props: any, ref) => {
+export const MentionList = forwardRef((props: any, ref) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
 
   const selectItem = (index: number) => {

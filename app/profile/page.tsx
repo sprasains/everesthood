@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import PersonaSelector from "app/components/ui/PersonaSelector";
@@ -11,29 +12,9 @@ import { CircularProgress, Box, Container, Paper, Tabs, Tab, Typography, Avatar 
 import { BadgeList, Badge } from "app/components/ui/BadgeList";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-
-// Skeleton Loader Component
-const SkeletonLoader = () => (
-  <div className="max-w-4xl mx-auto animate-pulse">
-    <div className="bg-gray-800/50 rounded-2xl p-8 mb-8 flex items-center space-x-6">
-      <div className="w-24 h-24 bg-gray-700 rounded-full"></div>
-      <div className="flex-1 space-y-4">
-        <div className="h-8 bg-gray-700 rounded w-3/4"></div>
-        <div className="h-4 bg-gray-700 rounded w-1/2"></div>
-        <div className="flex space-x-6 pt-2">
-          <div className="h-10 bg-gray-700 rounded w-20"></div>
-          <div className="h-10 bg-gray-700 rounded w-20"></div>
-          <div className="h-10 bg-gray-700 rounded w-20"></div>
-        </div>
-      </div>
-    </div>
-    <div className="h-16 bg-gray-800/50 rounded-lg mb-8"></div>
-    <div className="h-64 bg-gray-800/50 rounded-lg"></div>
-  </div>
-);
+import { useUser } from '@/hooks/useUser';
 
 export default function ProfilePage() {
-  const useUser = () => ({ user: { id: 'placeholder', name: 'Placeholder User', weeklyGoal: 5 }, updateUser: () => {}, isLoading: false });
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("overview");
   const [isEditing, setIsEditing] = useState(false);
@@ -46,7 +27,7 @@ export default function ProfilePage() {
   const [badges, setBadges] = useState<Badge[]>([]);
   const { data: session } = useSession();
 
-  const { user, updateUser, isLoading } = useUser();
+  const { user, updateUser, loading } = useUser();
 
   useEffect(() => {
     if (user) {
@@ -64,13 +45,13 @@ export default function ProfilePage() {
   }, [session?.user?.id]);
 
   useEffect(() => {
-    if (!isLoading && !user) {
+    if (!loading && !user) {
       router.replace("/auth/signin");
     }
-  }, [user, isLoading, router]);
+  }, [user, loading, router]);
 
   const handleSave = async () => {
-    await updateUser(formData);
+    await updateUser(formData as any);
     setIsEditing(false);
   };
 
@@ -98,7 +79,7 @@ export default function ProfilePage() {
     { id: "settings", name: "Settings", icon: <SettingsIcon /> },
   ];
 
-  if (isLoading || !user) {
+  if (loading || !user) {
     return <CircularProgress />;
   }
 

@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Container, Typography, Box, Paper, Avatar, Button, CircularProgress, Tabs, Tab } from "@mui/material";
 import Link from 'next/link';

@@ -30,7 +30,23 @@
   - Connect: `docker-compose exec postgres psql -U user everesthood`
   - Run migrations: `docker-compose exec frontend npx prisma migrate deploy`
 
-### 4. Environment Variables Not Loaded
+### 4. Payments & Stripe Issues
+- **Layman:** Can't upgrade or tip? Check your payment info and try again.
+- **Business:** Payment failures are often due to missing Stripe keys or webhook misconfiguration.
+- **Technical:**
+  - Ensure Stripe keys are set in `.env`
+  - Check Stripe webhook logs and endpoint URLs
+  - Review payment logs: `docker-compose logs -f frontend`
+
+### 5. AI/Persona/Job Errors
+- **Layman:** AI summaries or jobs not working? Try again or contact support.
+- **Business:** AI or job errors may be due to missing API keys, quota limits, or agent bugs.
+- **Technical:**
+  - Check AI service keys in `.env`
+  - Review agent and worker logs
+  - Check for quota exceeded messages in the UI
+
+### 6. Environment Variables Not Loaded
 - **Layman:** Settings not working? Double-check your .env file.
 - **Business:** Missing or incorrect env vars can break service startup.
 - **Technical:**
@@ -53,6 +69,7 @@
 - [GitHub Issues](https://github.com/your-org/your-repo/issues)
 - Product Owner: [name/email]
 - Support: [support@email.com]
+- Discord: [discord.gg/everhood](https://discord.gg/everhood)
 
 ---
 

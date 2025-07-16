@@ -1,3 +1,4 @@
+"use client";
 import { useState, useEffect } from 'react';
 import { IconButton, Badge, Popover, Box, Typography, List, ListItem, ListItemAvatar, Avatar, ListItemText, CircularProgress, Button, Divider, Tooltip, ListItemIcon } from '@mui/material';
 import NotificationsIcon from '@mui/icons-material/Notifications';

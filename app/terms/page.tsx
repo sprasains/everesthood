@@ -1,7 +1,8 @@
 "use client";
+export const dynamic = "force-dynamic";
 import Navbar from "app/components/layout/Navbar";
 import { Container, Typography } from "@mui/material";
-const useRequireAuth = () => { return { user: { id: 'placeholder' } }; };
+import { useRequireAuth } from '@/hooks/useRequireAuth';
 
 const AuthLoading = () => <div>Loading...</div>;
 

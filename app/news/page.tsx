@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 import { motion } from "framer-motion";
 import { useState, useRef } from "react";
@@ -27,7 +28,6 @@ import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import SearchIcon from "@mui/icons-material/Search";
 import ViewModuleIcon from "@mui/icons-material/ViewModule";
 import ViewListIcon from "@mui/icons-material/ViewList";
-import NewsCardGrid from "@/components/news/NewsCardGrid";
 import NewsCardList from "@/components/news/NewsCardList";
 
 // Define categories with icons
@@ -181,21 +181,15 @@ export default function NewsPage() {
               </ToggleButton>
             </ToggleButtonGroup>
           </Box>
-          <Grid container spacing={2}>
+          <Box display="flex" flexDirection="column" gap={2}>
             {(newsLoading || searchLoading) ? (
-              <Grid sx={{ width: '100%' }}>
-                <Box display="flex" justifyContent="center" alignItems="center" minHeight={200}>
-                  <CircularProgress />
-                </Box>
-              </Grid>
+              <Box display="flex" justifyContent="center" alignItems="center" minHeight={200}>
+                <CircularProgress />
+              </Box>
             ) : (
               (search ? searchData : newsData)?.length > 0 ? (
                 layout === "grid" ? (
-                  (search ? searchData : newsData).map((article: any) => (
-                    <Grid key={article.id} sx={{ width: { xs: '100%', sm: '50%', md: '33.33%' } }}>
-                      <NewsCardGrid article={article} />
-                    </Grid>
-                  ))
+                  <Box sx={{ mt: 4 }}><Typography>News grid is currently unavailable.</Typography></Box>
                 ) : (
                   <Stack spacing={2}>
                     {(search ? searchData : newsData).map((article: any) => (
@@ -204,19 +198,17 @@ export default function NewsPage() {
                   </Stack>
                 )
               ) : (
-                <Grid sx={{ width: '100%' }}>
-                  <Paper sx={{ p: 4, textAlign: "center", bgcolor: "background.default", borderRadius: 3 }}>
-                    <Typography variant="h6" color="text.secondary" gutterBottom>
-                      We couldn&apos;t find any articles right now.
-                    </Typography>
-                    <Typography variant="body1" color="text.secondary">
-                      Please check back later or try a different search/category.
-                    </Typography>
-                  </Paper>
-                </Grid>
+                <Paper sx={{ p: 4, textAlign: "center", bgcolor: "background.default", borderRadius: 3 }}>
+                  <Typography variant="h6" color="text.secondary" gutterBottom>
+                    We couldn&apos;t find any articles right now.
+                  </Typography>
+                  <Typography variant="body1" color="text.secondary">
+                    Please check back later or try a different search/category.
+                  </Typography>
+                </Paper>
               )
             )}
-          </Grid>
+          </Box>
         </Paper>
       </motion.div>
     </Container>

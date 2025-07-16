@@ -135,11 +135,12 @@ const journalPrompts = [
 
 async function seedJournalPrompts(prisma: any) {
   for (const prompt of journalPrompts) {
-    await prisma.journalPrompt.upsert({
-      where: { promptText: prompt.promptText },
-      update: {},
-      create: prompt,
+    const existing = await prisma.journalPrompt.findFirst({
+      where: { promptText: prompt.promptText, category: prompt.category },
     });
+    if (!existing) {
+      await prisma.journalPrompt.create({ data: prompt });
+    }
   }
   console.log('Seeded journal prompts!');
 }
@@ -373,7 +374,12 @@ async function main() {
   ];
   const achievements = [];
   for (const ach of achievementTypes) {
-    const a = await prisma.achievement.create({ data: ach });
+    const a = await prisma.achievement.create({ data: {
+      name: ach.name,
+      description: ach.description,
+      icon: ach.icon,
+      xpReward: ach.xpReward,
+    }});
     achievements.push(a);
   }
   for (const user of users) {

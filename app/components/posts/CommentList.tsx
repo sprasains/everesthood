@@ -1,3 +1,4 @@
+"use client";
 import { useEffect, useState, useCallback } from "react";
 import { Box, Avatar, Typography, Paper, CircularProgress, IconButton, Button } from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
@@ -8,7 +9,7 @@ import dynamic from "next/dynamic";
 import { useQueryClient } from '@tanstack/react-query';
 
 // Corrected import path for CommentForm
-const CommentForm = dynamic(() => import("./CommentForm"), { ssr: false });
+export const CommentForm = dynamic(() => import("./CommentForm"), { ssr: false });
 
 interface Comment {
   id: string;

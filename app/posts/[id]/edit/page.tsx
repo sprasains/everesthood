@@ -1,13 +1,14 @@
 "use client";
+export const dynamic = "force-dynamic";
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Box, Button, Container, Paper, TextField, Typography, CircularProgress } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSnackbar } from "notistack";
-import dynamic from "next/dynamic";
+import loadable from "next/dynamic";
 
-const RichTextEditor = () => <div>RichTextEditor placeholder</div>;
+const RichTextEditor = loadable(() => import("@/components/posts/RichTextEditor"), { ssr: false });
 
 export default function EditPostPage() {
   const router = useRouter();
@@ -81,7 +82,7 @@ export default function EditPostPage() {
               helperText={errors.title?.message?.toString()}
             />
             <Box sx={{ my: 2 }}>
-              <RichTextEditor />
+              <RichTextEditor initialContent={editorContent} onUpdate={setEditorContent} />
             </Box>
             <Button
               type="submit"

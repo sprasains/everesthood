@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 import GenZContentPanel from "@/components/ui/GenZContentPanel";
 import { Box, Typography } from "@mui/material";
 

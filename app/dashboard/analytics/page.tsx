@@ -1,10 +1,10 @@
 "use client";
+export const dynamic = "force-dynamic";
 import { useQuery } from "@tanstack/react-query";
 import { Box, Container, Typography, CircularProgress, Paper } from "@mui/material";
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS } from 'chart.js/auto';
 import { motion } from "framer-motion";
-import Grid from '@mui/material/Grid';
 import { logger, newCorrelationId, getCorrelationId } from '@/services/logger';
 
 // Fetches analytics data for the user, logs the process, and handles errors
@@ -52,15 +52,15 @@ export default function AnalyticsDashboard() {
       <Container maxWidth="lg" sx={{ pt: 12, pb: 6 }}>
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
           <Typography variant="h3" fontWeight="bold">My Signal Dashboard</Typography>
-          <Grid container spacing={3} sx={{ mt: 4 }}>
-            <Grid key="knowledge-graph" sx={{ width: { xs: '100%', md: '50%' } }}>
+          <Box display="flex" flexDirection={{ xs: 'column', md: 'row' }} gap={3} sx={{ mt: 4 }}>
+            <Box sx={{ width: { xs: '100%', md: '50%' } }}>
               <Paper sx={{ p: 2, bgcolor: 'rgba(255,255,255,0.05)' }}>
                 <Typography variant="h6">Knowledge Graph</Typography>
                 {isLoading ? <CircularProgress /> : knowledgeGraphData ? <Bar data={knowledgeGraphData} /> : <Typography color="text.secondary">No data.</Typography>}
               </Paper>
-            </Grid>
+            </Box>
             {/* Add more grid items for other charts */}
-          </Grid>
+          </Box>
         </motion.div>
       </Container>
     </Box>

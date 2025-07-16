@@ -1,8 +1,8 @@
 "use client";
+export const dynamic = "force-dynamic";
 import { useState } from 'react';
 import { Box, Container, Typography, Button, Paper, CircularProgress } from '@mui/material';
-
-const useRequireAuth = () => { return { user: { id: 'placeholder' } }; };
+import { useRequireAuth } from '@/hooks/useRequireAuth';
 
 const AuthLoading = () => <div>Loading...</div>;
 

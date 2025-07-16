@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Box, Container, Typography, Button, Paper, Grid, TextField, Dialog, DialogTitle, DialogContent, DialogActions, IconButton, CircularProgress } from "@mui/material";
@@ -82,9 +83,9 @@ export default function PersonasPage() {
               <Typography variant="h4" fontWeight="bold">My Custom Personas</Typography>
               <Button variant="contained" onClick={() => handleOpen()} sx={{ borderRadius: 3 }}>Create New</Button>
             </Box>
-            <Grid container spacing={3} sx={{ mt: 2 }}>
+            <Box display="flex" flexWrap="wrap" gap={3} sx={{ mt: 2 }}>
               {isLoading ? <CircularProgress /> : personas?.length > 0 ? personas.map((persona: any) => (
-                <Grid size={{ xs: 12, sm: 6, md: 4 }} key={persona.id}>
+                <Box key={persona.id} sx={{ flex: 1, minWidth: { xs: '100%', sm: 'calc(50% - 15px)', md: 'calc(33.33% - 20px)' } }}>
                   <Paper sx={{ p: 3, bgcolor: 'rgba(255,255,255,0.05)', position: 'relative', borderRadius: 3 }}>
                     <Typography fontWeight="bold">{persona.name}</Typography>
                     <Typography color="text.secondary">{persona.description}</Typography>
@@ -93,9 +94,9 @@ export default function PersonasPage() {
                       <IconButton onClick={() => remove(persona.id)} disabled={deleting}><DeleteIcon /></IconButton>
                     </Box>
                   </Paper>
-                </Grid>
+                </Box>
               )) : <Typography color="text.secondary" sx={{ ml: 2 }}>No personas found.</Typography>}
-            </Grid>
+            </Box>
             <Dialog open={open} onClose={handleClose} PaperProps={{ sx: { borderRadius: 3 } }}>
               <form onSubmit={handleSave}>
                 <DialogTitle>{editingPersona ? "Edit Persona" : "Create Persona"}</DialogTitle>

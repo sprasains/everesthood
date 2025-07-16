@@ -1,3 +1,6 @@
+"use client";
+export const dynamic = "force-dynamic";
+
 import { Button } from "app/components/ui/button";
 import { CheckIcon } from "lucide-react";
 

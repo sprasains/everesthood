@@ -1,6 +1,13 @@
 "use client";
+export const dynamic = "force-dynamic";
 import React, { useEffect, useState } from "react";
-import { BriefcaseIcon, MapPinIcon, BuildingOffice2Icon, ArrowTopRightOnSquareIcon, Squares2X2Icon, Bars3Icon, GlobeAltIcon } from '@heroicons/react/24/outline';
+import BriefcaseIcon from '@heroicons/react/24/outline/esm/BriefcaseIcon.js';
+import MapPinIcon from '@heroicons/react/24/outline/esm/MapPinIcon.js';
+import BuildingOffice2Icon from '@heroicons/react/24/outline/esm/BuildingOffice2Icon.js';
+import ArrowTopRightOnSquareIcon from '@heroicons/react/24/outline/esm/ArrowTopRightOnSquareIcon.js';
+import Squares2X2Icon from '@heroicons/react/24/outline/esm/Squares2X2Icon.js';
+import Bars3Icon from '@heroicons/react/24/outline/esm/Bars3Icon.js';
+import GlobeAltIcon from '@heroicons/react/24/outline/esm/GlobeAltIcon.js';
 import { Card, CardActionArea, CardMedia, CardContent, Typography, Box, Button, Paper, Container, ToggleButton, ToggleButtonGroup, Grid, CircularProgress } from '@mui/material';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import ViewModuleIcon from '@mui/icons-material/ViewModule';
@@ -326,13 +333,13 @@ export default function JobsPage() {
             <Typography color="text.secondary" variant="h6">No jobs found. Try adjusting your search or filters.</Typography>
           </Box>
         ) : view === 'grid' ? (
-          <Grid container spacing={2}>
+          <Box display="flex" flexWrap="wrap" gap={2}>
             {jobs.map((job) => (
-              <Grid item xs={12} sm={6} md={4} key={job.job_id}>
+              <Box key={job.job_id} sx={{ flex: 1, minWidth: { xs: '100%', sm: 'calc(50% - 8px)', md: 'calc(33.33% - 16px)' } }}>
                 <JobCardGrid job={job} onSalary={() => setSalaryModal({ open: true, jobTitle: job.job_title, location: job.job_city || job.job_state || '' })} />
-              </Grid>
+              </Box>
             ))}
-          </Grid>
+          </Box>
         ) : (
           <Box>
             {jobs.map((job) => (

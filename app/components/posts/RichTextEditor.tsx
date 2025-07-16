@@ -23,7 +23,7 @@ interface RichTextEditorProps {
   onUpdate: (content: any) => void;
 }
 
-const RichTextEditor: React.FC<RichTextEditorProps> = ({ initialContent, onUpdate }) => {
+export const RichTextEditor: React.FC<RichTextEditorProps> = ({ initialContent, onUpdate }) => {
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const editor = useEditor({

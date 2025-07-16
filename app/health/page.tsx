@@ -1,3 +1,5 @@
+"use client";
+export const dynamic = "force-dynamic";
 import CrudManager from "@/components/ui/CrudManager";
 
 export default function HealthPage() {

@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -7,7 +8,7 @@ interface BreatheThruSessionProps {
 
 type Phase = 'Get Ready' | 'Inhale' | 'Hold' | 'Exhale' | 'Done';
 
-const PHASES: { phase: Phase; duration: number; label: string }[] = [
+export const PHASES: { phase: Phase; duration: number; label: string }[] = [
   { phase: 'Get Ready', duration: 2, label: 'Get Ready...' },
   { phase: 'Inhale', duration: 4, label: 'Breathe In' },
   { phase: 'Hold', duration: 4, label: 'Hold' },

@@ -125,7 +125,7 @@ export const authOptions: NextAuthOptions = {
               create: {
                 email: user.email,
                 name: user.name,
-                image: user.image,
+                profilePicture: user.image,
               },
             });
           }
@@ -152,7 +152,7 @@ export const authOptions: NextAuthOptions = {
 // Extend the default session and user types
 declare module "next-auth" {
   interface Session {
-    user: {
+    user?: {
       id: string;
       name?: string | null;
       email?: string | null;

@@ -5,64 +5,72 @@
 ---
 
 ## What is EverestHood/AgentForge?
-- **Layman:** A smart platform that lets you automate tasks and get things done by creating and running digital agents.
-- **Business:** A unified, scalable system for automating workflows, integrating data, and enabling both user-triggered and scheduled actions.
-- **Technical:** A full-stack, containerized platform with modular agent logic, job queueing, and robust scheduling.
+- **Layman:** A smart platform for Gen-Z and young professionals to learn, grow, and connect using AI, gamification, and social tools.
+- **Business:** A unified, scalable SaaS for social learning, career growth, and creator monetization, with modular features and premium tiers.
+- **Technical:** A full-stack, containerized platform with modular agent logic, job queueing, robust scheduling, and modern cloud infrastructure.
 
 ---
 
-## Key User Flows
+## Key Value Propositions
+- **All-in-one social, learning, and productivity hub for Gen-Z**
+- **AI-powered insights and automation for career and life**
+- **Gamified engagement and community building**
+- **Monetization for creators and influencers**
+- **Premium SaaS model with clear upgrade paths**
 
-```mermaid
-graph TD;
-  User["User (UI)"] --> API["API (frontend)"]
-  API --> Queue["Job Queue"]
-  Scheduler["Scheduler"] --> Queue
-  Queue --> Worker["Worker"]
-  Worker --> Agent["Agent Logic"]
-```
+---
 
-- **Layman:** You click a button or set a schedule, and the system does the rest.
-- **Business:** All actions—manual or scheduled—are processed the same way, ensuring reliability and auditability.
+## Feature Catalog
+- AI Summaries & Personas
+- News & Content Curation
+- Social Community (Posts, Friends, Circles)
+- Achievements & Gamification
+- Job Board & Resume Tools
+- Payments, Tipping, and Subscriptions
+- Family, Money, Health, Productivity Modules
+- Notifications, Admin, and Moderation
+
+---
+
+## Pricing & Tiers
+| Tier      | Price      | Features                                                                 |
+|-----------|------------|--------------------------------------------------------------------------|
+| Free      | $0         | Core social, AI summaries, news, basic jobs, achievements                |
+| Premium   | $9.99/mo   | Unlimited AI, advanced analytics, premium jobs, profile spotlight, etc.  |
+| Creator   | $19.99/mo  | All premium + monetization, tipping, advanced API, custom branding       |
+
+---
+
+## Target Audience
+- Gen-Z students and young professionals
+- Content creators and influencers
+- Career switchers and job seekers
+- AI/tech enthusiasts
+
+---
+
+## Ways to Use & Creativity
+- **Career Growth:** AI summaries, job board, resume checker
+- **Learning:** Trending news, achievements, guides
+- **Networking:** Friends, circles, community events
+- **Monetization:** Creator tools, tipping, premium content
+- **Wellness:** Mood tracking, digital detox, family management
+
+---
+
+## Knowledge & Business Impact
+- **For Users:** Learn, grow, and monetize in a single platform
+- **For Businesses:** Retain Gen-Z users, drive engagement, and unlock new revenue streams
+- **For Creators:** Build audience, earn tips, and access advanced analytics
 
 ---
 
 ## What's New in This Release?
-- **Layman:** Everything runs in containers (Docker), so it's easy to set up and works the same everywhere.
-- **Business:**
-  - Dockerization for consistent deployment
-  - Unified agent execution (no code duplication)
-  - Built-in scheduling for recurring tasks
-  - Centralized logging and monitoring
-- **Technical:**
-  - Redis-powered job queue
-  - BullMQ for job management
-  - Scheduler service for cron-based automation
-
----
-
-## Automated Fix Scripts: Business Value
-
-To ensure rapid onboarding, minimize manual errors, and maintain a healthy codebase, the platform includes a suite of automated fix scripts in the project root. These scripts:
-- Automatically fix common build, lint, and migration issues
-- Help developers resolve problems quickly, reducing downtime and support needs
-- Standardize code quality and reduce technical debt
-
-### How They Work
-- Developers can run all fixes at once with:
-  ```bash
-  npm run fix:all
-  ```
-- Or run individual scripts for targeted fixes (see package.json for all options)
-- Scripts are referenced in the project root and documented in the README
-
-### Business Impact
-- **Faster Onboarding:** New team members can resolve common issues in minutes
-- **Fewer Manual Errors:** Automated fixes reduce the risk of human mistakes
-- **Consistent Quality:** Codebase remains modern, maintainable, and ready for scale
-- **Lower Support Burden:** Fewer build/lint issues mean less time spent on troubleshooting
-
-For a full list of scripts and usage details, see the README.
+- Expanded job board and company profiles
+- AI-powered resume analysis
+- Profile spotlight and tipping
+- Enhanced gamification and achievements
+- More robust admin and moderation tools
 
 ---
 
@@ -79,7 +87,7 @@ For a full list of scripts and usage details, see the README.
 ## Contact & Support
 - Product Owner: [name/email]
 - Support: [support@email.com]
-- Slack: #agentforge-support
+- Discord: [discord.gg/everhood](https://discord.gg/everhood)
 
 ---
 

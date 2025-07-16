@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 import Navbar from "app/components/layout/Navbar";
 import { Box, Container, Typography, Button, CircularProgress, Paper } from "@mui/material";
 import { useState } from "react";

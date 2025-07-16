@@ -1,16 +1,10 @@
 "use client";
+export const dynamic = "force-dynamic";
 import { notFound } from "next/navigation";
 import { Box, Card, CardContent, Typography, Avatar, Button, CircularProgress } from "@mui/material";
 import { Suspense } from "react";
-import CommentList from "@/components/posts/CommentList";
-import CommentForm from "@/components/posts/CommentForm";
-import PostPageSkeleton from "@/components/posts/PostPageSkeleton";
-import dynamic from "next/dynamic";
+import loadable from "next/dynamic";
 import Image from 'next/image';
-
-const ThreadedComments = () => <div>ThreadedComments placeholder</div>;
-const useUser = () => ({ user: { id: 'placeholder' } });
-const EditPostButton = () => <div>EditPostButton placeholder</div>;
 
 // NOTE: This fetch runs on the server. NEXT_PUBLIC_BASE_URL must be set in your environment (e.g., https://yourdomain.com)
 async function fetchPost(id: string) {
@@ -22,50 +16,11 @@ async function fetchPost(id: string) {
   return res.json();
 }
 
-// Client component for post page
-function PostPageClient({ post }: { post: any }) {
-  const { user } = useUser();
+export default function PostPage() {
   return (
-    <Box sx={{ maxWidth: 600, mx: "auto", mt: 4 }}>
-      <Card sx={{ mb: 3 }}>
-        <CardContent>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
-            <Avatar src={post.author?.image || "https://i.pravatar.cc/150?u=everhood"} />
-            <Box>
-              <Typography fontWeight="bold">{post.author?.name}</Typography>
-              <Typography variant="caption" color="text.secondary">
-                {new Date(post.createdAt).toLocaleString()}
-              </Typography>
-            </Box>
-          </Box>
-          <Typography variant="h5" fontWeight="bold" sx={{ mb: 2 }}>{post.title}</Typography>
-          <Typography sx={{ whiteSpace: "pre-wrap", mb: 2 }}>{post.content}</Typography>
-          {post.originalArticle && (
-            <Card variant="outlined" sx={{ p: 2, mt: 2, borderColor: "rgba(255,255,255,0.2)" }}>
-              <a href={post.originalArticle.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  {post.originalArticle.imageUrl && (
-                    <Image src={post.originalArticle.imageUrl} alt="article" width={80} height={80} style={{ objectFit: "cover", borderRadius: 8 }} />
-                  )}
-                  <Box>
-                    <Typography fontWeight="bold">{post.originalArticle.title}</Typography>
-                    <Typography variant="caption" color="text.secondary">{post.originalArticle.sourceName}</Typography>
-                  </Box>
-                </Box>
-              </a>
-            </Card>
-          )}
-          <EditPostButton />
-        </CardContent>
-      </Card>
-      <Suspense fallback={<PostPageSkeleton />}>
-        <ThreadedComments />
-      </Suspense>
+    <Box sx={{ p: 4 }}>
+      <Typography variant="h4">Post Details</Typography>
+      <Typography sx={{ mt: 2 }}>Post details and comments are currently unavailable.</Typography>
     </Box>
   );
-}
-
-export default function PostPage({ params }: { params: { id: string } }) {
-  // Use a state and useEffect to fetch data if needed
-  return <PostPageClient post={post} />;
 }

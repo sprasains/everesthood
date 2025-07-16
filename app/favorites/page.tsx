@@ -1,22 +1,13 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 import { useState, useEffect } from "react";
 import { styled } from "@mui/material/styles";
-import Grid from '@mui/material/Grid';
 import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
-import Navbar from "@/components/layout/Navbar";
 import { Container, Typography, CircularProgress } from "@mui/material";
-import NewsCard from '@/components/news/NewsCard';
 import type { Article } from "@/types/index";
-
-const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: "#fff",
-  ...theme.typography.body2,
-  padding: theme.spacing(1),
-  textAlign: "center",
-  color: theme.palette.text.secondary,
-}));
+import Item from './Item';
 
 export default function FavoritesPage() {
   return (
@@ -30,7 +21,6 @@ export default function FavoritesPage() {
         flexDirection: "column",
       }}
     >
-      <Navbar />
       <Container
         maxWidth="lg"
         sx={{

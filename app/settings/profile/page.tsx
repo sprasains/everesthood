@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 import { useState, ChangeEvent, FormEvent, useEffect } from "react";
 import { useSession } from "next-auth/react";
@@ -10,7 +11,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 const useUser = () => ({ user: { id: 'placeholder', name: 'Placeholder User', weeklyGoal: 5 }, updateUser: () => {}, isLoading: false });
 
 export default function ProfileSettings() {
-  const { user, loading } = useUser();
+  const { user, isLoading } = useUser();
   const router = useRouter();
   const [formData, setFormData] = useState({
     name: "",
@@ -21,10 +22,10 @@ export default function ProfileSettings() {
   const [badges, setBadges] = useState<Badge[]>([]);
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!isLoading && !user) {
       router.replace("/auth/signin");
     }
-  }, [user, loading, router]);
+  }, [user, isLoading, router]);
 
   useEffect(() => {
     if (user?.id) {
@@ -68,7 +69,7 @@ export default function ProfileSettings() {
     }
   };
 
-  if (loading || !user) {
+  if (isLoading || !user) {
     return <CircularProgress />;
   }
 

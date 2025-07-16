@@ -7,7 +7,7 @@ interface Digest {
   lastUpdated: string;
 }
 
-const DigestSkeleton = () => (
+export const DigestSkeleton = () => (
   <div className="bg-gray-800/50 p-6 rounded-2xl animate-pulse">
     <div className="h-5 bg-gray-700 rounded w-1/3 mb-6"></div>
     <div className="space-y-4">

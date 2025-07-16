@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 import { useRealtimeMetrics } from '@/hooks/useRealtimeMetrics';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';

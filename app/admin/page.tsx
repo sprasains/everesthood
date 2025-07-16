@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 import { Box, Typography, Card, CardContent, Button } from "@mui/material";
 import Link from "next/link";
 

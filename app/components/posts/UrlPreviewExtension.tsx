@@ -12,7 +12,7 @@ export interface UrlPreviewAttrs {
   error?: string;
 }
 
-const UrlPreview = Node.create({
+export const UrlPreview = Node.create({
   name: 'urlPreview',
   group: 'block',
   atom: true,

@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 import { useState } from "react";
 import { Box, Container, Typography, Paper, TextField, Button, List, ListItem, IconButton, Checkbox, Stack, Divider, Snackbar, CircularProgress, Alert } from "@mui/material";
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';

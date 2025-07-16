@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { User } from "@prisma/client";
 
 // Define achievement names or IDs to avoid magic strings
-const ACHIEVEMENT_NAMES = {
+export const ACHIEVEMENT_NAMES = {
   FIRST_READ: "First Steps",
   TEN_READS: "Curious Reader",
   FIRST_POST: "Icebreaker",

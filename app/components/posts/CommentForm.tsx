@@ -6,7 +6,7 @@ import { useSnackbar } from 'notistack';
 import dynamic from "next/dynamic";
 
 // Corrected import path for RichTextEditor
-const RichTextEditor = dynamic(() => import("./RichTextEditor"), { ssr: false });
+export const RichTextEditor = dynamic(() => import("./RichTextEditor"), { ssr: false });
 
 export default function CommentForm({ postId, onComment, parentId }: { postId: string; onComment?: (content: any) => void; parentId?: string }) {
   const [editorContent, setEditorContent] = useState<any>(null);

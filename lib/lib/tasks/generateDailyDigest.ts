@@ -23,6 +23,7 @@ const generateAndStoreDigest = async () => {
       console.log('No new articles found. Task ending.');
       return;
     }
+    type Article = { title: string; description: string };
     const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
     const prompt = `
       You are an expert tech editor for a dashboard called "everesthood".
@@ -32,7 +33,7 @@ const generateAndStoreDigest = async () => {
       Use markdown for formatting, including headings (###) for each story.
       Keep the entire digest under 200 words.
       Articles:
-      ${JSON.stringify(articles.map(a => ({ title: a.title, description: a.description })))}
+      ${JSON.stringify((articles as Article[]).map((a: Article) => ({ title: a.title, description: a.description })))}
     `;
     const result = await model.generateContent(prompt);
     const summary = result.response.text();
@@ -51,7 +52,6 @@ console.log('Scheduling the daily digest cron job.');
 cron.schedule('0 5 * * *', () => {
   generateAndStoreDigest();
 }, {
-  scheduled: true,
   timezone: "UTC"
 });
 // Optional: Run the task once on server startup for immediate content

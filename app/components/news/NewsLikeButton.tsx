@@ -1,3 +1,4 @@
+"use client";
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { IconButton, Tooltip, Badge } from '@mui/material';
 import FavoriteIcon from '@mui/icons-material/Favorite';

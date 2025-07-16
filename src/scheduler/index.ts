@@ -6,13 +6,36 @@ import { prisma } from '../../lib/prisma';
 import { agentJobQueue } from '../../lib/redis';
 import cron from 'node-cron';
 import Redis from 'ioredis';
-import Redlock from 'redlock';
 import cronParser from 'cron-parser';
 import { DateTime } from 'luxon';
+import { isRedisBypassed } from '../../lib/featureFlags';
 
-const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
-const redlock = new Redlock([redis]);
+let redis: any;
+let redlock: any;
+let initialized = false;
 
+async function initRedis() {
+  if (initialized) return;
+  if (await isRedisBypassed()) {
+    // eslint-disable-next-line no-console
+    console.warn('[DEV] Redis/Redlock are bypassed in scheduler (feature flag). All operations are no-ops.');
+    redis = {
+      get: async () => null,
+      set: async () => true,
+      del: async () => true,
+    };
+    redlock = {
+      acquire: async () => true,
+      release: async () => true,
+    };
+  } else {
+    const Redlock = require('redlock');
+    const Redis = require('ioredis');
+    redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
+    redlock = new Redlock([redis]);
+  }
+  initialized = true;
+}
 
 
 async function getScheduledAgentInstances() {

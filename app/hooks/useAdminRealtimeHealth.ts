@@ -8,11 +8,12 @@ export function useAdminRealtimeHealth() {
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
-    const sub = supabase
-      .from("execution_logs")
-      .on("*", payload => setLogs(prev => [payload.new, ...prev]))
+    const channel = supabase.channel('execution_logs_changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'execution_logs' }, payload => {
+        setLogs(prev => [payload.new, ...prev]);
+      })
       .subscribe();
-    return () => { supabase.removeSubscription(sub); };
+    return () => { supabase.removeChannel(channel); };
   }, []);
   const now = Date.now();
   const lastHour = logs.filter(l => now - new Date(l.created_at).getTime() < 3600_000);
@@ -26,9 +27,9 @@ export function useAdminRealtimeHealth() {
   if (error / (total || 1) > 0.2) healthStatus = 'red';
   else if (error / (total || 1) > 0.05) healthStatus = 'yellow';
   // Placeholder timeline, errorTimeline, timelineLabels, perAgent
-  const timeline = [];
-  const errorTimeline = [];
-  const timelineLabels = [];
-  const perAgent = [];
+  const timeline: any[] = [];
+  const errorTimeline: any[] = [];
+  const timelineLabels: any[] = [];
+  const perAgent: any[] = [];
   return { total, success, error, running, avgTime, healthStatus, timeline, errorTimeline, timelineLabels, perAgent };
 } 

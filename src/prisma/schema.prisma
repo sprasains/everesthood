@@ -954,3 +954,8 @@ model AICache {
   provider  String
   createdAt DateTime @default(now())
 }
+
+model FeatureFlag {
+  key   String @id
+  value Boolean
+}

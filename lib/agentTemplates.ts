@@ -1,8 +1,8 @@
 import { prisma } from './prisma';
 import { cacheGet, cacheSet } from './cache';
 
-const AGENT_TEMPLATES_CACHE_KEY = 'agent-templates:list';
-const CACHE_TTL_SECONDS = 60 * 60; // 1 hour
+export const AGENT_TEMPLATES_CACHE_KEY = 'agent-templates:list';
+export const CACHE_TTL_SECONDS = 60 * 60; // 1 hour
 
 export async function getAgentTemplatesWithCache() {
   // Try cache first

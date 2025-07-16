@@ -5,7 +5,7 @@ import { logger } from '@/services/logger';
 const prisma = new PrismaClient();
 const parser = new Parser();
 
-const RSS_FEEDS = [
+export const RSS_FEEDS = [
     { name: 'HYPEBEAST', url: 'https://hypebeast.com/feeds/main' },
     { name: 'Dazed', url: 'https://www.dazeddigital.com/rss' },
     { name: 'Nylon', url: 'https://nylon.com/rss' },

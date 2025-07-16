@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardMedia, Typography, Link as MuiLink, CircularProgress, Box } from '@mui/material';
 import { NodeViewProps } from '@tiptap/react';
 
-const UrlPreviewCard: React.FC<NodeViewProps> = ({ node }) => {
+export const UrlPreviewCard: React.FC<NodeViewProps> = ({ node }) => {
   const { title, description, image, url, loading, error } = node.attrs || {};
 
   if (loading) {

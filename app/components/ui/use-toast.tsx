@@ -20,7 +20,7 @@ type ToastContextType = {
   toast: (props: ToastProps) => void
 } | null
 
-const ToastContext = React.createContext<ToastContextType>(null)
+export const ToastContext = React.createContext<ToastContextType>(null)
 
 export function ToastProviderWrapper({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = React.useState<ToasterToast[]>([])
@@ -35,10 +35,13 @@ export function ToastProviderWrapper({ children }: { children: React.ReactNode }
   }, [])
 
   return (
-    <ToastContext.Provider value={{ toasts, toast }}>
-      {children}
-      <ToastViewport />
-    </ToastContext.Provider>
+    <ToastProvider>
+      <ToastContext.Provider value={{ toasts, toast }}>
+        {children}
+        {/* ToastViewport is only rendered inside ToastProviderWrapper. Do not use elsewhere. */}
+        <ToastViewport />
+      </ToastContext.Provider>
+    </ToastProvider>
   )
 }
 

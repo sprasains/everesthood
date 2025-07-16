@@ -8,7 +8,6 @@ import {
   Box,
   Avatar,
 } from "@mui/material";
-import Grid from '@mui/material/Grid';
 
 interface UserStatusPanelProps {
   user: {
@@ -85,20 +84,20 @@ export default function UserStatusPanel({ user }: UserStatusPanelProps) {
           >
             Level {user?.level || 1} • {user?.persona || "ZenGPT"}
           </Typography>
-          <Grid container spacing={2} justifyContent="center" sx={{ mb: 1 }}>
-            <Grid sx={{ width: '50%' }}>
+          <Box display="flex" justifyContent="center" sx={{ mb: 1 }}>
+            <Box sx={{ width: '50%' }}>
               <Typography variant="h6" fontWeight="bold">{user?.xp || 0}</Typography>
               <Typography variant="caption" sx={{ color: "#e0e0e0" }}>XP</Typography>
-            </Grid>
-            <Grid sx={{ width: '50%' }}>
+            </Box>
+            <Box sx={{ width: '50%' }}>
               <Typography variant="h6" fontWeight="bold">{user?.streak || 0}</Typography>
               <Typography variant="caption" sx={{ color: "#e0e0e0" }}>Streak</Typography>
-            </Grid>
-            <Grid sx={{ width: '50%' }}>
+            </Box>
+            <Box sx={{ width: '50%' }}>
               <Typography variant="h6" fontWeight="bold">{user?.articlesRead || 0}</Typography>
               <Typography variant="caption" sx={{ color: "#e0e0e0" }}>Articles</Typography>
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         </CardContent>
       </Card>
     </motion.div>

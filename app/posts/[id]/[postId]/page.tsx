@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
@@ -13,7 +14,6 @@ import {
   TextField,
   Button,
 } from "@mui/material";
-import ThreadedComments from '@/components/posts/ThreadedComments';
 // Define minimal Post, User, and Article types for frontend use
 type Post = {
   id: string;
@@ -40,6 +40,7 @@ type Article = {
 type PostWithDetails = Post & {
   author: Partial<User>;
   newsArticle?: Article;
+  commentsJson?: any[];
 };
 
 type CommentWithAuthor = {
@@ -109,7 +110,7 @@ export default function PostDetailPage() {
           sx={{ p: 4, bgcolor: "rgba(255, 255, 255, 0.05)", borderRadius: 3 }}
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
-            <Avatar src={post.author.profilePicture || undefined} />
+            <Avatar src={post.author.image || undefined} />
             <Typography fontWeight="bold">{post.author.name}</Typography>
           </Box>
           <Typography sx={{ whiteSpace: "pre-wrap", my: 2 }}>
@@ -138,11 +139,7 @@ export default function PostDetailPage() {
           <Typography variant="h6" sx={{ mt: 4, mb: 2 }}>
             Comments
           </Typography>
-          <ThreadedComments
-            postId={post.id}
-            currentUserId={user?.id || ''}
-            initialComments={Array.isArray(post.commentsJson) ? post.commentsJson.filter((c: any) => !c.parentId) : []}
-          />
+          <Typography sx={{ mt: 2 }}>Comments are currently unavailable.</Typography>
         </Paper>
       </Container>
     </Box>

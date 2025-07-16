@@ -5,9 +5,9 @@
 ---
 
 ## What is EverestHood/AgentForge?
-- **Layman:** A digital assistant factory—create, schedule, and run smart agents to automate your work.
-- **Business:** A platform for scalable, reliable automation, supporting both on-demand and scheduled workflows.
-- **Technical:** A Dockerized, full-stack system with unified job queueing, modular agent logic, and robust scheduling.
+- **Layman:** A digital assistant factory—create, schedule, and run smart agents to automate your work and life.
+- **Business:** A SaaS platform for scalable, reliable automation, social learning, and creator monetization, supporting both on-demand and scheduled workflows.
+- **Technical:** A Dockerized, full-stack system with unified job queueing, modular agent logic, robust scheduling, and modern cloud infrastructure.
 
 ---
 
@@ -15,35 +15,29 @@
 - Unified agent execution (no code duplication)
 - Dockerized for easy deployment
 - Real-time and scheduled automation
-- Modular, extensible agent logic
+- Modular, extensible agent and feature logic
 - Centralized logging and monitoring
-- Scalable architecture
+- Scalable, multi-tenant architecture
+- Social, gamified, and monetized modules
+
+---
+
+## Feature Catalog
+- AI Personas & Summaries
+- News & Content Curation
+- Social Community (Posts, Friends, Circles)
+- Achievements & Gamification
+- Job Board & Resume Tools
+- Payments, Tipping, and Subscriptions
+- Family, Money, Health, Productivity Modules
+- Notifications, Admin, and Moderation
 
 ---
 
 ## Automated Fix Scripts & System Reliability
-
-To support a reliable and maintainable system, a suite of automated fix scripts is provided in the project root. These scripts:
-- Automatically resolve common build, lint, and migration issues
-- Help developers keep the codebase healthy and up-to-date
-- Can be run individually or collectively (see package.json and README)
-
-### Developer Workflow
-- **Onboarding:** Run `npm run fix:all` to resolve common issues before development
-- **CI/CD:** Integrate scripts into pipelines to enforce code quality
-- **Troubleshooting:** Use scripts to quickly fix errors after merges or upgrades
-
-### Usage
-- Run all fixes:
-  ```bash
-  npm run fix:all
-  ```
-- Run a specific fix (see package.json for options)
-
-### Best Practices
-- Review script output and check files for context-specific fixes
-- Use scripts iteratively during refactors or after dependency changes
-- See the README for a full list of scripts and details
+- Node.js scripts in project root for linting, migration, import fixes, and MUI refactors
+- Run all: `npm run fix:all`
+- Integrate with CI/CD and pre-commit hooks for best results
 
 ---
 
@@ -57,6 +51,8 @@ graph TD;
   Queue --> Worker["Worker"]
   Worker --> Agent["Agent Logic"]
   Worker --> DB["Database"]
+  API --> DB
+  API --> Redis
 ```
 
 ---
@@ -65,6 +61,14 @@ graph TD;
 - **Layman:** Whether you click a button or set a schedule, the system runs your agent the same way.
 - **Business:** All agent runs—manual or scheduled—are processed through the same queue and worker, ensuring reliability and auditability.
 - **Technical:** Both API and scheduler enqueue jobs to Redis; the worker consumes jobs and runs agent logic, persisting results to Postgres.
+
+---
+
+## Best Practices & Creativity
+- Modularize agent and API logic for easy extension
+- Use fix scripts regularly to maintain code health
+- Encourage creative agent use cases (summarization, moderation, notifications, etc.)
+- Document new features and patterns for the community
 
 ---
 

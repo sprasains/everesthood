@@ -1,3 +1,5 @@
+"use client";
+export const dynamic = "force-dynamic";
 import AuthForm from "@/components/ui/AuthForm";
 import { Box } from "@mui/material";
 import Image from "next/image";

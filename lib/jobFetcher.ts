@@ -5,7 +5,7 @@ import { logger } from '@/services/logger';
 const prisma = new PrismaClient();
 const parser = new Parser();
 
-const JOB_FEEDS = [
+export const JOB_FEEDS = [
   { source: 'WeWorkRemotely AI', url: 'https://weworkremotely.com/remote-jobs/search?term=artificial-intelligence&category_id=&sort=newest.rss' },
   { source: 'Stack Overflow AI', url: 'https://stackoverflow.com/jobs/feed?q=artificial+intelligence' },
   { source: 'Remotive ML', url: 'https://remotive.com/remote-jobs/machine-learning.rss' },
@@ -13,6 +13,12 @@ const JOB_FEEDS = [
 
 export async function fetchAndStoreJobs() {
   logger.info('Starting AI job fetch process...');
+
+  // Fetch the first user to use as the owner of auto-created companies
+  const systemUser = await prisma.user.findFirst();
+  if (!systemUser) {
+    throw new Error('No user found in the database to assign as company owner.');
+  }
 
   for (const feed of JOB_FEEDS) {
     try {
@@ -23,12 +29,25 @@ export async function fetchAndStoreJobs() {
         const titleParts = item.title?.split(' at ');
         const title = titleParts?.[0] || 'Untitled Job';
         const companyName = titleParts?.[1]?.split(' (')[0] || item.creator || 'Unknown Company';
+        // Find or create the company
+        let company = await prisma.company.findFirst({ where: { name: companyName } });
+        if (!company) {
+          company = await prisma.company.create({
+            data: {
+              name: companyName,
+              description: 'No description provided.',
+              ownerId: systemUser.id,
+            },
+          });
+        }
         await prisma.job.upsert({
           where: { externalUrl: item.link },
           update: {
             title: title,
             description: item.contentSnippet || item.content || '',
             publishedAt: item.isoDate ? new Date(item.isoDate) : new Date(),
+            companyId: company.id,
+            companyName: companyName,
           },
           create: {
             title: title,
@@ -39,6 +58,7 @@ export async function fetchAndStoreJobs() {
             location: 'Remote',
             type: 'Full-time',
             publishedAt: item.isoDate ? new Date(item.isoDate) : new Date(),
+            companyId: company.id,
           },
         });
       }
