@@ -86,7 +86,8 @@ export default function Sidebar() {
           <Box sx={{ mb: 3, p: 2, borderRadius: 2, bgcolor: 'linear-gradient(90deg, #8b5cf6 0%, #ec4899 100%)', color: 'white' }}>
             <Box display="flex" alignItems="center" gap={2}>
               <Box sx={{ width: 48, height: 48, bgcolor: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28 }}>
-                {user.persona === "ZenGPT" ? "🧘‍♀️" : user.persona === "HustleBot" ? "🔥" : user.persona === "DataDaddy" ? "📊" : "💪"}
+                {/* TODO: Support custom persona icons if/when available on user object */}
+                {"🤖"}
               </Box>
               <Box>
                 <Typography fontWeight="bold">{user.name || "AI Explorer"}</Typography>

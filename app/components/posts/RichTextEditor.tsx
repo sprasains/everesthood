@@ -35,8 +35,20 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({ initialContent, 
         },
         suggestion: {
           items: async (props: { query: string; editor: any }) => {
-            const res = await fetch(`/api/v1/friends/search?q=${props.query}`);
-            return await res.json();
+            // Try server-side search first
+            const res = await fetch(`/api/v1/friends/search?q=${encodeURIComponent(props.query)}`);
+            if (res.ok) {
+              return await res.json();
+            }
+            // Fallback: fetch all friends and filter client-side
+            const allRes = await fetch('/api/v1/friends');
+            if (!allRes.ok) return [];
+            const allFriends = await allRes.json();
+            const q = props.query.toLowerCase();
+            return allFriends.filter((f: any) =>
+              (f.name && f.name.toLowerCase().includes(q)) ||
+              (f.email && f.email.toLowerCase().includes(q))
+            );
           },
           render: () => {
             let component: any;

@@ -12,8 +12,10 @@ export async function GET() {
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    // Only cache public templates for now
-    const agentTemplates = (await getAgentTemplatesWithCache()).filter((t: { isPublic: boolean }) => t.isPublic);
+    // Bypass cache for now: query all agent templates directly from Prisma
+    const agentTemplates = await prisma.agentTemplate.findMany({
+      orderBy: { name: 'asc' },
+    });
 
     return NextResponse.json(agentTemplates);
   } catch (error) {
@@ -30,7 +32,7 @@ export async function POST(req: Request) {
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    const { name, description, defaultPrompt, defaultModel, defaultTools, isPublic } = await req.json();
+    const { name, description, defaultPrompt, defaultModel, isPublic } = await req.json();
 
     if (!name || !defaultPrompt) {
       return new NextResponse('Name and defaultPrompt are required', { status: 400 });
@@ -42,11 +44,8 @@ export async function POST(req: Request) {
         description: description || '',
         defaultPrompt,
         defaultModel: defaultModel || 'gpt-4o',
-        defaultTools: defaultTools || [],
-        isPublic: isPublic || false,
+        isPublic: isPublic !== undefined ? isPublic : true,
         version: 1,
-        isLatest: true,
-        // ownerId: session.user.id, // Uncomment if AgentTemplate has an ownerId
       },
     });
 

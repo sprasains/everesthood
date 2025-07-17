@@ -83,19 +83,6 @@ export default function ProfilePage() {
     return <CircularProgress />;
   }
 
-  // Fix: define getPersonaIcon and memberSince above return
-  const getPersonaIcon = (persona: string | undefined) => {
-    switch (persona) {
-      case "ZenGPT":
-        return "🧘‍♀️";
-      case "HustleBot":
-        return "🔥";
-      case "DataDaddy":
-        return "📊";
-      default:
-        return "💪";
-    }
-  };
   const memberSince = user?.createdAt
     ? new Date(user.createdAt).getFullYear()
     : new Date().getFullYear();
@@ -131,11 +118,11 @@ export default function ProfilePage() {
                   fontSize: 48,
                 }}
               >
-                {/* Avatar or Persona Icon */}
+                {/* Avatar or fallback icon */}
                 {user?.image ? (
                   <Avatar src={user.image} alt={user.name || ""} sx={{ width: 96, height: 96 }} />
                 ) : (
-                  getPersonaIcon(user?.persona)
+                  "🤖"
                 )}
               </Box>
               <Box>

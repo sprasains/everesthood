@@ -53,13 +53,7 @@ export default function UserStatusPanel({ user }: UserStatusPanelProps) {
               bgcolor: "rgba(255,255,255,0.13)",
             }}
           >
-            {user?.persona === "ZenGPT"
-              ? "🧘‍♀️"
-              : user?.persona === "HustleBot"
-              ? "🔥"
-              : user?.persona === "DataDaddy"
-              ? "📊"
-              : "👤"}
+            {"👤"}
           </Avatar>
           <Typography
             variant="h6"
@@ -82,7 +76,7 @@ export default function UserStatusPanel({ user }: UserStatusPanelProps) {
               fontSize: { xs: "0.85rem", sm: "0.95rem" },
             }}
           >
-            Level {user?.level || 1} • {user?.persona || "ZenGPT"}
+            Level {user?.level || 1}
           </Typography>
           <Box display="flex" justifyContent="center" sx={{ mb: 1 }}>
             <Box sx={{ width: '50%' }}>

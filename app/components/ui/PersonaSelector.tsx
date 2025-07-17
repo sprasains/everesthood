@@ -19,6 +19,7 @@ interface CustomPersona {
 export default function PersonaSelector({ onPersonaChange, className = "" }: PersonaSelectorProps) {
   const { user, updateUser } = useUser();
   const [customPersonas, setCustomPersonas] = useState<CustomPersona[]>([]);
+  const [selectedPersona, setSelectedPersona] = useState<string | null>(null);
 
   useEffect(() => {
     // Fetch custom personas for the logged-in user
@@ -60,10 +61,8 @@ export default function PersonaSelector({ onPersonaChange, className = "" }: Per
     }
   ]
 
-  const handlePersonaSelect = async (personaId: string) => {
-    if (!user) return;
-    // Allow any personaId (default or custom)
-    await updateUser({ persona: personaId });
+  const handlePersonaSelect = (personaId: string) => {
+    setSelectedPersona(personaId);
     onPersonaChange?.(personaId as any);
   };
 
@@ -87,13 +86,13 @@ export default function PersonaSelector({ onPersonaChange, className = "" }: Per
               className={`
                 relative p-6 rounded-xl cursor-pointer transition-all
                 ${persona.unlocked ? 'opacity-100' : 'opacity-50 cursor-not-allowed'}
-                ${user?.persona === persona.id ? 'ring-2 ring-white' : ''}
+                ${selectedPersona === persona.id ? 'ring-2 ring-white' : ''}
                 bg-gradient-to-br ${persona.theme}
               `}
             >
               <h4 className="font-bold text-white mb-2">{persona.name}</h4>
               <p className="text-sm text-white/80">{persona.description}</p>
-              {user?.persona === persona.id && (
+              {selectedPersona === persona.id && (
                 <div className="absolute top-2 right-2">
                   <span className="text-white text-lg">✓</span>
                 </div>
@@ -116,13 +115,13 @@ export default function PersonaSelector({ onPersonaChange, className = "" }: Per
                 onClick={() => handlePersonaSelect(persona.id)}
                 className={`
                   relative p-6 rounded-xl cursor-pointer transition-all
-                  ${user?.persona === persona.id ? 'ring-2 ring-yellow-400' : ''}
+                  ${selectedPersona === persona.id ? 'ring-2 ring-yellow-400' : ''}
                   bg-gradient-to-br from-yellow-400 to-orange-500
                 `}
               >
                 <h4 className="font-bold text-white mb-2">{persona.icon || "🤖"} {persona.name}</h4>
                 <p className="text-sm text-white/80">{persona.prompt.slice(0, 60)}{persona.prompt.length > 60 ? "..." : ""}</p>
-                {user?.persona === persona.id && (
+                {selectedPersona === persona.id && (
                   <div className="absolute top-2 right-2">
                     <span className="text-yellow-400 text-lg">✓</span>
                   </div>
@@ -137,16 +136,16 @@ export default function PersonaSelector({ onPersonaChange, className = "" }: Per
       <div className="bg-gray-800 rounded-lg p-4 mt-4">
         <h4 className="text-sm font-semibold text-white mb-2">🎯 Current Persona Benefits:</h4>
         <div className="text-xs text-gray-300 space-y-1">
-          {user?.persona === "ZenGPT" && (
+          {selectedPersona === "ZenGPT" && (
             <div>• Mindful summaries focused on balance and clarity</div>
           )}
-          {user?.persona === "HustleBot" && (
+          {selectedPersona === "HustleBot" && (
             <div>• High-energy insights with growth opportunities</div>
           )}
-          {user?.persona === "DataDaddy" && (
+          {selectedPersona === "DataDaddy" && (
             <div>• Data-driven analysis with charts and metrics</div>
           )}
-          {user?.persona === "CoachAda" && (
+          {selectedPersona === "CoachAda" && (
             <div>• Career-focused guidance with encouragement</div>
           )}
         </div>

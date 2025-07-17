@@ -11,11 +11,8 @@ export async function GET() {
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    // For now, return all public tools
+    // Return all tools, ordered by name
     const tools = await prisma.tool.findMany({
-      where: {
-        isPublic: true,
-      },
       orderBy: {
         name: 'asc',
       },
@@ -36,7 +33,7 @@ export async function POST(req: Request) {
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    const { name, description, inputSchema, outputSchema, isPublic } = await req.json();
+    const { name, description, inputSchema } = await req.json();
 
     if (!name || !description) {
       return new NextResponse('Name and description are required', { status: 400 });
@@ -47,8 +44,6 @@ export async function POST(req: Request) {
         name,
         description,
         inputSchema: inputSchema || {},
-        outputSchema: outputSchema || {},
-        isPublic: isPublic !== undefined ? isPublic : true,
       },
     });
 

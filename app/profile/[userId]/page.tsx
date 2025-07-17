@@ -2,7 +2,7 @@
 export const dynamic = "force-dynamic";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
-import { Container, Paper, Avatar, Typography, Box, Button, Divider } from "@mui/material";
+import { Container, Paper, Avatar, Typography, Box, Button, Divider, CircularProgress } from "@mui/material";
 import PostCard from "app/components/posts/PostCard";
 import AddReactionIcon from '@mui/icons-material/AddReaction';
 import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
@@ -10,6 +10,7 @@ import ProfileHeaderSkeleton from "app/components/ui/ProfileHeaderSkeleton";
 import PostCardSkeleton from "app/components/posts/PostCardSkeleton";
 import BadgeList from './BadgeList';
 import { useState, useEffect } from "react";
+import { Link } from "next/link";
 
 const fetchUserProfile = async (userId: string) => {
   const res = await fetch(`/api/v1/users/${userId}`);
@@ -20,12 +21,6 @@ const fetchUserProfile = async (userId: string) => {
 const fetchUserPosts = async (userId: string) => {
   const res = await fetch(`/api/v1/posts?authorId=${userId}`);
   if (!res.ok) throw new Error("Failed to fetch user's posts");
-  return res.json();
-};
-
-const fetchUserAchievements = async (userId: string) => {
-  const res = await fetch(`/api/v1/users/${userId}/achievements`);
-  if (!res.ok) throw new Error("Failed to fetch achievements");
   return res.json();
 };
 
@@ -46,10 +41,23 @@ export default function UserProfilePage() {
     enabled: !!userId,
   });
 
-  const { data: achievementsData, isLoading: areAchievementsLoading } = useQuery({
-    queryKey: ["userAchievements", userId],
-    queryFn: () => userId ? fetchUserAchievements(userId) : Promise.resolve(undefined),
-    enabled: !!userId,
+  const { data: achievements = [], isLoading: areAchievementsLoading } = useQuery({
+    queryKey: ["achievements"],
+    queryFn: async () => {
+      const res = await fetch("/api/v1/achievements");
+      if (!res.ok) throw new Error("Failed to fetch achievements");
+      return res.json();
+    },
+  });
+
+  // Fetch friends for the current user
+  const { data: friends = [], isLoading: areFriendsLoading } = useQuery({
+    queryKey: ["friends"],
+    queryFn: async () => {
+      const res = await fetch("/api/v1/friends");
+      if (!res.ok) throw new Error("Failed to fetch friends");
+      return res.json();
+    },
   });
 
   useEffect(() => {
@@ -105,6 +113,30 @@ export default function UserProfilePage() {
 
         <BadgeList />
 
+        {/* Friends Section */}
+        <Box sx={{ mt: 4 }}>
+          <Typography variant="h5" fontWeight="bold" sx={{ mb: 2 }}>
+            Friends
+          </Typography>
+          {areFriendsLoading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', my: 2 }}><CircularProgress /></Box>
+          ) : friends.length > 0 ? (
+            <Box display="flex" flexWrap="wrap" gap={2}>
+              {friends.slice(0, 6).map((friend: any) => (
+                <Box key={friend.id} display="flex" alignItems="center" gap={1}>
+                  <Avatar src={friend.profilePicture} sx={{ width: 40, height: 40 }} />
+                  <Typography component={Link} href={`/profile/${friend.id}`} sx={{ textDecoration: 'none', color: 'inherit', fontWeight: 'bold' }}>{friend.name}</Typography>
+                </Box>
+              ))}
+              {friends.length > 6 && (
+                <Button href="/friends" variant="outlined" sx={{ ml: 2 }}>See all friends</Button>
+              )}
+            </Box>
+          ) : (
+            <Typography color="text.secondary">No friends yet.</Typography>
+          )}
+        </Box>
+
         <Typography variant="h5" fontWeight="bold" sx={{ mt: 4, mb: 2 }}>
             Posts by {user.name}
         </Typography>
@@ -148,15 +180,18 @@ export default function UserProfilePage() {
                   <PostCardSkeleton key={i} />
                 ))}
               </Box>
-          ) : achievementsData && achievementsData.achievements.length > 0 ? (
+          ) : achievements.length > 0 ? (
               // Responsive flexbox grid for achievements
               <Box display="flex" flexWrap="wrap" gap={2}>
-                  {achievementsData.achievements.map((ach: any) => (
+                  {achievements.map((ach: any) => (
                       <Box key={ach.id} flexBasis={{ xs: '100%', sm: '48%', md: '31%' }} flexGrow={1} minWidth={280} maxWidth={{ xs: '100%', sm: '48%', md: '31%' }}>
                           <Paper sx={{ p: 2, textAlign: 'center' }}>
                               <Typography variant="h4">{ach.icon}</Typography>
                               <Typography fontWeight="bold">{ach.name}</Typography>
                               <Typography variant="body2" color="text.secondary">{ach.description}</Typography>
+                              {ach.earned && (
+                                <Typography variant="caption" color="success.main">Earned</Typography>
+                              )}
                           </Paper>
                       </Box>
                   ))}

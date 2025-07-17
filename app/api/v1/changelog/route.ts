@@ -32,6 +32,7 @@ export async function GET() {
     const changelogsWithSeenStatus = changelogs.map((changelog) => ({
       ...changelog,
       isSeen: changelog.seenByUsers.length > 0,
+      seenAt: changelog.seenByUsers.length > 0 ? changelog.seenByUsers[0].seenAt : null,
     }));
 
     return NextResponse.json(changelogsWithSeenStatus);

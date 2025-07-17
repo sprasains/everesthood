@@ -4,26 +4,14 @@ import { Providers } from './providers';
 import { Box } from '@mui/material';
 import AppSidebar from '@/components/layout/AppSidebar';
 import Navbar from '@/components/layout/Navbar';
+import { useUser } from '@/hooks/useUser';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body>
         <Providers>
-          <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: '#0f2027' }}>
-            <AppSidebar />
-            <Box
-              component="main"
-              sx={{
-                flexGrow: 1,
-                ml: { md: '250px' },
-                width: { xs: '100%', md: 'calc(100% - 250px)' },
-              }}
-            >
-              <Navbar />
-              {children}
-            </Box>
-          </Box>
+          {children}
         </Providers>
       </body>
     </html>

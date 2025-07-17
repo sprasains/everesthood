@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PlusCircledIcon } from '@radix-ui/react-icons';
+import { Box, Paper, Stack, Typography, Chip, Fade } from '@mui/material';
 
 interface AgentInstanceListItem {
   id: string;
@@ -21,7 +22,7 @@ export default function AgentInstancesPage() {
   useEffect(() => {
     const fetchAgentInstances = async () => {
       try {
-        const response = await fetch('/api/v1/agent-instances');
+        const response = await fetch('/api/v1/agents/instances');
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -46,40 +47,48 @@ export default function AgentInstancesPage() {
   }
 
   return (
-    <div className="container mx-auto py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Your Agent Instances</h1>
-        <Link href="/agents/templates/create">
-          <Button>
-            <PlusCircledIcon className="mr-2 h-4 w-4" /> Create New Agent
-          </Button>
-        </Link>
-      </div>
-
-      {agentInstances.length === 0 ? (
-        <div className="text-center text-gray-500 mt-12">
-          <p className="mb-4">You haven&apos;t created any agent instances yet.</p>
-          <Link href="/agents/templates/create">
-            <Button variant="outline">Start by creating one!</Button>
+    <Box sx={{ maxWidth: 1200, mx: 'auto', py: 6 }}>
+      <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems="center" spacing={2} mb={4}>
+        <Typography variant="h4" fontWeight="bold">Your Agent Instances</Typography>
+        <Stack direction="row" spacing={1}>
+          <Link href="/agents/templates">
+            <Button variant="outlined">Browse Templates</Button>
           </Link>
-        </div>
+          <Link href="/agents/templates/create">
+            <Button variant="contained" startIcon={<PlusCircledIcon />}>Create New Agent</Button>
+          </Link>
+        </Stack>
+      </Stack>
+      <Box sx={{ borderBottom: '1px solid #eee', mb: 4 }} />
+      {agentInstances.length === 0 ? (
+        <Box sx={{ textAlign: 'center', color: 'text.secondary', mt: 12 }}>
+          <Typography variant="body1" mb={2}>You haven't created any agent instances yet.</Typography>
+          <Link href="/agents/templates/create">
+            <Button variant="outlined">Start by creating one!</Button>
+          </Link>
+        </Box>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {agentInstances.map((instance) => (
-            <Card key={instance.id}>
-              <CardHeader>
-                <CardTitle>{instance.name}</CardTitle>
-                <p className="text-sm text-gray-500">Template: {instance.template.name}</p>
-              </CardHeader>
-              <CardContent>
-                <Link href={`/agents/${instance.id}`}>
-                  <Button variant="outline">Configure</Button>
-                </Link>
-              </CardContent>
-            </Card>
+        <Stack direction="column" spacing={3}>
+          {agentInstances.map((instance, idx) => (
+            <Fade in timeout={400 + idx * 80} key={instance.id}>
+              <Paper elevation={3} sx={{ p: 3, borderRadius: 3, bgcolor: 'background.paper', display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { sm: 'center' }, gap: 2, transition: 'box-shadow 0.2s', '&:hover': { boxShadow: 8 } }}>
+                <Box flex={1}>
+                  <Typography variant="h6" fontWeight="bold">{instance.name}</Typography>
+                  <Typography variant="body2" color="text.secondary">Template: {instance.template.name}</Typography>
+                  {/* Add more agentic details here as needed, e.g. status, last run, etc. */}
+                </Box>
+                <Stack direction="row" spacing={1} alignItems="center">
+                  {/* Example status chip, replace with real status if available */}
+                  <Chip label="Active" color="success" size="small" />
+                  <Link href={`/agents/${instance.id}`}>
+                    <Button variant="outlined">Configure</Button>
+                  </Link>
+                </Stack>
+              </Paper>
+            </Fade>
           ))}
-        </div>
+        </Stack>
       )}
-    </div>
+    </Box>
   );
 }

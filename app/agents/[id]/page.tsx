@@ -11,6 +11,8 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/components/ui/use-toast';
+import { Box, Paper, Stack, Typography, Chip, Collapse, IconButton } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 interface AgentInstance {
   id: string;
@@ -49,13 +51,14 @@ export default function AgentInstanceDetailPage() {
   const [customConfig, setCustomConfig] = useState<string>('{}'); // For JSON string input
   const [availableAgents, setAvailableAgents] = useState<AgentInstanceListItem[]>([]);
   const [cronSchedule, setCronSchedule] = useState('');
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   useEffect(() => {
     if (id) {
       const fetchAgentData = async () => {
         try {
           // Fetch current agent instance details
-          const instanceResponse = await fetch(`/api/v1/agent-instances/${id}`);
+          const instanceResponse = await fetch(`/api/v1/agents/instances/${id}`);
           if (!instanceResponse.ok) {
             throw new Error(`HTTP error! status: ${instanceResponse.status}`);
           }
@@ -70,7 +73,7 @@ export default function AgentInstanceDetailPage() {
           setCronSchedule(instanceData.cronSchedule || '');
 
           // Fetch all available agent instances for chaining
-          const agentsResponse = await fetch('/api/v1/agent-instances');
+          const agentsResponse = await fetch('/api/v1/agents/instances');
           if (!agentsResponse.ok) {
             throw new Error(`HTTP error! status: ${agentsResponse.status}`);
           }
@@ -98,7 +101,7 @@ export default function AgentInstanceDetailPage() {
         model: selectedModel,
       };
 
-      const response = await fetch(`/api/v1/agent-instances/${id}`, {
+      const response = await fetch(`/api/v1/agents/instances/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -134,125 +137,74 @@ export default function AgentInstanceDetailPage() {
   };
 
   if (loading) {
-    return <div className="flex justify-center items-center h-screen">Loading agent configuration...</div>;
+    return <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}><Typography>Loading agent configuration...</Typography></Box>;
   }
 
   if (error) {
-    return <div className="text-red-500 text-center mt-8">Error: {error}</div>;
+    return <Box sx={{ color: 'red', textAlign: 'center', mt: 8 }}><Typography>Error: {error}</Typography></Box>;
   }
 
   if (!agentInstance) {
-    return <div className="text-center mt-8">Agent instance not found.</div>;
+    return <Box sx={{ textAlign: 'center', mt: 8 }}><Typography>Agent instance not found.</Typography></Box>;
   }
 
   return (
-    <div className="container mx-auto py-8">
-      <h1 className="text-3xl font-bold mb-6">Configure Agent: {agentInstance.name}</h1>
-
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>General Settings</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <Label htmlFor="instanceName">Instance Name</Label>
-            <Input
-              id="instanceName"
-              value={instanceName}
-              onChange={(e) => setInstanceName(e.target.value)}
-            />
-          </div>
-          <div>
-            <Label htmlFor="templateName">Template</Label>
-            <Input id="templateName" value={agentInstance.template.name} disabled />
-          </div>
-          <div>
-            <Label htmlFor="customPrompt">Custom Prompt</Label>
+    <Box sx={{ maxWidth: 900, mx: 'auto', py: 6 }}>
+      <Stack direction="row" alignItems="center" spacing={2} mb={2}>
+        <Typography variant="h4" fontWeight="bold">Configure Agent: {agentInstance.name}</Typography>
+        <Chip label="Active" color="success" size="small" />
+        {/* Add more status/config chips as needed */}
+      </Stack>
+      <Box sx={{ borderBottom: '1px solid #eee', mb: 4 }} />
+      <Paper elevation={3} sx={{ p: 3, borderRadius: 3, mb: 4 }}>
+        <Stack spacing={2}>
+          <Box>
+            <Typography variant="subtitle2">Template</Typography>
+            <Typography variant="body1">{agentInstance.template.name}</Typography>
+          </Box>
+          <Box>
+            <Typography variant="subtitle2">Custom Prompt</Typography>
+            <Typography variant="body2">{customPrompt}</Typography>
+          </Box>
+          <Box>
+            <Typography variant="subtitle2">LLM Model</Typography>
+            <Typography variant="body2">{selectedModel}</Typography>
+          </Box>
+          <Box>
+            <Typography variant="subtitle2">Webhook URL</Typography>
+            <Typography variant="body2">{webhookUrl || '-'}</Typography>
+          </Box>
+          <Box>
+            <Typography variant="subtitle2">CRON Schedule</Typography>
+            <Typography variant="body2">{cronSchedule || '-'}</Typography>
+          </Box>
+          {/* Add chaining, logs, etc. here as needed */}
+        </Stack>
+      </Paper>
+      <Paper elevation={2} sx={{ p: 2, borderRadius: 2, mb: 4 }}>
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Typography variant="subtitle2">Advanced Config (JSON)</Typography>
+          <IconButton size="small" onClick={() => setShowAdvanced((v) => !v)}>
+            <ExpandMoreIcon sx={{ transform: showAdvanced ? 'rotate(180deg)' : 'rotate(0deg)', transition: '0.2s' }} />
+          </IconButton>
+        </Stack>
+        <Collapse in={showAdvanced}>
+          <Box mt={2}>
             <Textarea
-              id="customPrompt"
-              value={customPrompt}
-              onChange={(e) => setCustomPrompt(e.target.value)}
+              id="customConfig"
+              value={customConfig}
+              onChange={(e) => setCustomConfig(e.target.value)}
               rows={6}
+              style={{ width: '100%', fontFamily: 'monospace', fontSize: 14 }}
             />
-          </div>
-          <div>
-            <Label htmlFor="selectedModel">LLM Model</Label>
-            <Input
-              id="selectedModel"
-              value={selectedModel}
-              onChange={(e) => setSelectedModel(e.target.value)}
-              placeholder="e.g., gpt-4o, claude-3-opus"
-            />
-          </div>
-          <div>
-            <Label htmlFor="webhookUrl">Webhook URL (for output)</Label>
-            <Input
-              id="webhookUrl"
-              value={webhookUrl}
-              onChange={(e) => setWebhookUrl(e.target.value)}
-              placeholder="https://your-webhook-endpoint.com/"
-            />
-          </div>
-          <div>
-            <Label htmlFor="nextAgent">Run another agent on completion</Label>
-            <Select
-              value={nextAgent || ''}
-              onValueChange={(value) => setNextAgent(value === '' ? null : value)}
-            >
-              <SelectTrigger id="nextAgent">
-                <SelectValue placeholder="Select an agent (optional)" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">None</SelectItem>
-                {availableAgents.map((agent) => (
-                  <SelectItem key={agent.id} value={agent.id}>
-                    {agent.name} ({agent.template.name})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <p className="text-sm text-gray-500 mt-2">
-              Select another agent to automatically run after this agent completes successfully.
-            </p>
-          </div>
-          <div>
-            <Label htmlFor="cronSchedule">Cron Schedule</Label>
-            <Input
-              id="cronSchedule"
-              value={cronSchedule}
-              onChange={(e) => setCronSchedule(e.target.value)}
-              placeholder="e.g., 0 5 * * *"
-            />
-            <p className="text-sm text-gray-500 mt-1">
-              Set a cron expression to run this agent on a schedule (UTC). Leave blank for manual runs.<br />
-              <a href="https://crontab.guru/" target="_blank" rel="noopener noreferrer" className="underline text-blue-600">Learn cron syntax</a>
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>Advanced Configuration (JSON)</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Label htmlFor="customConfig">config_override</Label>
-          <Textarea
-            id="customConfig"
-            value={customConfig}
-            onChange={(e) => setCustomConfig(e.target.value)}
-            rows={10}
-            className="font-mono text-sm"
-          />
-          <p className="text-sm text-gray-500 mt-2">
-            Enter a JSON object to override any other configuration parameters.
-          </p>
-        </CardContent>
-      </Card>
-
-      <Button onClick={handleSave} disabled={loading}>
-        {loading ? 'Saving...' : 'Save Configuration'}
-      </Button>
-    </div>
+          </Box>
+        </Collapse>
+      </Paper>
+      <Stack direction="row" justifyContent="flex-end" spacing={2}>
+        <Button onClick={handleSave} disabled={loading} variant="outline">
+          {loading ? 'Saving...' : 'Save Configuration'}
+        </Button>
+      </Stack>
+    </Box>
   );
 }

@@ -188,7 +188,7 @@ export default function NewsPage() {
               </Box>
             ) : (
               (search ? searchData : newsData)?.length > 0 ? (
-                layout === "grid" ? (
+                layout === "grid" && false ? (
                   <Box sx={{ mt: 4 }}><Typography>News grid is currently unavailable.</Typography></Box>
                 ) : (
                   <Stack spacing={2}>

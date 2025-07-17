@@ -16,12 +16,10 @@ const fetchAchievements = async () => {
 };
 
 export default function AchievementsPage() {
-  const { data, isLoading } = useQuery({
+  const { data: achievements = [], isLoading } = useQuery({
     queryKey: ["achievements"],
     queryFn: fetchAchievements,
   });
-  const achievements = data?.achievements || [];
-  const userAchievements = data?.userAchievements || [];
 
   return (
     <Container sx={{ pt: 10 }}>
@@ -44,7 +42,7 @@ export default function AchievementsPage() {
                 <Grid key={achievement.id} sx={{ width: { xs: '100%', sm: '50%', md: '33.33%' } }}>
                   <AchievementCard
                     achievement={achievement}
-                    earned={userAchievements.includes(achievement.id)}
+                    earned={achievement.earned}
                   />
                 </Grid>
               ))}

@@ -54,24 +54,9 @@ export const GENZ_SOURCES: GenZSource[] = [
 
 export async function fetchGenZContent(source: GenZSource) {
   try {
-    // This would integrate with actual APIs/RSS feeds
-    logger.info('Fetching content from source', { sourceName: source.name });
-
-    // Mock data for demonstration
-    return {
-      articles: [
-        {
-          title: `Latest from ${source.name}`,
-          description: `Trending content from ${source.description}`,
-          url: source.url,
-          publishedAt: new Date(),
-          sourceName: source.name,
-          category: source.category
-        }
-      ]
-    }
+    // TODO: Integrate with real APIs/RSS feeds for production
+    return { articles: [] };
   } catch (error) {
-    logger.error('Error fetching from source', { sourceName: source.name, error });
-    return { articles: [] }
+    return { articles: [] };
   }
 }

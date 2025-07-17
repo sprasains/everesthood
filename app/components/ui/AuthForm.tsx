@@ -26,9 +26,12 @@ interface AuthFormProps {
   isSignUp?: boolean;
 }
 
-// Hardcoded test/demo users for dropdown
-const testUsers = [
-  { label: 'Admin', email: 'admin@example.com', password: 'password123' },
+interface TestUser {
+  label: string;
+  email: string;
+  password: string;
+}
+const testUsers: TestUser[] = [
   { label: 'Demo User', email: 'demo@everesthood.com', password: 'password123' },
   { label: 'Test User 0', email: 'test0@example.com', password: 'password123' },
   { label: 'Test User 1', email: 'test1@example.com', password: 'password123' },
@@ -264,7 +267,7 @@ export default function AuthForm({ isSignUp = false }: AuthFormProps) {
               value={selectedTestUser ?? ''}
             >
               <option value="" disabled>Select a test user…</option>
-              {testUsers.map((user, idx) => (
+              {testUsers.map((user: TestUser, idx: number) => (
                 <option key={user.email} value={idx}>{user.label} ({user.email})</option>
               ))}
             </select>

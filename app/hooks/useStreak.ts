@@ -30,7 +30,7 @@ export function useStreak() {
     const yesterday = new Date(today)
     yesterday.setDate(yesterday.getDate() - 1)
 
-    let newStreak = user.streak || 0
+    let newStreak = user.currentStreak || 0
 
     if (!lastActive) {
       newStreak = 1 // First day
@@ -47,7 +47,7 @@ export function useStreak() {
 
     await updateUser({
       dailyProgress: newProgress,
-      streak: newStreak,
+      currentStreak: newStreak,
       lastActiveDate: today,
       xp: newXP,
       level: newLevel
@@ -65,7 +65,7 @@ export function useStreak() {
 
   return {
     dailyProgress,
-    streak: user?.streak || 0,
+    currentStreak: user?.currentStreak || 0,
     weeklyGoal: user?.weeklyGoal || 5,
     canIncrement,
     incrementProgress,

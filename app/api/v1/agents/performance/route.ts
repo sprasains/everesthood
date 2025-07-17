@@ -13,19 +13,17 @@ export async function GET(req: Request) {
 
     const userId = session.user.id;
 
+    // Fetch agent runs with instance and template info
     const agentRuns = await prisma.agentRun.findMany({
-      where: {
-        userId: userId,
+      where: { userId },
+      include: {
+        agentInstance: {
+          include: {
+            template: true,
+          },
+        },
       },
-      select: {
-        status: true,
-        createdAt: true,
-        updatedAt: true,
-        agentTemplateId: true,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
+      orderBy: { startedAt: 'desc' },
     });
 
     // Calculate metrics
@@ -33,48 +31,53 @@ export async function GET(req: Request) {
     const successfulRuns = agentRuns.filter(run => run.status === 'COMPLETED').length;
     const failedRuns = agentRuns.filter(run => run.status === 'FAILED').length;
     const awaitingInputRuns = agentRuns.filter(run => run.status === 'AWAITING_INPUT').length;
-
     const successRate = totalRuns > 0 ? (successfulRuns / totalRuns) * 100 : 0;
 
     let totalDuration = 0;
     let completedRunsWithDuration = 0;
-
     agentRuns.forEach(run => {
-      if (run.status === 'COMPLETED' && run.createdAt && run.updatedAt) {
-        const duration = run.updatedAt.getTime() - run.createdAt.getTime(); // Duration in milliseconds
+      if (run.status === 'COMPLETED' && run.startedAt && run.completedAt) {
+        const duration = run.completedAt.getTime() - run.startedAt.getTime();
         totalDuration += duration;
         completedRunsWithDuration++;
       }
     });
-
     const averageRunTimeMs = completedRunsWithDuration > 0 ? totalDuration / completedRunsWithDuration : 0;
     const averageRunTimeSeconds = averageRunTimeMs / 1000;
 
-    // Group by agent template for more granular data
-    const performanceByAgent: { [key: string]: { total: number; successful: number; failed: number; avgDurationMs: number; } } = {};
-
+    // Group by agent template
+    const performanceByTemplate: { [key: string]: any } = {};
     agentRuns.forEach(run => {
-      if (!performanceByAgent[run.agentTemplateId]) {
-        performanceByAgent[run.agentTemplateId] = { total: 0, successful: 0, failed: 0, avgDurationMs: 0 };
+      const template = run.agentInstance?.template;
+      if (!template) return;
+      const templateId = template.id;
+      if (!performanceByTemplate[templateId]) {
+        performanceByTemplate[templateId] = {
+          templateId,
+          templateName: template.name,
+          total: 0,
+          successful: 0,
+          failed: 0,
+          avgDurationMs: 0,
+          completedWithDuration: 0,
+        };
       }
-      performanceByAgent[run.agentTemplateId].total++;
+      const t = performanceByTemplate[templateId];
+      t.total++;
       if (run.status === 'COMPLETED') {
-        performanceByAgent[run.agentTemplateId].successful++;
-        if (run.createdAt && run.updatedAt) {
-          const duration = run.updatedAt.getTime() - run.createdAt.getTime();
-          performanceByAgent[run.agentTemplateId].avgDurationMs += duration;
+        t.successful++;
+        if (run.startedAt && run.completedAt) {
+          t.avgDurationMs += run.completedAt.getTime() - run.startedAt.getTime();
+          t.completedWithDuration++;
         }
       } else if (run.status === 'FAILED') {
-        performanceByAgent[run.agentTemplateId].failed++;
+        t.failed++;
       }
     });
-
-    // Calculate average duration for each agent template
-    for (const templateId in performanceByAgent) {
-      const agentData = performanceByAgent[templateId];
-      if (agentData.successful > 0) {
-        agentData.avgDurationMs /= agentData.successful;
-      }
+    // Finalize average duration
+    for (const templateId in performanceByTemplate) {
+      const t = performanceByTemplate[templateId];
+      t.avgDurationMs = t.completedWithDuration > 0 ? t.avgDurationMs / t.completedWithDuration : 0;
     }
 
     return NextResponse.json({
@@ -84,7 +87,7 @@ export async function GET(req: Request) {
       awaitingInputRuns,
       successRate,
       averageRunTimeSeconds,
-      performanceByAgent,
+      performanceByTemplate,
     });
   } catch (error) {
     console.error('Error fetching agent performance data:', error);

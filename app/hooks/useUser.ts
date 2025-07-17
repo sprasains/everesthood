@@ -37,9 +37,6 @@ export function useUser() {
           xp: 0,
           level: 0,
           streak: 0,
-          persona: '',
-          dailyProgress: 0,
-          weeklyGoal: 0,
           achievements: [],
           friends: [],
           publicProfile: true,
@@ -112,9 +109,6 @@ export interface User {
   level: number;
   streak: number;
   lastActiveDate?: Date;
-  persona: string;
-  dailyProgress: number;
-  weeklyGoal: number;
   achievements: string[];
   friends: string[];
   publicProfile: boolean;

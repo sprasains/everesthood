@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/components/ui/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Box } from '@mui/material';
 
 interface AgentTemplate {
   id: string;
@@ -117,28 +118,29 @@ export default function EditAgentTemplatePage() {
   };
 
   if (loading) {
-    return <div className="flex justify-center items-center h-screen">Loading agent template...</div>;
+    return <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>Loading agent template...</Box>;
   }
 
   if (error) {
-    return <div className="text-red-500 text-center mt-8">Error: {error}</div>;
+    return <Box sx={{ color: 'red', textAlign: 'center', mt: 8 }}>Error: {error}</Box>;
   }
 
   if (!template) {
-    return <div className="text-center mt-8">Agent template not found.</div>;
+    return <Box sx={{ textAlign: 'center', mt: 8 }}>Agent template not found.</Box>;
   }
 
   return (
-    <div className="container mx-auto py-8">
+    <Box sx={{ maxWidth: 900, mx: 'auto', py: 6 }}>
       <h1 className="text-3xl font-bold mb-6">Edit Agent Template: {template.name} (v{template.version})</h1>
-
+      <Box sx={{ borderBottom: '1px solid #eee', mb: 4 }} />
       <form onSubmit={handleSubmit} className="space-y-6">
         <Card>
           <CardHeader>
             <CardTitle>Template Details</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div>
+            {/* Template Name */}
+            <Box>
               <Label htmlFor="name">Template Name</Label>
               <Input
                 id="name"
@@ -146,8 +148,9 @@ export default function EditAgentTemplatePage() {
                 onChange={(e) => setName(e.target.value)}
                 required
               />
-            </div>
-            <div>
+            </Box>
+            {/* Description */}
+            <Box>
               <Label htmlFor="description">Description</Label>
               <Textarea
                 id="description"
@@ -155,8 +158,9 @@ export default function EditAgentTemplatePage() {
                 onChange={(e) => setDescription(e.target.value)}
                 rows={3}
               />
-            </div>
-            <div>
+            </Box>
+            {/* Default Prompt */}
+            <Box>
               <Label htmlFor="defaultPrompt">Default Prompt</Label>
               <Textarea
                 id="defaultPrompt"
@@ -165,8 +169,9 @@ export default function EditAgentTemplatePage() {
                 rows={6}
                 required
               />
-            </div>
-            <div>
+            </Box>
+            {/* Default LLM Model */}
+            <Box>
               <Label htmlFor="defaultModel">Default LLM Model</Label>
               <Input
                 id="defaultModel"
@@ -174,8 +179,9 @@ export default function EditAgentTemplatePage() {
                 onChange={(e) => setDefaultModel(e.target.value)}
                 placeholder="e.g., gpt-4o, claude-3-opus"
               />
-            </div>
-            <div>
+            </Box>
+            {/* Default Tools */}
+            <Box>
               <Label htmlFor="defaultTools">Default Tools (comma-separated)</Label>
               <Input
                 id="defaultTools"
@@ -186,8 +192,9 @@ export default function EditAgentTemplatePage() {
               <p className="text-sm text-gray-500 mt-1">
                 List tool names separated by commas (e.g., web_search, runAgentTool).
               </p>
-            </div>
-            <div className="flex items-center space-x-2">
+            </Box>
+            {/* Public Switch */}
+            <Box className="flex items-center space-x-2">
               <Switch
                 id="isPublic"
                 checked={isPublic}
@@ -197,8 +204,9 @@ export default function EditAgentTemplatePage() {
               <p className="text-sm text-gray-500">
                 Public templates can be used by all users.
               </p>
-            </div>
-            <div className="flex items-center space-x-2">
+            </Box>
+            {/* New Version Checkbox */}
+            <Box className="flex items-center space-x-2">
               <Checkbox
                 id="createNewVersion"
                 checked={createNewVersion}
@@ -208,14 +216,15 @@ export default function EditAgentTemplatePage() {
               <p className="text-sm text-gray-500">
                 Check this to create a new version of this template instead of updating the current one.
               </p>
-            </div>
+            </Box>
           </CardContent>
         </Card>
-
-        <Button type="submit" disabled={isSaving}>
-          {isSaving ? 'Saving...' : 'Save Template'}
-        </Button>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+          <Button type="submit" disabled={isSaving}>
+            {isSaving ? 'Saving...' : 'Save Template'}
+          </Button>
+        </Box>
       </form>
-    </div>
+    </Box>
   );
 }

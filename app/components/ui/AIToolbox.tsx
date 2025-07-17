@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Paper,
   TextField,
@@ -21,16 +21,50 @@ export default function AIToolbox() {
   const [mode, setMode] = useState<"summarize" | "bullets" | "rephrase">(
     "summarize"
   );
+  const [agentInstanceId, setAgentInstanceId] = useState("");
   const [currentRunId, setCurrentRunId] = useState<string | null>(null);
   const [humanInputPrompt, setHumanInputPrompt] = useState<string | null>(null);
   const [humanResponse, setHumanResponse] = useState("");
+  const pollingRef = useRef<NodeJS.Timeout | null>(null);
+
+  const pollJobStatus = async (jobId: string) => {
+    setResult("Waiting for agent to complete...");
+    const poll = async () => {
+      try {
+        const res = await fetch(`/api/agents/jobs/${jobId}`);
+        if (!res.ok) {
+          throw new Error("Failed to fetch job status");
+        }
+        const data = await res.json();
+        if (data.status === "completed" || data.status === "COMPLETED") {
+          setResult(data.result || JSON.stringify(data));
+          setLoading(false);
+          if (pollingRef.current) clearTimeout(pollingRef.current);
+        } else if (data.status === "failed" || data.status === "FAILED") {
+          setResult(data.error || "Agent job failed.");
+          setLoading(false);
+          if (pollingRef.current) clearTimeout(pollingRef.current);
+        } else {
+          pollingRef.current = setTimeout(poll, 2000);
+        }
+      } catch (err: any) {
+        setResult(`Error: ${err.message}`);
+        setLoading(false);
+        if (pollingRef.current) clearTimeout(pollingRef.current);
+      }
+    };
+    poll();
+  };
 
   const handleProcess = async (input?: string) => {
     if (!inputText.trim() && !input) return;
+    if (!agentInstanceId.trim()) {
+      setResult("Error: Please provide an Agent Instance ID.");
+      return;
+    }
     setLoading(true);
     setResult("");
     setHumanInputPrompt(null);
-
     try {
       const response = await fetch('/api/v1/ai/process', {
         method: 'POST',
@@ -38,32 +72,24 @@ export default function AIToolbox() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          inputText: inputText,
-          mode: mode,
-          runId: currentRunId,
-          humanInput: input, // Send human response if available
+          agentInstanceId,
+          input: inputText,
+          mode,
         }),
       });
-
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Failed to process AI request');
       }
-
       const data = await response.json();
-      setResult(data.result);
-      setCurrentRunId(data.runId || null);
-      setHumanInputPrompt(data.humanInputPrompt || null);
-
-      if (data.humanInputPrompt) {
-        // If agent is awaiting input, keep the modal open or show specific UI
-        // For now, we'll just set the prompt and clear previous result
-        setResult("");
+      if (data.jobId) {
+        pollJobStatus(data.jobId);
+      } else {
+        setResult(data.message || JSON.stringify(data));
+        setLoading(false);
       }
-
     } catch (error: any) {
       setResult(`Error: ${error.message}`);
-    } finally {
       setLoading(false);
     }
   };
@@ -74,6 +100,12 @@ export default function AIToolbox() {
       setHumanResponse("");
     }
   };
+
+  useEffect(() => {
+    return () => {
+      if (pollingRef.current) clearTimeout(pollingRef.current);
+    };
+  }, []);
 
   return (
     <div data-testid="ai-toolbox">
@@ -89,6 +121,14 @@ export default function AIToolbox() {
         <Typography variant="h5" fontWeight="bold" sx={{ mb: 2 }}>
           AI Toolbox
         </Typography>
+        <TextField
+          fullWidth
+          label="Agent Instance ID"
+          value={agentInstanceId}
+          onChange={(e) => setAgentInstanceId(e.target.value)}
+          placeholder="Enter your Agent Instance ID"
+          sx={{ mb: 2 }}
+        />
         <TextField
           fullWidth
           multiline

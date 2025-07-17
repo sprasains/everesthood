@@ -99,7 +99,10 @@ export default function UsageAndBillingPage() {
             Your past invoices and billing details will appear here.
           </p>
           {/* Placeholder for Stripe billing portal link or invoice list */}
-          <Button onClick={() => alert("Redirect to Stripe Billing Portal (Not yet implemented)")}>
+          <Button onClick={() => {
+            // TODO: Replace with real Stripe billing portal redirect
+            window.location.href = process.env.NEXT_PUBLIC_STRIPE_BILLING_PORTAL_URL || '/dashboard';
+          }}>
             Manage Subscription on Stripe
           </Button>
         </CardContent>
