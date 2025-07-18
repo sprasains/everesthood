@@ -3,6 +3,8 @@ export const dynamic = "force-dynamic";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import Card from '@/components/ui/Card';
+import { Button } from '@mui/material';
 
 interface GuidePreview {
   title: string;
@@ -19,6 +21,30 @@ function estimateReadTime(content: string) {
   const words = content.split(/\s+/).length;
   return Math.max(1, Math.round(words / 200));
 }
+
+const financialAgents = [
+  {
+    id: 'subscription-hunter',
+    name: 'Subscription Hunter',
+    description: 'Find and manage all your recurring subscriptions automatically.',
+    icon: '🔍',
+    controlPanelUrl: '/agents/subscription-hunter',
+  },
+  {
+    id: 'expense-categorizer',
+    name: 'Expense Categorizer',
+    description: 'Automatically categorize your transactions for smarter budgeting.',
+    icon: '📊',
+    controlPanelUrl: '/agents/expense-categorizer',
+  },
+  {
+    id: 'bill-reminder',
+    name: 'Bill Reminder',
+    description: 'Never miss a payment—get AI-powered reminders for upcoming bills.',
+    icon: '⏰',
+    controlPanelUrl: '/agents/bill-reminder',
+  },
+];
 
 export default function MoneyHubPage() {
   const [guides, setGuides] = useState<GuidePreview[]>([]);
@@ -75,8 +101,55 @@ export default function MoneyHubPage() {
 
   return (
     <div className="max-w-5xl mx-auto py-10 px-4">
-      <h1 className="text-3xl font-bold mb-6 text-center">Money & Hustle Guides</h1>
-      <p className="mb-8 text-center text-gray-600">Level up your financial and career skills with these easy-to-read guides.</p>
+      {/* Redesigned Header */}
+      <div className="flex flex-col sm:flex-row items-center justify-between mb-6 gap-4">
+        <div>
+          <h1 className="text-3xl font-bold mb-1">Money & Finances</h1>
+          <p className="text-gray-600">Level up your financial and career skills with these easy-to-read guides.</p>
+        </div>
+        <Button
+          variant="contained"
+          color="primary"
+          size="large"
+          href="/agents/templates?category=Finance"
+          sx={{ borderRadius: 2, fontWeight: 600 }}
+        >
+          Automate with an Agent
+        </Button>
+      </div>
+
+      {/* Agent Actions Section */}
+      <div className="mb-10">
+        <h2 className="text-xl font-semibold mb-4">Agent Actions</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          {financialAgents.map(agent => (
+            <Card
+              key={agent.id}
+              title={agent.name}
+              subtitle={agent.description}
+              variant="elevated"
+              size="md"
+              headerAction={<span style={{ fontSize: 32 }}>{agent.icon}</span>}
+              footer={
+                <Button
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                  href={agent.controlPanelUrl}
+                  sx={{ fontWeight: 600 }}
+                >
+                  Run Now
+                </Button>
+              }
+            >
+              {/* Additional agent info can go here */}
+              <></>
+            </Card>
+          ))}
+        </div>
+      </div>
+
+      {/* Guides Section (existing) */}
       <div className="flex flex-col sm:flex-row gap-4 mb-6 items-center justify-between">
         <input
           type="text"
@@ -131,6 +204,15 @@ export default function MoneyHubPage() {
               {read.includes(guide.slug) && (
                 <span className="absolute bottom-2 right-2 bg-green-500 text-white text-xs px-2 py-0.5 rounded-full">Read</span>
               )}
+              {/* Contextual AI trigger button example */}
+              <Button
+                size="small"
+                variant="outlined"
+                sx={{ position: 'absolute', left: 8, bottom: 8, zIndex: 10, fontSize: 11, px: 1.5, py: 0.5 }}
+                href="/agents/expense-categorizer"
+              >
+                Auto-categorize with AI
+              </Button>
             </div>
           ))}
         </div>

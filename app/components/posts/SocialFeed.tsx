@@ -4,8 +4,9 @@ import { useState, useEffect } from "react"
 import { useUser } from "@/hooks/useUser"
 import PollCard from "@/components/ui/PollCard"
 import { logger, newCorrelationId, getCorrelationId } from '@/services/logger'
+import PostCard from './PostCard';
 
-export default function SocialFeed() {
+export default function SocialFeed({ posts = [], loading = false, error = null }) {
   const { user } = useUser();
   const [postText, setPostText] = useState("");
   const [polls, setPolls] = useState([]);
@@ -16,24 +17,7 @@ export default function SocialFeed() {
   const [linkUrl, setLinkUrl] = useState('');
   const [prediction, setPrediction] = useState('');
 
-  useEffect(() => {
-    const fetchPolls = async () => {
-      newCorrelationId();
-      logger.info('Fetching polls for social feed.');
-      try {
-        const res = await fetch("/api/v1/polls", { headers: { 'X-Correlation-ID': getCorrelationId() } });
-        if (res.ok) {
-          setPolls(await res.json());
-          logger.info('Fetched polls for social feed.');
-        } else {
-          logger.warn('Failed to fetch polls for social feed.', { status: res.status });
-        }
-      } catch (error: any) {
-        logger.error('Error fetching polls for social feed.', { error: error.message, stack: error.stack });
-      }
-    };
-    fetchPolls();
-  }, []);
+  // Remove internal fetching of posts for the main feed
 
   const handlePost = async () => {
     if (postType === 'TEXT' && !postText.trim()) return;
@@ -222,47 +206,33 @@ export default function SocialFeed() {
           <PollCard pollData={polls[0]} />
         </motion.div>
       )}
+      {/* Main Feed */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
+        transition={{ delay: 0.25 }}
         className="bg-gray-800 rounded-2xl p-6"
       >
-        <h3 className="text-lg font-bold text-white mb-4">💬 Community Highlights</h3>
-
-        <div className="space-y-4">
-          {[
-            { user: "TechWiz", content: "Just discovered this insane AI breakthrough! 🤯", likes: 23, time: "2h" },
-            { user: "CultureCritic", content: "Gen-Z is literally reshaping the entire fashion industry", likes: 18, time: "4h" },
-            { user: "FutureBuilder", content: "Working on my startup pitch for tomorrow 🚀", likes: 31, time: "6h" }
-          ].map((post, index) => (
-            <div key={index} className="bg-gray-700 rounded-lg p-4">
-              <div className="flex items-start space-x-3">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-sm">
-                  {post.user[0]}
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center space-x-2 mb-1">
-                    <span className="font-medium text-white text-sm">{post.user}</span>
-                    <span className="text-xs text-gray-400">•</span>
-                    <span className="text-xs text-gray-400">{post.time}</span>
-                  </div>
-                  <p className="text-sm text-gray-300">{post.content}</p>
-                  <div className="flex items-center space-x-4 mt-2">
-                    <button className="text-xs text-gray-400 hover:text-pink-400 flex items-center space-x-1">
-                      <span>💖</span>
-                      <span>{post.likes}</span>
-                    </button>
-                    <button className="text-xs text-gray-400 hover:text-blue-400">
-                      💬 Reply
-                    </button>
-                  </div>
-                </div>
-              </div>
+        <h3 className="text-lg font-bold text-white mb-4">📰 Latest Posts</h3>
+        {loading ? (
+          <>
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="mb-4"><PostCard.Skeleton /></div>
+            ))}
+          </>
+        ) : error ? (
+          <div className="text-red-400">Error loading posts.</div>
+        ) : posts && posts.length > 0 ? (
+          posts.map((post, idx) => (
+            <div key={post.id || idx} className="mb-4">
+              <PostCard post={post} />
             </div>
-          ))}
-        </div>
+          ))
+        ) : (
+          <div className="text-gray-400">No posts yet. Be the first to share something!</div>
+        )}
       </motion.div>
+      {/* ... existing community highlights, etc ... */}
     </div>
   )
 }

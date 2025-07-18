@@ -1,5 +1,5 @@
 "use client";
-import { AppBar, Toolbar, Button, Typography, IconButton, Avatar, Box, Chip } from "@mui/material";
+import { AppBar, Toolbar, Button, Typography, IconButton, Avatar, Box, Chip, Container } from "@mui/material";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import { motion } from "framer-motion";
 import { useSession, signOut } from "next-auth/react";
@@ -106,20 +106,33 @@ export default function Navbar() {
       ],
     },
     {
-      label: "Admin",
+      label: "Wellness",
       links: [
-        { href: "/admin", label: "Admin Dashboard", icon: <SupervisorAccountIcon />, desc: "Admin tools and moderation" },
-        { href: "/moderation", label: "Moderation", icon: <GavelIcon />, desc: "Reports, blocks, and reviews" },
+        { href: '/digital-zen', label: 'Digital Zen', icon: <LocalHospitalIcon />, desc: 'Digital wellness and detox plans' },
       ],
     },
     {
-      label: "Legal & Info",
+      label: "AI",
       links: [
-        { href: "/privacy", label: "Privacy", icon: <SecurityIcon />, desc: "Privacy policy and controls" },
-        { href: "/security", label: "Security", icon: <SecurityIcon />, desc: "Security best practices" },
-        { href: "/terms", label: "Terms", icon: <GavelIcon />, desc: "Terms of service" },
-        { href: "/contact", label: "Contact", icon: <ContactMailIcon />, desc: "Contact and support" },
-        { href: "/api-docs", label: "API Docs", icon: <DescriptionOutlinedIcon />, desc: "Developer documentation" },
+        { href: '/summaries', label: 'AI Summaries', icon: <AutoAwesomeIcon />, desc: 'Persona-driven content summaries' },
+      ],
+    },
+    {
+      label: "Info",
+      links: [
+        { href: '/api-docs', label: 'API Docs', icon: <DescriptionOutlinedIcon />, desc: 'Developer documentation' },
+        { href: '/contact', label: 'Contact', icon: <ContactMailIcon />, desc: 'Contact and support' },
+        { href: '/privacy', label: 'Privacy', icon: <SecurityIcon />, desc: 'Privacy policy and controls' },
+        { href: '/security', label: 'Security', icon: <SecurityIcon />, desc: 'Security best practices' },
+        { href: '/terms', label: 'Terms', icon: <GavelIcon />, desc: 'Terms of service' },
+      ],
+    },
+    {
+      label: "Admin",
+      links: [
+        { href: "/admin", label: "Admin Dashboard", icon: <SupervisorAccountIcon />, desc: "Admin tools and moderation" },
+        // Only show Moderation if user is admin/moderator
+        // { href: '/moderation', label: 'Moderation', icon: <GavelIcon />, desc: 'Reports, blocks, and reviews' },
       ],
     },
   ];
@@ -146,165 +159,306 @@ export default function Navbar() {
     setOpenCategories((prev) => ({ ...prev, [label]: !prev[label] }));
   };
 
-  // Determine navbar color and badge style based on subscription tier
+  // Determine navbar styling based on subscription tier
   const tier = user?.subscriptionTier || "FREE";
-  let navbarBg = "linear-gradient(90deg, #6a11cb, #2575fc)";
+  let navbarBg = "linear-gradient(135deg, #1e293b 0%, #334155 100%)";
   let badgeColor = "default";
   let badgeLabel = "Free";
   let badgeStyle = {};
+  
   if (tier === "PREMIUM") {
-    navbarBg = "linear-gradient(90deg, #FFD700, #FFB300)"; // gold
+    navbarBg = "linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)"; // amber gradient
     badgeColor = "warning";
     badgeLabel = "Premium";
-    badgeStyle = { backgroundColor: '#FFD700', color: '#333' };
+    badgeStyle = { backgroundColor: '#f59e0b', color: '#1f2937', fontWeight: 600 };
   } else if (tier === "CREATOR") {
-    navbarBg = "linear-gradient(90deg, #d4145a, #fbb03b)"; // purple-pink-orange
+    navbarBg = "linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%)"; // purple gradient
     badgeColor = "secondary";
     badgeLabel = "Creator";
-    badgeStyle = { backgroundColor: '#d4145a', color: '#fff' };
+    badgeStyle = { backgroundColor: '#8b5cf6', color: '#ffffff', fontWeight: 600 };
   }
 
   return (
     <AppBar
       data-testid="navbar"
       position="fixed"
+      elevation={0}
       sx={{
         background: navbarBg,
-        boxShadow: "0 4px 20px rgba(0,0,0,0.2)",
+        backdropFilter: 'blur(10px)',
+        borderBottom: '1px solid',
+        borderColor: 'rgba(255, 255, 255, 0.1)',
+        zIndex: 1100,
       }}
     >
-      <Toolbar sx={{ display: "flex", justifyContent: "flex-start" }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2, flexGrow: 1 }}>
-          <IconButton
-            color="inherit"
-            onClick={handleMenuOpen}
-            sx={{ mr: 1 }}
-            aria-label="open navigation menu"
-          >
-            <MenuIcon />
-          </IconButton>
-          <Link href="/" style={{ textDecoration: "none" }}>
-            <Typography
-              variant="h6"
-              sx={{
-                fontWeight: "bold",
-                color: "white",
-                display: "flex",
-                alignItems: "center",
-                gap: 1,
+      <Container maxWidth="xl" disableGutters>
+        <Toolbar sx={{ 
+          display: "flex", 
+          justifyContent: "space-between",
+          alignItems: "center",
+          px: { xs: 2, md: 3 },
+          py: 1,
+          minHeight: { xs: '64px', md: '72px' },
+        }}>
+          {/* Left section: Menu button, Logo, and Main links */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2, flexGrow: 1 }}>
+            <IconButton
+              color="inherit"
+              onClick={handleMenuOpen}
+              sx={{ 
+                mr: 1,
+                bgcolor: 'rgba(255, 255, 255, 0.1)',
+                '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)' },
               }}
+              aria-label="open navigation menu"
             >
+              <MenuIcon />
+            </IconButton>
+            
+            {/* Logo */}
+            <Link href="/" style={{ textDecoration: "none" }}>
               <motion.div
-                whileHover={{ rotate: 360 }}
-                transition={{ duration: 0.5 }}
-                style={{
-                  width: 32,
-                  height: 32,
-                  background: "linear-gradient(to right, #6a11cb, #2575fc)",
-                  borderRadius: "50%",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
+                whileHover={{ scale: 1.05 }}
+                transition={{ duration: 0.2 }}
               >
-                <span style={{ color: "white", fontWeight: "bold" }}>E</span>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                  <Box
+                    sx={{
+                      width: 36,
+                      height: 36,
+                      background: 'linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%)',
+                      borderRadius: '10px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      boxShadow: '0 4px 12px rgba(139, 92, 246, 0.3)',
+                    }}
+                  >
+                    <Typography sx={{ color: 'white', fontWeight: 'bold', fontSize: '1.1rem' }}>
+                      E
+                    </Typography>
+                  </Box>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontWeight: "bold",
+                      color: "white",
+                      fontSize: { xs: '1.1rem', md: '1.25rem' },
+                    }}
+                  >
+                    Everesthood
+                  </Typography>
+                </Box>
               </motion.div>
-              Everesthood
-            </Typography>
-          </Link>
-          {/* Main links as icon buttons */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 2 }}>
-            {MAIN_LINKS.map((link) => (
-              <Tooltip key={link.href} title={link.label} arrow>
-                <IconButton
-                  color="inherit"
-                  component={Link}
-                  href={link.href}
-                  sx={{ p: 1.2 }}
-                  aria-label={link.label}
-                >
-                  {link.icon}
-                </IconButton>
-              </Tooltip>
-            ))}
+            </Link>
+            
+            {/* Main navigation links */}
+            <Box sx={{ 
+              display: { xs: 'none', lg: 'flex' }, 
+              alignItems: 'center', 
+              gap: 0.5, 
+              ml: 4 
+            }}>
+              {MAIN_LINKS.map((link) => (
+                <Tooltip key={link.href} title={link.label} arrow>
+                  <IconButton
+                    color="inherit"
+                    component={Link}
+                    href={link.href}
+                    sx={{ 
+                      p: 1.5,
+                      borderRadius: 2,
+                      bgcolor: 'rgba(255, 255, 255, 0.05)',
+                      '&:hover': { 
+                        bgcolor: 'rgba(255, 255, 255, 0.15)',
+                        transform: 'translateY(-1px)',
+                      },
+                      transition: 'all 0.2s ease-in-out',
+                    }}
+                    aria-label={link.label}
+                  >
+                    {link.icon}
+                  </IconButton>
+                </Tooltip>
+              ))}
+            </Box>
           </Box>
-        </Box>
-        {/* Welcome message for logged-in user */}
-        {user?.name && (
-          <Typography variant="subtitle1" sx={{ color: "white", fontWeight: 500, mx: 2, display: 'flex', alignItems: 'center' }}>
-            Welcome, {user.name}!
-            <Chip label={badgeLabel} size="small" sx={{ ml: 1, fontWeight: 600, fontSize: 12 }} style={badgeStyle} />
-          </Typography>
-        )}
-        {/* Right-aligned icons, upgrade, avatar, logout */}
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          {user?.subscriptionTier === "FREE" && !isTestUser && (
-            <Link href="/subscribe" style={{ textDecoration: "none" }}>
-              <Button
-                variant="contained"
-                sx={{
-                  background: "linear-gradient(to right, #6a11cb, #2575fc)",
-                  color: "white",
-                  fontWeight: "medium",
-                  textTransform: "none",
-                  boxShadow: "0 4px 8px rgba(106, 17, 203, 0.3)",
-                  "&:hover": {
-                    background: "linear-gradient(to right, #2575fc, #6a11cb)",
-                  },
+
+          {/* Center section: Welcome message */}
+          {user?.name && (
+            <Box sx={{ 
+              display: { xs: 'none', md: 'flex' }, 
+              alignItems: 'center', 
+              gap: 2,
+              mx: 2,
+            }}>
+              <Typography 
+                variant="subtitle2" 
+                sx={{ 
+                  color: "white", 
+                  fontWeight: 500,
+                  fontSize: '0.875rem',
                 }}
               >
-                ⚡ Upgrade
-              </Button>
-            </Link>
+                Welcome, {user.name}!
+              </Typography>
+              <Chip 
+                label={badgeLabel} 
+                size="small" 
+                sx={{ 
+                  fontWeight: 600, 
+                  fontSize: '0.75rem',
+                  height: 24,
+                }} 
+                style={badgeStyle}
+              />
+            </Box>
           )}
-          {user?.subscriptionTier === "PREMIUM" && (
-            <Link href="/billing" style={{ textDecoration: "none" }}>
-              <Button
-                variant="text"
-                sx={{ color: "white", fontWeight: "medium", textTransform: "none" }}
+
+          {/* Right section: Actions and user menu */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            {/* Upgrade button for free users */}
+            {user?.subscriptionTier === "FREE" && !isTestUser && (
+              <Link href="/subscribe" style={{ textDecoration: "none" }}>
+                <Button
+                  variant="contained"
+                  size="small"
+                  sx={{
+                    background: "linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%)",
+                    color: "white",
+                    fontWeight: "600",
+                    textTransform: "none",
+                    borderRadius: 2,
+                    px: 2,
+                    py: 0.75,
+                    boxShadow: "0 4px 12px rgba(139, 92, 246, 0.3)",
+                    "&:hover": {
+                      background: "linear-gradient(135deg, #7c3aed 0%, #0891b2 100%)",
+                      transform: "translateY(-1px)",
+                      boxShadow: "0 6px 16px rgba(139, 92, 246, 0.4)",
+                    },
+                    transition: "all 0.2s ease-in-out",
+                  }}
+                >
+                  ⚡ Upgrade
+                </Button>
+              </Link>
+            )}
+            
+            {/* Billing button for premium users */}
+            {user?.subscriptionTier === "PREMIUM" && (
+              <Link href="/billing" style={{ textDecoration: "none" }}>
+                <Button
+                  variant="text"
+                  size="small"
+                  sx={{ 
+                    color: "white", 
+                    fontWeight: "500", 
+                    textTransform: "none",
+                    '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.1)' },
+                  }}
+                >
+                  💳 Billing
+                </Button>
+              </Link>
+            )}
+            
+            {/* Notifications */}
+            <NotificationDropdown />
+            
+            {/* Messages */}
+            <Tooltip title="Messages" arrow>
+              <IconButton 
+                color="inherit"
+                sx={{ 
+                  bgcolor: 'rgba(255, 255, 255, 0.1)',
+                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)' },
+                }}
               >
-                💳 Billing
-              </Button>
-            </Link>
-          )}
-          <NotificationDropdown />
-          <IconButton color="inherit">
-            <MailOutlineIcon />
-          </IconButton>
-          <Avatar src={user?.image || undefined} alt={user?.name || ""} sx={{ width: 36, height: 36, ml: 1 }} />
-          <IconButton
-            onClick={() => signOut()}
-            sx={{
-              color: "white",
-              background: "rgba(255,255,255,0.1)",
-              "&:hover": {
-                background: "rgba(255,255,255,0.2)",
-              },
-            }}
-          >
-            <ExitToAppIcon />
-          </IconButton>
-        </Box>
-      </Toolbar>
+                <MailOutlineIcon />
+              </IconButton>
+            </Tooltip>
+            
+            {/* User avatar */}
+            <Tooltip title="User menu" arrow>
+              <Avatar 
+                src={user?.image || undefined} 
+                alt={user?.name || ""} 
+                sx={{ 
+                  width: 40, 
+                  height: 40, 
+                  bgcolor: 'rgba(255, 255, 255, 0.2)',
+                  border: '2px solid rgba(255, 255, 255, 0.3)',
+                  cursor: 'pointer',
+                  '&:hover': { 
+                    borderColor: 'rgba(255, 255, 255, 0.5)',
+                    transform: 'scale(1.05)',
+                  },
+                  transition: 'all 0.2s ease-in-out',
+                }}
+              />
+            </Tooltip>
+            
+            {/* Logout button */}
+            <Tooltip title="Sign out" arrow>
+              <IconButton
+                onClick={() => signOut()}
+                sx={{
+                  color: "white",
+                  bgcolor: "rgba(255,255,255,0.1)",
+                  "&:hover": {
+                    bgcolor: "rgba(255,255,255,0.2)",
+                    transform: "scale(1.05)",
+                  },
+                  transition: "all 0.2s ease-in-out",
+                }}
+              >
+                <ExitToAppIcon />
+              </IconButton>
+            </Tooltip>
+          </Box>
+        </Toolbar>
+      </Container>
+
+      {/* Navigation menu */}
       <Menu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
         onClose={handleMenuClose}
         PaperProps={{
           sx: {
-            minWidth: 220,
-            background: 'rgba(30, 30, 40, 0.97)', // nearly opaque dark background
+            minWidth: 280,
+            background: 'rgba(30, 41, 59, 0.98)',
             color: 'white',
-            boxShadow: 24,
-            zIndex: 2000, // ensure it's above most overlays
-            backdropFilter: 'blur(2px)',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.3)',
+            zIndex: 2000,
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            borderRadius: 3,
+            mt: 1,
           }
         }}
+        transformOrigin={{ horizontal: 'left', vertical: 'top' }}
+        anchorOrigin={{ horizontal: 'left', vertical: 'bottom' }}
       >
         {NAV_CATEGORIES.map((cat, idx) => (
           <div key={cat.label}>
-            <ListItemButton onClick={() => handleCategoryToggle(cat.label)}>
-              <ListItemText primary={cat.label} />
+            <ListItemButton 
+              onClick={() => handleCategoryToggle(cat.label)}
+              sx={{
+                py: 1.5,
+                '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.05)' },
+              }}
+            >
+              <ListItemText 
+                primary={cat.label} 
+                sx={{ 
+                  '& .MuiListItemText-primary': {
+                    fontWeight: 600,
+                    fontSize: '0.875rem',
+                  }
+                }}
+              />
               {openCategories[cat.label] ? <ExpandLessIcon /> : <ExpandMoreIcon />}
             </ListItemButton>
             <Collapse in={openCategories[cat.label]} timeout="auto" unmountOnExit>
@@ -315,18 +469,52 @@ export default function Navbar() {
                     component={Link}
                     href={link.href}
                     onClick={handleMenuClose}
-                    sx={{ pl: 4, alignItems: 'flex-start', py: 1.5 }}
+                    sx={{ 
+                      pl: 4, 
+                      alignItems: 'flex-start', 
+                      py: 1.5,
+                      '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.05)' },
+                    }}
                   >
-                    <Box sx={{ display: 'flex', alignItems: 'center', minWidth: 36, mr: 2, mt: 0.5 }}>{link.icon}</Box>
+                    <Box sx={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      minWidth: 36, 
+                      mr: 2, 
+                      mt: 0.5,
+                      color: 'rgba(255, 255, 255, 0.8)',
+                    }}>
+                      {link.icon}
+                    </Box>
                     <Box>
-                      <Typography fontWeight="bold" sx={{ color: 'white', fontSize: 15 }}>{link.label}</Typography>
-                      <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.7)' }}>{link.desc}</Typography>
+                      <Typography 
+                        fontWeight="600" 
+                        sx={{ 
+                          color: 'white', 
+                          fontSize: '0.875rem',
+                          mb: 0.5,
+                        }}
+                      >
+                        {link.label}
+                      </Typography>
+                      <Typography 
+                        variant="caption" 
+                        sx={{ 
+                          color: 'rgba(255,255,255,0.6)',
+                          fontSize: '0.75rem',
+                          lineHeight: 1.3,
+                        }}
+                      >
+                        {link.desc}
+                      </Typography>
                     </Box>
                   </MenuItem>
                 ))}
               </List>
             </Collapse>
-            {idx < NAV_CATEGORIES.length - 1 && <Divider />}
+            {idx < NAV_CATEGORIES.length - 1 && (
+              <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.1)' }} />
+            )}
           </div>
         ))}
       </Menu>

@@ -1,10 +1,9 @@
 "use client";
 export const dynamic = "force-dynamic";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { useParams } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Button } from '@mui/material'; // Use MUI Button for 'contained' variant
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -13,6 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/components/ui/use-toast';
 import { Box, Paper, Stack, Typography, Chip, Collapse, IconButton } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { useExecutionLogs } from '@/hooks/useExecutionLogs';
+import CircularProgress from '@mui/material/CircularProgress';
 
 interface AgentInstance {
   id: string;
@@ -52,6 +53,52 @@ export default function AgentInstanceDetailPage() {
   const [availableAgents, setAvailableAgents] = useState<AgentInstanceListItem[]>([]);
   const [cronSchedule, setCronSchedule] = useState('');
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [isRunning, setIsRunning] = useState(false);
+  const [runError, setRunError] = useState<string | null>(null);
+  const [jobId, setJobId] = useState<string | null>(null);
+  const [runStatus, setRunStatus] = useState<'IDLE' | 'PENDING' | 'RUNNING' | 'SUCCESS' | 'FAILED'>('IDLE');
+  const [runOutput, setRunOutput] = useState<any>(null);
+  const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
+  const [runHistory, setRunHistory] = useState<any[]>([]);
+
+  // Fetch run history for this agent instance
+  useEffect(() => {
+    if (!agentInstance?.id) return;
+    (async () => {
+      const res = await fetch(`/api/v1/agents/instances/${agentInstance.id}/runs`);
+      if (res.ok) {
+        const data = await res.json();
+        setRunHistory(data);
+      }
+    })();
+  }, [agentInstance?.id, jobId]);
+
+  // Use logs for selected run or current job
+  const logs = useExecutionLogs(selectedRunId || jobId);
+  const logEndRef = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    if (logEndRef.current) {
+      logEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [logs]);
+
+  // Collapsible error log line
+  function CollapsibleError({ log }: { log: any }) {
+    const [open, setOpen] = useState(false);
+    return (
+      <div>
+        <Typography color="error.main" sx={{ fontFamily: 'monospace', fontSize: 14, cursor: 'pointer' }} onClick={() => setOpen(o => !o)}>
+          [{log.created_at ? new Date(log.created_at).toLocaleTimeString() : ''}] [ERROR] {log.message?.split('\n')[0]} {open ? '▲' : '▼'}
+        </Typography>
+        {open && (
+          <Box sx={{ pl: 2 }}>
+            <Typography color="error.main" sx={{ fontFamily: 'monospace', fontSize: 13, whiteSpace: 'pre-wrap' }}>{log.message}</Typography>
+            {log.stack && <Typography color="error.main" sx={{ fontFamily: 'monospace', fontSize: 12, whiteSpace: 'pre-wrap' }}>{log.stack}</Typography>}
+          </Box>
+        )}
+      </div>
+    );
+  }
 
   useEffect(() => {
     if (id) {
@@ -90,6 +137,55 @@ export default function AgentInstanceDetailPage() {
       fetchAgentData();
     }
   }, [id]);
+
+  // Simulate polling for job status/logs (replace with real-time logic later)
+  useEffect(() => {
+    let interval: any;
+    if (jobId && isRunning) {
+      setRunStatus('RUNNING');
+      interval = setInterval(async () => {
+        // Simulate polling job status
+        const res = await fetch(`/api/agents/jobs/${jobId}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.status === 'SUCCESS' || data.status === 'FAILED') {
+            setRunStatus(data.status);
+            setRunOutput(data.result || data.output || data.error || null);
+            setIsRunning(false);
+            clearInterval(interval);
+          }
+        }
+      }, 2000);
+    }
+    return () => clearInterval(interval);
+  }, [jobId, isRunning]);
+
+  // Run Agent handler
+  const handleRunAgent = async () => {
+    setIsRunning(true);
+    setRunError(null);
+    setRunStatus('PENDING');
+    setRunOutput(null);
+    try {
+      const res = await fetch('/api/v1/ai/process', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          agentInstanceId: agentInstance?.id,
+          input: customPrompt, // or other input as needed
+          mode: 'MANUAL',
+        }),
+      });
+      if (!res.ok) throw new Error('Failed to start agent run');
+      const data = await res.json();
+      setJobId(data.jobId);
+      setRunStatus('RUNNING');
+    } catch (e: any) {
+      setRunError(e.message);
+      setIsRunning(false);
+      setRunStatus('FAILED');
+    }
+  };
 
   const handleSave = async () => {
     setLoading(true);
@@ -136,6 +232,12 @@ export default function AgentInstanceDetailPage() {
     }
   };
 
+  // Clear logs handler
+  const handleClearLogs = () => {
+    setSelectedRunId(null);
+    // Optionally, clear logs from UI (not backend)
+  };
+
   if (loading) {
     return <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}><Typography>Loading agent configuration...</Typography></Box>;
   }
@@ -149,61 +251,134 @@ export default function AgentInstanceDetailPage() {
   }
 
   return (
-    <Box sx={{ maxWidth: 900, mx: 'auto', py: 6 }}>
-      <Stack direction="row" alignItems="center" spacing={2} mb={2}>
-        <Typography variant="h4" fontWeight="bold">Configure Agent: {agentInstance.name}</Typography>
-        <Chip label="Active" color="success" size="small" />
-        {/* Add more status/config chips as needed */}
-      </Stack>
-      <Box sx={{ borderBottom: '1px solid #eee', mb: 4 }} />
-      <Paper elevation={3} sx={{ p: 3, borderRadius: 3, mb: 4 }}>
-        <Stack spacing={2}>
-          <Box>
-            <Typography variant="subtitle2">Template</Typography>
-            <Typography variant="body1">{agentInstance.template.name}</Typography>
-          </Box>
-          <Box>
-            <Typography variant="subtitle2">Custom Prompt</Typography>
-            <Typography variant="body2">{customPrompt}</Typography>
-          </Box>
-          <Box>
-            <Typography variant="subtitle2">LLM Model</Typography>
-            <Typography variant="body2">{selectedModel}</Typography>
-          </Box>
-          <Box>
-            <Typography variant="subtitle2">Webhook URL</Typography>
-            <Typography variant="body2">{webhookUrl || '-'}</Typography>
-          </Box>
-          <Box>
-            <Typography variant="subtitle2">CRON Schedule</Typography>
-            <Typography variant="body2">{cronSchedule || '-'}</Typography>
-          </Box>
-          {/* Add chaining, logs, etc. here as needed */}
-        </Stack>
-      </Paper>
-      <Paper elevation={2} sx={{ p: 2, borderRadius: 2, mb: 4 }}>
-        <Stack direction="row" alignItems="center" spacing={1}>
-          <Typography variant="subtitle2">Advanced Config (JSON)</Typography>
-          <IconButton size="small" onClick={() => setShowAdvanced((v) => !v)}>
-            <ExpandMoreIcon sx={{ transform: showAdvanced ? 'rotate(180deg)' : 'rotate(0deg)', transition: '0.2s' }} />
-          </IconButton>
-        </Stack>
-        <Collapse in={showAdvanced}>
-          <Box mt={2}>
-            <Textarea
-              id="customConfig"
-              value={customConfig}
-              onChange={(e) => setCustomConfig(e.target.value)}
-              rows={6}
-              style={{ width: '100%', fontFamily: 'monospace', fontSize: 14 }}
-            />
-          </Box>
-        </Collapse>
-      </Paper>
-      <Stack direction="row" justifyContent="flex-end" spacing={2}>
-        <Button onClick={handleSave} disabled={loading} variant="outline">
-          {loading ? 'Saving...' : 'Save Configuration'}
-        </Button>
+    <Box sx={{ maxWidth: 1400, mx: 'auto', py: 6 }}>
+      <Stack direction={{ xs: 'column', md: 'row' }} spacing={4} alignItems="flex-start">
+        {/* Left: Configuration & Run Panel */}
+        <Box flex={1} minWidth={0}>
+          <Paper elevation={3} sx={{ p: 3, borderRadius: 3, mb: 4 }}>
+            <Typography variant="h5" fontWeight="bold" mb={2}>Configuration & Run</Typography>
+            <Stack spacing={2}>
+              <Box>
+                <Typography variant="subtitle2">Template</Typography>
+                <Typography variant="body1">{agentInstance.template.name}</Typography>
+              </Box>
+              <Box>
+                <Typography variant="subtitle2">Custom Prompt</Typography>
+                <Textarea
+                  id="customPrompt"
+                  value={customPrompt}
+                  onChange={e => setCustomPrompt(e.target.value)}
+                  rows={3}
+                  style={{ width: '100%' }}
+                />
+              </Box>
+              <Box>
+                <Typography variant="subtitle2">LLM Model</Typography>
+                <Input
+                  value={selectedModel}
+                  onChange={e => setSelectedModel(e.target.value)}
+                  style={{ width: '100%' }}
+                />
+              </Box>
+              {runError && <Typography color="error">{runError}</Typography>}
+              <Button
+                variant="contained"
+                color="primary"
+                sx={{ mt: 2, fontWeight: 600 }}
+                onClick={handleRunAgent}
+                disabled={isRunning}
+                startIcon={isRunning ? <CircularProgress size={18} color="inherit" /> : null}
+              >
+                {isRunning ? 'Running...' : 'Run Agent'}
+              </Button>
+            </Stack>
+          </Paper>
+        </Box>
+        {/* Right: Execution History & Logs Panel */}
+        <Box flex={1.2} minWidth={0}>
+          <Paper elevation={3} sx={{ p: 3, borderRadius: 3, mb: 4, minHeight: 400 }}>
+            <Typography variant="h5" fontWeight="bold" mb={2}>Execution History & Logs</Typography>
+            <Stack direction="row" spacing={2} alignItems="center" mb={2}>
+              <Typography variant="subtitle2">Status: <b>{runStatus}</b></Typography>
+              <Button size="small" variant="outlined" onClick={handleClearLogs}>Clear Logs</Button>
+            </Stack>
+            {/* Run History */}
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="subtitle2" mb={1}>Run History</Typography>
+              <Box sx={{ maxHeight: 100, overflowY: 'auto', mb: 1 }}>
+                {runHistory.length === 0 && <Typography color="text.secondary">No previous runs.</Typography>}
+                {runHistory.map(run => (
+                  <Button
+                    key={run.id}
+                    size="small"
+                    variant={selectedRunId === run.id ? 'contained' : 'outlined'}
+                    color={run.status === 'SUCCESS' ? 'success' : run.status === 'FAILED' ? 'error' : 'primary'}
+                    sx={{ mr: 1, mb: 1, fontSize: 12 }}
+                    onClick={() => setSelectedRunId(run.id)}
+                  >
+                    {new Date(run.created_at).toLocaleTimeString()} [{run.status}]
+                  </Button>
+                ))}
+              </Box>
+            </Box>
+            {/* Real-time log viewer */}
+            <Box sx={{ maxHeight: 260, overflowY: 'auto', mb: 2, bgcolor: '#18181b', borderRadius: 2, p: 2 }}>
+              {logs.length === 0 && (
+                <Typography color="text.secondary">No logs yet.</Typography>
+              )}
+              {logs.map((log, idx) => {
+                const ts = log.created_at ? new Date(log.created_at).toLocaleTimeString() : '';
+                let color = 'text.primary';
+                if (log.level === 'ERROR' || log.level === 'FAILED') {
+                  return <CollapsibleError key={log.id || idx} log={log} />;
+                }
+                else if (log.level === 'SUCCESS') color = 'success.main';
+                else if (log.level === 'WARNING') color = 'warning.main';
+                else if (log.level === 'INFO') color = 'info.main';
+                // Multi-line logs
+                const lines = (log.message || log.content || JSON.stringify(log)).split('\n');
+                return lines.map((line: string, i: number) => (
+                  <Typography key={log.id + '-' + i} color={color} sx={{ fontFamily: 'monospace', fontSize: 14 }}>
+                    [{ts}] [{log.level || log.status || 'INFO'}] {line}
+                  </Typography>
+                ));
+              })}
+              <div ref={logEndRef} />
+            </Box>
+            <Typography variant="subtitle2" mb={1}>Output</Typography>
+            <Paper variant="outlined" sx={{ p: 2, bgcolor: '#23232b', color: 'white', borderRadius: 2 }}>
+              {/* Output visualization logic */}
+              {runOutput ? (
+                Array.isArray(runOutput) ? (
+                  <table className="min-w-full text-sm text-left">
+                    <thead>
+                      <tr>
+                        {Object.keys(runOutput[0] || {}).map((key) => (
+                          <th key={key} className="px-2 py-1 border-b border-gray-700">{key}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {runOutput.map((row: any, i: number) => (
+                        <tr key={i}>
+                          {Object.values(row).map((val, j) => (
+                            <td key={j} className="px-2 py-1 border-b border-gray-800">{String(val)}</td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : typeof runOutput === 'string' ? (
+                  <Typography sx={{ whiteSpace: 'pre-wrap' }}>{runOutput}</Typography>
+                ) : (
+                  <pre style={{ margin: 0, fontSize: 14 }}>{JSON.stringify(runOutput, null, 2)}</pre>
+                )
+              ) : (
+                <Typography color="text.secondary">No output yet.</Typography>
+              )}
+            </Paper>
+          </Paper>
+        </Box>
       </Stack>
     </Box>
   );

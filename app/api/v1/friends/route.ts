@@ -100,19 +100,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true });
   }
   return new NextResponse('Not found', { status: 404 });
-}
-
-// List pending friend requests for the current user
-export async function GET_pending(req: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session || !session.user || !session.user.id) {
-    return new NextResponse('Unauthorized', { status: 401 });
-  }
-  const userId = session.user.id;
-  // Friend requests where current user is receiver and status is PENDING
-  const pending = await prisma.friendship.findMany({
-    where: { receiverId: userId, status: 'PENDING' },
-    include: { requester: { select: { id: true, name: true, email: true, profilePicture: true } } },
-  });
-  return NextResponse.json(pending);
 } 

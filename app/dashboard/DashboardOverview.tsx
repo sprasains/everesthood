@@ -1,207 +1,271 @@
 "use client";
 import { useUser } from '@/hooks/useUser';
 import { useQuery } from '@tanstack/react-query';
-import { Box, Grid, Typography, Paper, CircularProgress, Divider, Avatar, Stack, Card, CardContent } from '@mui/material';
-import { Bar } from 'react-chartjs-2';
-import { Chart, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
-Chart.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+import { Box, Typography, CircularProgress, Button } from '@mui/material';
+import { motion } from 'framer-motion';
+import Card from '@/components/ui/Card';
 import UserStatusPanel from './UserStatusPanel';
-import { useEffect, useMemo } from 'react';
+import SocialFeed from '@/components/posts/SocialFeed';
+import Link from 'next/link';
+import ProfileHeaderSkeleton from '@/components/ui/ProfileHeaderSkeleton';
+import Skeleton from '@mui/material/Skeleton';
 
-// Fetch functions for stats and analytics
-const fetchAnalytics = async () => {
-  const res = await fetch('/api/v1/user/analytics');
-  if (!res.ok) throw new Error('Failed to fetch analytics');
-  return res.json();
-};
-const fetchAgentPerformance = async () => {
-  const res = await fetch('/api/v1/agents/performance');
-  if (!res.ok) throw new Error('Failed to fetch agent performance');
-  return res.json();
-};
-const fetchUserPosts = async (userId: string) => {
-  const res = await fetch(`/api/v1/posts?authorId=${userId}`);
-  if (!res.ok) throw new Error('Failed to fetch posts');
-  return res.json();
-};
-const fetchFriendsCount = async () => {
-  const res = await fetch('/api/v1/friends');
-  if (!res.ok) throw new Error('Failed to fetch friends');
-  const data = await res.json();
-  return Array.isArray(data) ? data.length : 0;
-};
-const fetchAchievementsCount = async () => {
-  const res = await fetch('/api/v1/achievements');
-  if (!res.ok) throw new Error('Failed to fetch achievements');
-  const data = await res.json();
-  return Array.isArray(data) ? data.filter(a => a.earned).length : 0;
-};
+function useAgentInstances() {
+  return useQuery({
+    queryKey: ['agentInstances'],
+    queryFn: async () => {
+      const res = await fetch('/api/v1/agents/instances');
+      if (!res.ok) throw new Error('Failed to fetch agent instances');
+      return res.json();
+    },
+  });
+}
+
+function useAgentPerformance() {
+  return useQuery({
+    queryKey: ['agentPerformance'],
+    queryFn: async () => {
+      const res = await fetch('/api/v1/agents/performance');
+      if (!res.ok) throw new Error('Failed to fetch agent performance');
+      return res.json();
+    },
+  });
+}
+
+function useUpcomingEvents() {
+  return useQuery({
+    queryKey: ['upcomingEvents'],
+    queryFn: async () => {
+      const res = await fetch('/api/v1/events?limit=3&upcoming=true');
+      if (!res.ok) throw new Error('Failed to fetch events');
+      return res.json();
+    },
+  });
+}
+
+function useFinancialSummary() {
+  return useQuery({
+    queryKey: ['financialSummary'],
+    queryFn: async () => {
+      const res = await fetch('/api/v1/finance/summary');
+      if (!res.ok) throw new Error('Failed to fetch financial summary');
+      return res.json();
+    },
+  });
+}
+
+function useCurrentTasks() {
+  return useQuery({
+    queryKey: ['currentTasks'],
+    queryFn: async () => {
+      const res = await fetch('/api/v1/tasks?limit=5&status=active');
+      if (!res.ok) throw new Error('Failed to fetch tasks');
+      return res.json();
+    },
+  });
+}
+
+function usePosts() {
+  return useQuery({
+    queryKey: ['posts'],
+    queryFn: async () => {
+      const res = await fetch('/api/v1/posts?limit=10');
+      if (!res.ok) throw new Error('Failed to fetch posts');
+      return res.json();
+    },
+  });
+}
 
 export default function DashboardOverview() {
   const { user, loading } = useUser();
-  const { data: analytics, isLoading: analyticsLoading } = useQuery({ queryKey: ['analytics'], queryFn: fetchAnalytics });
-  const { data: agentPerf, isLoading: agentPerfLoading } = useQuery({ queryKey: ['agent-performance'], queryFn: fetchAgentPerformance });
-  const { data: postsData, isLoading: postsLoading } = useQuery({ queryKey: ['userPosts', user?.id], queryFn: () => user ? fetchUserPosts(user.id) : Promise.resolve({ posts: [] }), enabled: !!user });
-  const { data: friendsCount, isLoading: friendsCountLoading } = useQuery({ queryKey: ['friends-count'], queryFn: fetchFriendsCount });
-  const { data: achievementsCount, isLoading: achievementsCountLoading } = useQuery({ queryKey: ['achievements-count'], queryFn: fetchAchievementsCount });
+  const { data: agentInstances, isLoading: agentsLoading, error: agentsError } = useAgentInstances();
+  const { data: agentPerf, isLoading: perfLoading, error: perfError } = useAgentPerformance();
+  const { data: events, isLoading: eventsLoading, error: eventsError } = useUpcomingEvents();
+  const { data: finance, isLoading: financeLoading, error: financeError } = useFinancialSummary();
+  const { data: tasks, isLoading: tasksLoading, error: tasksError } = useCurrentTasks();
+  const { data: posts, isLoading: postsLoading, error: postsError } = usePosts();
 
-  // Knowledge Graph Chart
-  const knowledgeGraphData = analytics?.knowledgeGraph ? {
-    labels: Object.keys(analytics.knowledgeGraph),
-    datasets: [{
-      label: 'Topics Engaged With',
-      data: Object.values(analytics.knowledgeGraph),
-      backgroundColor: 'rgba(139, 92, 246, 0.5)',
-    }],
-  } : null;
-
-  // Agent Performance Chart
-  const agentPerfChartData = agentPerf?.performanceByAgent ? {
-    labels: Object.keys(agentPerf.performanceByAgent),
-    datasets: [
-      {
-        label: 'Total Runs',
-        data: Object.values(agentPerf.performanceByAgent).map((a: any) => a.total),
-        backgroundColor: 'rgba(33, 150, 243, 0.5)',
-      },
-      {
-        label: 'Successes',
-        data: Object.values(agentPerf.performanceByAgent).map((a: any) => a.successful),
-        backgroundColor: 'rgba(76, 175, 80, 0.5)',
-      },
-      {
-        label: 'Failures',
-        data: Object.values(agentPerf.performanceByAgent).map((a: any) => a.failed),
-        backgroundColor: 'rgba(244, 67, 54, 0.5)',
-      },
-    ],
-  } : null;
-
-  if (loading || !user) return <CircularProgress />;
+  // Skeletons for loading states
+  if (loading || !user) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+        className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6"
+      >
+        <div className="col-span-1 xl:col-span-1"><ProfileHeaderSkeleton /></div>
+        <div className="col-span-1 xl:col-span-1">
+          <Skeleton variant="rectangular" height={180} sx={{ borderRadius: 3, mb: 2 }} />
+        </div>
+        <div className="col-span-1 xl:col-span-1">
+          <Skeleton variant="rectangular" height={180} sx={{ borderRadius: 3, mb: 2 }} />
+        </div>
+        <div className="col-span-1 xl:col-span-1">
+          <Skeleton variant="rectangular" height={180} sx={{ borderRadius: 3, mb: 2 }} />
+        </div>
+        <div className="col-span-1 md:col-span-2 xl:col-span-2">
+          <Skeleton variant="rectangular" height={180} sx={{ borderRadius: 3, mb: 2 }} />
+        </div>
+        <div className="col-span-1 md:col-span-2 xl:col-span-2">
+          <Skeleton variant="rectangular" height={320} sx={{ borderRadius: 3, mb: 2 }} />
+        </div>
+      </motion.div>
+    );
+  }
 
   return (
-    <Box sx={{ p: { xs: 1, md: 4 }, bgcolor: 'transparent' }}>
-      <Typography variant="h4" fontWeight="bold" sx={{ mb: 2, background: 'linear-gradient(90deg, #8b5cf6, #ffcc00)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-        Welcome, {user.name || user.email || 'AI Explorer'}!
-      </Typography>
-      <Grid container spacing={3}>
-        {/* User Info & Stats */}
-        <Grid item xs={12} md={4}>
-          <UserStatusPanel user={user} />
-          <Paper sx={{ p: 2, mt: 2, background: 'rgba(255,255,255,0.07)' }}>
-            <Typography variant="subtitle1" fontWeight="bold">Quick Stats</Typography>
-            <Stack direction="row" spacing={2} sx={{ mt: 1 }}>
-              <Box>
-                <Typography variant="h6">{postsLoading ? '-' : postsData?.posts?.length ?? 0}</Typography>
-                <Typography variant="caption">Posts</Typography>
-              </Box>
-              <Box>
-                <Typography variant="h6">{friendsCountLoading ? '-' : friendsCount ?? 0}</Typography>
-                <Typography variant="caption">Friends</Typography>
-              </Box>
-              <Box>
-                <Typography variant="h6">{achievementsCountLoading ? '-' : achievementsCount ?? 0}</Typography>
-                <Typography variant="caption">Achievements</Typography>
-              </Box>
-            </Stack>
-          </Paper>
-        </Grid>
-        {/* Charts & Activity */}
-        <Grid item xs={12} md={8}>
-          <Grid container spacing={2}>
-            <Grid item xs={12} md={6}>
-              <Paper sx={{ p: 2, background: 'rgba(255,255,255,0.05)' }}>
-                <Typography variant="subtitle1" fontWeight="bold">Knowledge Graph</Typography>
-                {analyticsLoading ? <CircularProgress /> : knowledgeGraphData ? <Bar data={knowledgeGraphData} /> : <Typography color="text.secondary">No data.</Typography>}
-              </Paper>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Paper sx={{ p: 2, background: 'rgba(255,255,255,0.05)' }}>
-                <Typography variant="subtitle1" fontWeight="bold">Agent Performance</Typography>
-                {agentPerfLoading ? <CircularProgress /> : agentPerfChartData ? <Bar data={agentPerfChartData} /> : <Typography color="text.secondary">No data.</Typography>}
-                <Divider sx={{ my: 1 }} />
-                {agentPerf && (
-                  <Stack direction="row" spacing={2}>
-                    <Box>
-                      <Typography variant="h6">{agentPerf.totalRuns}</Typography>
-                      <Typography variant="caption">Total Runs</Typography>
-                    </Box>
-                    <Box>
-                      <Typography variant="h6">{agentPerf.successRate?.toFixed(1)}%</Typography>
-                      <Typography variant="caption">Success Rate</Typography>
-                    </Box>
-                    <Box>
-                      <Typography variant="h6">{agentPerf.averageRunTimeSeconds?.toFixed(2)}s</Typography>
-                      <Typography variant="caption">Avg Run Time</Typography>
-                    </Box>
-                  </Stack>
-                )}
-              </Paper>
-            </Grid>
-            {/* Recent Activity */}
-            <Grid item xs={12}>
-              <Paper sx={{ p: 2, background: 'rgba(255,255,255,0.04)' }}>
-                <Typography variant="subtitle1" fontWeight="bold">Recent Activity</Typography>
-                <Box sx={{ mt: 1 }}>
-                  {postsLoading ? <CircularProgress /> : postsData?.posts?.length ? (
-                    <Stack spacing={1}>
-                      {postsData.posts.slice(0, 5).map((post: any) => (
-                        <Box key={post.id}>
-                          <Typography variant="body2" fontWeight="bold">{post.title}</Typography>
-                          <Typography variant="caption" color="text.secondary">{new Date(post.createdAt).toLocaleString()}</Typography>
-                        </Box>
-                      ))}
-                    </Stack>
-                  ) : <Typography color="text.secondary">No recent posts.</Typography>}
-                </Box>
-              </Paper>
-            </Grid>
-          </Grid>
-        </Grid>
-        {/* System Overview */}
-        <Grid item xs={12}>
-          <Paper sx={{ p: 3, mt: 2, background: 'rgba(255,255,255,0.06)' }}>
-            <Typography variant="h5" fontWeight="bold" sx={{ mb: 1 }}>System Overview</Typography>
-            <Typography variant="body1" sx={{ mb: 1 }}>
-              EverestHood is your digital assistant factory—create, schedule, and run smart agents to automate your work and life. Enjoy real-time and scheduled automation, social learning, and creator monetization.
-            </Typography>
-            <Divider sx={{ my: 1 }} />
-            <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
-              <Box>
-                <Typography variant="subtitle2" fontWeight="bold">Key Features</Typography>
-                <ul style={{ margin: 0, paddingLeft: 18 }}>
-                  <li>Unified agent execution</li>
-                  <li>Real-time & scheduled automation</li>
-                  <li>Modular, extensible logic</li>
-                  <li>Centralized logging & monitoring</li>
-                  <li>Social, gamified, monetized modules</li>
-                </ul>
-              </Box>
-              <Box>
-                <Typography variant="subtitle2" fontWeight="bold">Modules</Typography>
-                <ul style={{ margin: 0, paddingLeft: 18 }}>
-                  <li>AI Personas & Summaries</li>
-                  <li>News & Content Curation</li>
-                  <li>Social Community</li>
-                  <li>Achievements & Gamification</li>
-                  <li>Job Board & Resume Tools</li>
-                  <li>Payments, Tipping, Subscriptions</li>
-                  <li>Family, Money, Health, Productivity</li>
-                </ul>
-              </Box>
-              <Box>
-                <Typography variant="subtitle2" fontWeight="bold">Best Practices</Typography>
-                <ul style={{ margin: 0, paddingLeft: 18 }}>
-                  <li>Modularize agent/API logic</li>
-                  <li>Use fix scripts regularly</li>
-                  <li>Document new features</li>
-                  <li>Encourage creative agent use</li>
-                </ul>
-              </Box>
-            </Stack>
-          </Paper>
-        </Grid>
-      </Grid>
-    </Box>
+    <motion.div
+      initial={{ opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: 'easeOut' }}
+      className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6"
+    >
+      {/* User Status Widget (full width on mobile, 1/4 on xl) */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.05 }}
+        className="col-span-1 xl:col-span-1"
+      >
+        <UserStatusPanel user={user} />
+      </motion.div>
+
+      {/* Agent Status Widget */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.1 }}
+        className="col-span-1 xl:col-span-1"
+      >
+        <Card title="Agent Status" variant="elevated" size="md">
+          {(agentsLoading || perfLoading) ? (
+            <>
+              <Skeleton variant="text" width={120} height={28} />
+              <Skeleton variant="text" width={180} height={22} />
+              <Skeleton variant="rectangular" width={120} height={36} sx={{ mt: 2, borderRadius: 2 }} />
+            </>
+          ) : agentsError ? <Typography color="error">Error loading agents.</Typography>
+            : perfError ? <Typography color="error">Error loading agent runs.</Typography>
+            : (
+            <div className="flex flex-col gap-2">
+              <Typography variant="body1">Active Agents: <b>{agentInstances?.length ?? 0}</b></Typography>
+              <Typography variant="body2" color="text.secondary">
+                Last Run: <b>{agentPerf?.totalRuns > 0 ? agentPerf?.totalRuns + ' total, ' + agentPerf?.successRate?.toFixed(1) + '% success' : 'No runs yet'}</b>
+              </Typography>
+              <Link href="/agents/create" passHref legacyBehavior>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  sx={{ mt: 2, borderRadius: 2, fontWeight: 600 }}
+                  fullWidth
+                >
+                  Create New Agent
+                </Button>
+              </Link>
+            </div>
+          )}
+        </Card>
+      </motion.div>
+
+      {/* Upcoming Events Widget */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.15 }}
+        className="col-span-1 xl:col-span-1"
+      >
+        <Card title="Upcoming Events" variant="elevated" size="md" headerAction={<Link href="/schedule"><Button size="small">View All</Button></Link>}>
+          {eventsLoading ? (
+            <>
+              <Skeleton variant="text" width={120} height={22} />
+              <Skeleton variant="text" width={180} height={22} />
+              <Skeleton variant="text" width={100} height={22} />
+            </>
+          ) : eventsError ? <Typography color="error">Error loading events.</Typography>
+            : events?.length ? (
+              <div className="flex flex-col gap-2">
+                {events.map((event: any) => (
+                  <Box key={event.id} sx={{ mb: 1 }}>
+                    <Typography variant="subtitle2" fontWeight="bold">{event.title}</Typography>
+                    <Typography variant="caption" color="text.secondary">{new Date(event.startTime).toLocaleString()}</Typography>
+                  </Box>
+                ))}
+              </div>
+            ) : (
+              <Typography variant="body2" color="text.secondary">No upcoming events.</Typography>
+            )}
+        </Card>
+      </motion.div>
+
+      {/* Financial Snapshot Widget */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.2 }}
+        className="col-span-1 xl:col-span-1"
+      >
+        <Card title="Financial Snapshot" variant="elevated" size="md" headerAction={<Link href="/money"><Button size="small">View All</Button></Link>}>
+          {financeLoading ? (
+            <>
+              <Skeleton variant="text" width={120} height={22} />
+              <Skeleton variant="text" width={180} height={22} />
+              <Skeleton variant="text" width={100} height={22} />
+            </>
+          ) : financeError ? <Typography color="error">Error loading finances.</Typography>
+            : finance ? (
+              <div className="flex flex-col gap-2">
+                <Typography variant="body1">Budget: <b>${finance.budget?.toLocaleString() ?? '--'}</b></Typography>
+                <Typography variant="body2" color="text.secondary">Spent: <b>${finance.spent?.toLocaleString() ?? '--'}</b></Typography>
+                <Typography variant="body2" color="text.secondary">Transactions: <b>{finance.transactionsCount ?? '--'}</b></Typography>
+              </div>
+            ) : (
+              <Typography variant="body2" color="text.secondary">No financial data.</Typography>
+            )}
+        </Card>
+      </motion.div>
+
+      {/* Productivity Hub Widget (tasks) */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.25 }}
+        className="col-span-1 md:col-span-2 xl:col-span-2"
+      >
+        <Card title="Productivity Hub" variant="elevated" size="md" headerAction={<Link href="/hub"><Button size="small">View All</Button></Link>}>
+          {tasksLoading ? (
+            <>
+              <Skeleton variant="text" width={120} height={22} />
+              <Skeleton variant="text" width={180} height={22} />
+              <Skeleton variant="text" width={100} height={22} />
+            </>
+          ) : tasksError ? <Typography color="error">Error loading tasks.</Typography>
+            : tasks?.length ? (
+              <div className="flex flex-col gap-2">
+                {tasks.map((task: any) => (
+                  <Box key={task.id} sx={{ mb: 1 }}>
+                    <Typography variant="subtitle2" fontWeight="bold">{task.title}</Typography>
+                    <Typography variant="caption" color="text.secondary">Due: {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'No due date'}</Typography>
+                  </Box>
+                ))}
+              </div>
+            ) : (
+              <Typography variant="body2" color="text.secondary">No tasks for today.</Typography>
+            )}
+        </Card>
+      </motion.div>
+
+      {/* Social Feed Widget (full width) */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.3 }}
+        className="col-span-1 md:col-span-2 xl:col-span-2"
+      >
+        <Card title="Social Feed" variant="glass" size="lg">
+          <SocialFeed posts={posts} loading={postsLoading} error={postsError} />
+        </Card>
+      </motion.div>
+    </motion.div>
   );
 } 

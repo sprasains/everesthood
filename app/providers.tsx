@@ -8,6 +8,7 @@ import { useState } from 'react';
 import theme from '@/lib/lib/theme';
 import RouteProgress from "app/components/ui/RouteProgress";
 import { ToastProviderWrapper } from './components/ui/use-toast';
+import { Toaster } from './components/ui/toaster';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient());
@@ -19,6 +20,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
           <ThemeProvider theme={theme}>
             <CssBaseline />
             <SnackbarProvider maxSnack={3} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
+              <Toaster />
               {children}
             </SnackbarProvider>
           </ThemeProvider>
