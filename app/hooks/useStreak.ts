@@ -8,21 +8,24 @@ export function useStreak() {
 
   useEffect(() => {
     if (user) {
-      setDailyProgress(user.dailyProgress || 0)
+      // Use articlesRead as daily progress since dailyProgress doesn't exist
+      setDailyProgress(user.articlesRead || 0)
 
       // Check if user can still increment today
       const lastActive = user.lastActiveDate ? new Date(user.lastActiveDate) : null
       const today = new Date()
       const isToday = lastActive && lastActive.toDateString() === today.toDateString()
 
-      setCanIncrement(!isToday || user.dailyProgress < user.weeklyGoal)
+      // Use a default weekly goal of 5
+      const weeklyGoal = 5
+      setCanIncrement(!isToday || (user.articlesRead || 0) < weeklyGoal)
     }
   }, [user])
 
   const incrementProgress = async (activity: string = "article_read") => {
     if (!user || !canIncrement) return
 
-    const newProgress = dailyProgress + 1
+    const newProgress = (user.articlesRead || 0) + 1
     const today = new Date()
 
     // Calculate streak
@@ -30,7 +33,7 @@ export function useStreak() {
     const yesterday = new Date(today)
     yesterday.setDate(yesterday.getDate() - 1)
 
-    let newStreak = user.currentStreak || 0
+    let newStreak = user.streak || 0
 
     if (!lastActive) {
       newStreak = 1 // First day
@@ -46,8 +49,8 @@ export function useStreak() {
     const newLevel = Math.floor(newXP / 100) + 1
 
     await updateUser({
-      dailyProgress: newProgress,
-      currentStreak: newStreak,
+      articlesRead: newProgress,
+      streak: newStreak,
       lastActiveDate: today,
       xp: newXP,
       level: newLevel
@@ -56,7 +59,8 @@ export function useStreak() {
     setDailyProgress(newProgress)
 
     // Check if goal completed
-    if (newProgress >= user.weeklyGoal) {
+    const weeklyGoal = 5
+    if (newProgress >= weeklyGoal) {
       setCanIncrement(false)
     }
 
@@ -65,10 +69,10 @@ export function useStreak() {
 
   return {
     dailyProgress,
-    currentStreak: user?.currentStreak || 0,
-    weeklyGoal: user?.weeklyGoal || 5,
+    currentStreak: user?.streak || 0,
+    weeklyGoal: 5, // Default weekly goal
     canIncrement,
     incrementProgress,
-    progressPercentage: Math.min((dailyProgress / (user?.weeklyGoal || 5)) * 100, 100)
+    progressPercentage: Math.min(((user?.articlesRead || 0) / 5) * 100, 100)
   }
 }

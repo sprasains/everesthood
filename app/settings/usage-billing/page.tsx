@@ -3,7 +3,9 @@ export const dynamic = "force-dynamic";
 
 import { useState, useEffect } from 'react';
 import { Progress } from '@/components/ui/progress';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import CardComponent from '@/components/ui/CardComponent';
+import { CardContent } from '@mui/material';
+import { Typography, Box } from '@mui/material';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { InfoCircledIcon } from '@radix-ui/react-icons';
@@ -62,10 +64,10 @@ export default function UsageAndBillingPage() {
     <div className="container mx-auto py-8">
       <h1 className="text-3xl font-bold mb-6">Usage & Billing</h1>
 
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>Current Usage</CardTitle>
-        </CardHeader>
+      <CardComponent className="mb-6">
+        <Box sx={{ p: 2 }}>
+          <Typography variant="h6">Current Usage</Typography>
+        </Box>
         <CardContent>
           {usageData ? (
             <div className="space-y-4">
@@ -88,12 +90,12 @@ export default function UsageAndBillingPage() {
             <p>No usage data available.</p>
           )}
         </CardContent>
-      </Card>
+      </CardComponent>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Billing History</CardTitle>
-        </CardHeader>
+      <CardComponent>
+        <Box sx={{ p: 2 }}>
+          <Typography variant="h6">Billing History</Typography>
+        </Box>
         <CardContent>
           <p className="text-gray-600 mb-4">
             Your past invoices and billing details will appear here.
@@ -106,7 +108,7 @@ export default function UsageAndBillingPage() {
             Manage Subscription on Stripe
           </Button>
         </CardContent>
-      </Card>
+      </CardComponent>
     </div>
   );
 }

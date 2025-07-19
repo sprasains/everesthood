@@ -4,9 +4,26 @@ import { useState, useEffect } from "react"
 import { useUser } from "@/hooks/useUser"
 import PollCard from "@/components/ui/PollCard"
 import { logger, newCorrelationId, getCorrelationId } from '@/services/logger'
-import PostCard from './PostCard';
+import PostCard, { PostCardSkeleton } from './PostCard';
+import { Post, User } from "@prisma/client";
 
-export default function SocialFeed({ posts = [], loading = false, error = null }) {
+// Import the PostWithDetails type from PostCard
+type PostWithDetails = Post & {
+  author: Partial<User>;
+  likeCount?: number;
+  viewCount?: number;
+  commentCount?: number;
+  commentsJson?: any[];
+  isLiked?: boolean;
+};
+
+interface SocialFeedProps {
+  posts?: PostWithDetails[];
+  loading?: boolean;
+  error?: any;
+}
+
+export default function SocialFeed({ posts = [], loading = false, error = null }: SocialFeedProps) {
   const { user } = useUser();
   const [postText, setPostText] = useState("");
   const [polls, setPolls] = useState([]);
@@ -217,7 +234,7 @@ export default function SocialFeed({ posts = [], loading = false, error = null }
         {loading ? (
           <>
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="mb-4"><PostCard.Skeleton /></div>
+              <div key={i} className="mb-4"><PostCardSkeleton /></div>
             ))}
           </>
         ) : error ? (

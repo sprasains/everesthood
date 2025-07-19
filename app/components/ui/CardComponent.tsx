@@ -16,7 +16,7 @@ interface CardProps extends Omit<PaperProps, 'component' | 'variant'> {
   loading?: boolean;
 }
 
-export default function Card({
+export default function CardComponent({
   title,
   subtitle,
   children,
@@ -314,4 +314,4 @@ export default function Card({
       </Paper>
     </Box>
   );
-}
+} 

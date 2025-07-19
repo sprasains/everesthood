@@ -10,7 +10,7 @@ import ProfileHeaderSkeleton from "app/components/ui/ProfileHeaderSkeleton";
 import PostCardSkeleton from "app/components/posts/PostCardSkeleton";
 import BadgeList from './BadgeList';
 import { useState, useEffect } from "react";
-import { Link } from "next/link";
+import Link from "next/link";
 
 const fetchUserProfile = async (userId: string) => {
   const res = await fetch(`/api/v1/users/${userId}`);

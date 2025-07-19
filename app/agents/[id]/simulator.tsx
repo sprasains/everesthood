@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import CardComponent from '@/components/ui/CardComponent';
 
 export default function SimulatorTab({ agentId }: { agentId: string }) {
   const [state, setState] = useState<any>(null);
@@ -29,7 +29,7 @@ export default function SimulatorTab({ agentId }: { agentId: string }) {
   function reset() { setState(null); }
 
   return (
-    <Card>
+    <CardComponent>
       <h2>Simulator</h2>
       <textarea value={input} onChange={e => setInput(e.target.value)} />
       <div>
@@ -38,6 +38,6 @@ export default function SimulatorTab({ agentId }: { agentId: string }) {
         <Button onClick={reset}>Reset</Button>
       </div>
       <pre>{JSON.stringify(state, null, 2)}</pre>
-    </Card>
+    </CardComponent>
   );
 } 

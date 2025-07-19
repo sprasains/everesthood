@@ -20,7 +20,6 @@ export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
-    weeklyGoal: 5,
   });
   // Billing: Manage Subscription Button
   const [billingLoading, setBillingLoading] = useState(false);
@@ -33,7 +32,6 @@ export default function ProfilePage() {
     if (user) {
       setFormData({
         name: user.name || "",
-        weeklyGoal: user.weeklyGoal || 5,
       });
     }
   }, [user]);

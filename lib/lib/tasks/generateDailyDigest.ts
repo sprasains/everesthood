@@ -1,3 +1,5 @@
+// Temporarily disabled - DailyDigest model doesn't exist in current schema
+/*
 import cron from 'node-cron';
 import axios from 'axios';
 import { GoogleGenerativeAI } from '@google/generative-ai';
@@ -55,4 +57,10 @@ cron.schedule('0 5 * * *', () => {
   timezone: "UTC"
 });
 // Optional: Run the task once on server startup for immediate content
-// generateAndStoreDigest(); 
+// generateAndStoreDigest();
+*/
+
+// Placeholder function to prevent import errors
+export async function generateAndStoreDigest() {
+  console.log('Daily digest generation is temporarily disabled - DailyDigest model not in schema');
+} 

@@ -54,12 +54,10 @@ export async function POST(req: Request) {
     }
 
     // Check if an instance with the same name already exists for this user
-    const existingInstance = await prisma.agentInstance.findUnique({
+    const existingInstance = await prisma.agentInstance.findFirst({
       where: {
-        userId_name: {
-          userId: userId,
-          name: name,
-        },
+        userId: userId,
+        name: name,
       },
     });
 
@@ -73,8 +71,6 @@ export async function POST(req: Request) {
         templateId,
         name,
         configOverride: configOverride || {},
-        webhookUrl: webhookUrl || null,
-        nextAgentInstanceId: nextAgentInstanceId || null,
       },
     });
 

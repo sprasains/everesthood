@@ -1,3 +1,5 @@
+// Temporarily disabled - NewsArticle model doesn't exist in current schema
+/*
 import Parser from 'rss-parser';
 import { PrismaClient } from '@prisma/client';
 import { logger } from '@/services/logger';
@@ -53,4 +55,10 @@ export async function fetchAndStoreNews() {
     }
   }
   logger.info('News fetch process finished.');
+}
+*/
+
+// Placeholder function to prevent import errors
+export async function fetchAndStoreNews() {
+  console.log('News fetching is temporarily disabled - NewsArticle model not in schema');
 }

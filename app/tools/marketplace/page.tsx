@@ -2,7 +2,8 @@
 export const dynamic = "force-dynamic";
 
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
+import CardComponent from '@/components/ui/CardComponent';
+import { CardContent } from '@mui/material';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -11,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/components/ui/use-toast';
 import { Switch } from '@/components/ui/switch';
+import { Typography, Box } from '@mui/material';
 
 interface Tool {
   id: string;
@@ -70,17 +72,17 @@ export default function ToolMarketplacePage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {tools.map((tool) => (
-          <Card key={tool.id}>
-            <CardHeader>
-              <CardTitle>{tool.name}</CardTitle>
-              <CardDescription>{tool.description}</CardDescription>
-            </CardHeader>
+          <CardComponent key={tool.id}>
+            <Box sx={{ p: 2 }}>
+              <Typography variant="h6">{tool.name}</Typography>
+              <Typography variant="body2">{tool.description}</Typography>
+            </Box>
             <CardContent>
               <Button onClick={() => handleViewDetails(tool)} variant="outline">
                 View Details
               </Button>
             </CardContent>
-          </Card>
+          </CardComponent>
         ))}
       </div>
 

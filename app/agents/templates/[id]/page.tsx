@@ -3,7 +3,9 @@ export const dynamic = "force-dynamic";
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import CardComponent from '@/components/ui/CardComponent';
+import { CardContent } from '@mui/material';
+import { Typography, Box } from '@mui/material';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -11,7 +13,6 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/components/ui/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Box } from '@mui/material';
 
 interface AgentTemplate {
   id: string;
@@ -134,10 +135,10 @@ export default function EditAgentTemplatePage() {
       <h1 className="text-3xl font-bold mb-6">Edit Agent Template: {template.name} (v{template.version})</h1>
       <Box sx={{ borderBottom: '1px solid #eee', mb: 4 }} />
       <form onSubmit={handleSubmit} className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Template Details</CardTitle>
-          </CardHeader>
+        <CardComponent>
+          <Box>
+            <Typography variant="h6">Template Details</Typography>
+          </Box>
           <CardContent className="space-y-4">
             {/* Template Name */}
             <Box>
@@ -218,7 +219,7 @@ export default function EditAgentTemplatePage() {
               </p>
             </Box>
           </CardContent>
-        </Card>
+        </CardComponent>
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
           <Button type="submit" disabled={isSaving}>
             {isSaving ? 'Saving...' : 'Save Template'}

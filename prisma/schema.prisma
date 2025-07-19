@@ -242,10 +242,24 @@ model AgentTemplate {
   description    String
   defaultPrompt  String
   defaultModel   String   @default("gpt-4o")
+  category       String?  @default("General")
   isPublic       Boolean  @default(true)
   version        Int      @default(1)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+  
+  // Sophisticated Agent Architecture Fields
+  credentials    Json?    // API keys, tokens, authentication data
+  workflows      Json?    // Workflow definitions and steps
+  workflowRelationships Json? // Relationships between workflows
+  connectors     Json?    // External service connections
+  metadata       Json?    // Additional configuration and metadata
+  capabilities   Json?    // Agent capabilities and features
+  integrations   Json?    // Third-party integrations
+  securityConfig Json?    // Security and access control settings
+  performanceMetrics Json? // Performance tracking and analytics
+  customFields   Json?    // Template-specific custom fields
+  
   agentInstances AgentInstance[]
 }
 

@@ -3,7 +3,7 @@ import { useUser } from '@/hooks/useUser';
 import { useQuery } from '@tanstack/react-query';
 import { Box, Typography, CircularProgress, Button } from '@mui/material';
 import { motion } from 'framer-motion';
-import Card from '@/components/ui/Card';
+import CardComponent from '@/components/ui/CardComponent';
 import UserStatusPanel from './UserStatusPanel';
 import SocialFeed from '@/components/posts/SocialFeed';
 import Link from 'next/link';
@@ -138,7 +138,7 @@ export default function DashboardOverview() {
         transition={{ duration: 0.4, delay: 0.1 }}
         className="col-span-1 xl:col-span-1"
       >
-        <Card title="Agent Status" variant="elevated" size="md">
+        <CardComponent title="Agent Status" variant="elevated" size="md">
           {(agentsLoading || perfLoading) ? (
             <>
               <Skeleton variant="text" width={120} height={28} />
@@ -165,7 +165,7 @@ export default function DashboardOverview() {
               </Link>
             </div>
           )}
-        </Card>
+        </CardComponent>
       </motion.div>
 
       {/* Upcoming Events Widget */}
@@ -175,7 +175,7 @@ export default function DashboardOverview() {
         transition={{ duration: 0.4, delay: 0.15 }}
         className="col-span-1 xl:col-span-1"
       >
-        <Card title="Upcoming Events" variant="elevated" size="md" headerAction={<Link href="/schedule"><Button size="small">View All</Button></Link>}>
+        <CardComponent title="Upcoming Events" variant="elevated" size="md" headerAction={<Link href="/schedule"><Button size="small">View All</Button></Link>}>
           {eventsLoading ? (
             <>
               <Skeleton variant="text" width={120} height={22} />
@@ -195,7 +195,7 @@ export default function DashboardOverview() {
             ) : (
               <Typography variant="body2" color="text.secondary">No upcoming events.</Typography>
             )}
-        </Card>
+        </CardComponent>
       </motion.div>
 
       {/* Financial Snapshot Widget */}
@@ -205,7 +205,7 @@ export default function DashboardOverview() {
         transition={{ duration: 0.4, delay: 0.2 }}
         className="col-span-1 xl:col-span-1"
       >
-        <Card title="Financial Snapshot" variant="elevated" size="md" headerAction={<Link href="/money"><Button size="small">View All</Button></Link>}>
+        <CardComponent title="Financial Snapshot" variant="elevated" size="md" headerAction={<Link href="/money"><Button size="small">View All</Button></Link>}>
           {financeLoading ? (
             <>
               <Skeleton variant="text" width={120} height={22} />
@@ -222,7 +222,7 @@ export default function DashboardOverview() {
             ) : (
               <Typography variant="body2" color="text.secondary">No financial data.</Typography>
             )}
-        </Card>
+        </CardComponent>
       </motion.div>
 
       {/* Productivity Hub Widget (tasks) */}
@@ -232,7 +232,7 @@ export default function DashboardOverview() {
         transition={{ duration: 0.4, delay: 0.25 }}
         className="col-span-1 md:col-span-2 xl:col-span-2"
       >
-        <Card title="Productivity Hub" variant="elevated" size="md" headerAction={<Link href="/hub"><Button size="small">View All</Button></Link>}>
+        <CardComponent title="Productivity Hub" variant="elevated" size="md" headerAction={<Link href="/hub"><Button size="small">View All</Button></Link>}>
           {tasksLoading ? (
             <>
               <Skeleton variant="text" width={120} height={22} />
@@ -252,7 +252,7 @@ export default function DashboardOverview() {
             ) : (
               <Typography variant="body2" color="text.secondary">No tasks for today.</Typography>
             )}
-        </Card>
+        </CardComponent>
       </motion.div>
 
       {/* Social Feed Widget (full width) */}
@@ -262,9 +262,9 @@ export default function DashboardOverview() {
         transition={{ duration: 0.4, delay: 0.3 }}
         className="col-span-1 md:col-span-2 xl:col-span-2"
       >
-        <Card title="Social Feed" variant="glass" size="lg">
+        <CardComponent title="Social Feed" variant="glass" size="lg">
           <SocialFeed posts={posts} loading={postsLoading} error={postsError} />
-        </Card>
+        </CardComponent>
       </motion.div>
     </motion.div>
   );

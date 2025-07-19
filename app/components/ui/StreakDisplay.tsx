@@ -7,7 +7,7 @@ interface StreakDisplayProps {
 }
 
 export default function StreakDisplay({ className = "" }: StreakDisplayProps) {
-  const { dailyProgress, streak, weeklyGoal, progressPercentage } = useStreak()
+  const { dailyProgress, currentStreak, weeklyGoal, progressPercentage } = useStreak()
 
   const daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
   const today = new Date().getDay()
@@ -23,10 +23,10 @@ export default function StreakDisplay({ className = "" }: StreakDisplayProps) {
         <h3 className="text-lg font-bold text-white">🔥 Daily Streak</h3>
         <motion.span 
           className="text-2xl font-bold text-orange-400"
-          animate={{ scale: streak > 0 ? [1, 1.1, 1] : 1 }}
+          animate={{ scale: currentStreak > 0 ? [1, 1.1, 1] : 1 }}
           transition={{ duration: 0.5 }}
         >
-          {streak}
+          {currentStreak}
         </motion.span>
       </div>
 
@@ -34,7 +34,7 @@ export default function StreakDisplay({ className = "" }: StreakDisplayProps) {
       <div className="flex justify-between mb-4">
         {daysOfWeek.map((day, index) => {
           const dayIndex = index === 6 ? 0 : index + 1 // Adjust for Sunday being 0
-          const isCompleted = dayIndex <= today && streak >= dayIndex
+          const isCompleted = dayIndex <= today && currentStreak >= dayIndex
 
           return (
             <div key={day} className="flex flex-col items-center">
@@ -78,13 +78,13 @@ export default function StreakDisplay({ className = "" }: StreakDisplayProps) {
       </div>
 
       {/* Streak Milestones */}
-      {streak > 0 && (
+      {currentStreak > 0 && (
         <div className="mt-4 pt-4 border-t border-gray-700">
           <div className="flex items-center justify-between text-xs text-gray-400">
             <span>Next milestone:</span>
             <span className="text-purple-400">
-              {streak < 7 ? `${7 - streak} days to Weekly Champion` :
-               streak < 30 ? `${30 - streak} days to Monthly Master` :
+              {currentStreak < 7 ? `${7 - currentStreak} days to Weekly Champion` :
+               currentStreak < 30 ? `${30 - currentStreak} days to Monthly Master` :
                "🏆 Streak Legend!"}
             </span>
           </div>

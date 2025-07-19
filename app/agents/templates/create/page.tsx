@@ -3,14 +3,15 @@ export const dynamic = "force-dynamic";
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import CardComponent from '@/components/ui/CardComponent';
+import { CardContent } from '@mui/material';
+import { Typography, Box } from '@mui/material';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/components/ui/use-toast';
-import { Box } from '@mui/material';
 
 export default function CreateAgentTemplatePage() {
   const router = useRouter();
@@ -77,10 +78,10 @@ export default function CreateAgentTemplatePage() {
       )}
       <Box sx={{ borderBottom: '1px solid #eee', mb: 4 }} />
       <form onSubmit={handleSubmit} className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Template Details</CardTitle>
-          </CardHeader>
+        <CardComponent>
+          <Box>
+            <Typography variant="h6">Template Details</Typography>
+          </Box>
           <CardContent className="space-y-4">
             {/* Template Name */}
             <Box>
@@ -149,7 +150,7 @@ export default function CreateAgentTemplatePage() {
               </p>
             </Box>
           </CardContent>
-        </Card>
+        </CardComponent>
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
           <Button type="submit" disabled={loading}>
             {loading ? 'Creating...' : 'Create Template'}

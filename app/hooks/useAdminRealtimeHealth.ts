@@ -3,11 +3,18 @@ import { createClient } from "@supabase/supabase-js";
 
 export function useAdminRealtimeHealth() {
   const [logs, setLogs] = useState<any[]>([]);
+  
   useEffect(() => {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
+    // Check if Supabase environment variables are available
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.warn('Supabase not configured for admin real-time health');
+      return;
+    }
+    
+    const supabase = createClient(supabaseUrl, supabaseAnonKey);
     const channel = supabase.channel('execution_logs_changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'execution_logs' }, payload => {
         setLogs(prev => [payload.new, ...prev]);
@@ -15,6 +22,7 @@ export function useAdminRealtimeHealth() {
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, []);
+  
   const now = Date.now();
   const lastHour = logs.filter(l => now - new Date(l.created_at).getTime() < 3600_000);
   const total = lastHour.length;

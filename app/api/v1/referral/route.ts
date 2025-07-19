@@ -25,7 +25,7 @@ export async function POST(req: Request) {
     }
 
     // Check if this referral has already been processed for this new user
-    const existingReferral = await prisma.ambassadorMetric.findUnique({
+    const existingReferral = await prisma.ambassadorMetric.findFirst({
       where: {
         referredUserId: newUserId,
       },

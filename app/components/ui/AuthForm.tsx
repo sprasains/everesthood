@@ -1,10 +1,10 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useSnackbar } from "notistack";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Button,
   TextField,
@@ -66,6 +66,17 @@ export default function AuthForm({ isSignUp = false }: AuthFormProps) {
   // Add toggle for sign in/sign up
   const [mode, setMode] = useState(isSignUp ? 'signup' : 'signin');
 
+  // Check if user is already authenticated
+  useEffect(() => {
+    const checkAuth = async () => {
+      const session = await getSession();
+      if (session) {
+        router.push('/dashboard');
+      }
+    };
+    checkAuth();
+  }, [router]);
+
   const onSubmit = async (data: any) => {
     setIsSubmitting(true);
     try {
@@ -94,13 +105,13 @@ export default function AuthForm({ isSignUp = false }: AuthFormProps) {
           enqueueSnackbar(errorData?.message || `Registration failed: ${res.status} ${res.statusText}` , { variant: "error" });
         }
       } else {
+        // Handle sign-in logic
         let result;
         try {
           result = await signIn("credentials", {
             redirect: false,
             email: data.email,
             password: data.password,
-            callbackUrl: "/dashboard",
           });
         } catch (signInErr) {
           console.error('signIn threw error:', signInErr);
@@ -108,6 +119,7 @@ export default function AuthForm({ isSignUp = false }: AuthFormProps) {
           setIsSubmitting(false);
           return;
         }
+        
         console.log('SIGNIN RESULT', result);
         if (result?.error) {
           console.error('Sign in error:', result.error);
@@ -116,8 +128,8 @@ export default function AuthForm({ isSignUp = false }: AuthFormProps) {
           });
         } else if (result?.ok) {
           enqueueSnackbar("Signed in successfully!", { variant: "success" });
-          // ✅ Use Next.js router for navigation
-          router.push(result.url || "/dashboard");
+          // ✅ Redirect to dashboard after successful login
+          router.push('/dashboard');
         } else {
           console.error('Unknown sign in result:', result);
           enqueueSnackbar("Unknown sign in error.", { variant: "error" });

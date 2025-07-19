@@ -79,10 +79,11 @@ export default function Modal({
       borderColor: 'divider',
     },
     glass: {
-      bgcolor: 'rgba(255, 255, 255, 0.95)',
-      backdropFilter: 'blur(20px)',
-      border: '1px solid rgba(255, 255, 255, 0.2)',
-      boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+      bgcolor: 'rgba(30, 30, 30, 0.95)',
+      backdropFilter: 'blur(10px)',
+      border: '1px solid rgba(255, 255, 255, 0.1)',
+      boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.4)',
+      color: '#ffffff',
     },
     minimal: {
       bgcolor: 'background.paper',
@@ -100,7 +101,6 @@ export default function Modal({
 
   return (
     <Dialog
-      open={true}
       onClose={handleClose}
       maxWidth={false}
       fullWidth
@@ -121,14 +121,9 @@ export default function Modal({
         transition: { duration: 0.2, ease: "easeOut" },
       }}
       BackdropProps={{
-        component: motion.div,
-        initial: { opacity: 0 },
-        animate: { opacity: 1 },
-        exit: { opacity: 0 },
-        transition: { duration: 0.2 },
         sx: {
-          bgcolor: 'rgba(0, 0, 0, 0.5)',
-          backdropFilter: 'blur(4px)',
+          bgcolor: 'rgba(0, 0, 0, 0.6)',
+          backdropFilter: 'blur(2px)',
         },
       }}
       {...dialogProps}

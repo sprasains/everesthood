@@ -3,7 +3,8 @@ export const dynamic = "force-dynamic";
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import CardComponent from '@/components/ui/CardComponent';
+import { CardContent } from '@mui/material';
 import { Button } from '@/components/ui/button';
 import { PlusCircledIcon } from '@radix-ui/react-icons';
 import { Box, Paper, Stack, Typography, Chip, Fade } from '@mui/material';
@@ -52,10 +53,10 @@ export default function AgentInstancesPage() {
         <Typography variant="h4" fontWeight="bold">Your Agent Instances</Typography>
         <Stack direction="row" spacing={1}>
           <Link href="/agents/templates">
-            <Button variant="outlined">Browse Templates</Button>
+            <Button variant="outline">Browse Templates</Button>
           </Link>
           <Link href="/agents/templates/create">
-            <Button variant="contained" startIcon={<PlusCircledIcon />}>Create New Agent</Button>
+            <Button variant="default"><PlusCircledIcon style={{ marginRight: 8 }} />Create New Agent</Button>
           </Link>
         </Stack>
       </Stack>
@@ -64,7 +65,7 @@ export default function AgentInstancesPage() {
         <Box sx={{ textAlign: 'center', color: 'text.secondary', mt: 12 }}>
           <Typography variant="body1" mb={2}>You haven&apos;t created any agent instances yet.</Typography>
           <Link href="/agents/templates/create">
-            <Button variant="outlined">Start by creating one!</Button>
+            <Button variant="outline">Start by creating one!</Button>
           </Link>
         </Box>
       ) : (
@@ -81,7 +82,7 @@ export default function AgentInstancesPage() {
                   {/* Example status chip, replace with real status if available */}
                   <Chip label="Active" color="success" size="small" />
                   <Link href={`/agents/${instance.id}`}>
-                    <Button variant="outlined">Configure</Button>
+                    <Button variant="outline">Configure</Button>
                   </Link>
                 </Stack>
               </Paper>

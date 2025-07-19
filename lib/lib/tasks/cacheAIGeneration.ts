@@ -1,3 +1,5 @@
+// Temporarily disabled - AICache model doesn't exist in current schema
+/*
 import { PrismaClient } from '@prisma/client';
 // Import your fallback logic
 // import { generateContentWithFallback } from '@/utils/aiProviders';
@@ -33,4 +35,10 @@ async function cacheAIGeneration() {
   }
 }
 
-cacheAIGeneration().then(() => prisma.$disconnect()); 
+cacheAIGeneration().then(() => prisma.$disconnect());
+*/
+
+// Placeholder function to prevent import errors
+export async function cacheAIGeneration() {
+  console.log('AI caching is temporarily disabled - AICache model not in schema');
+} 

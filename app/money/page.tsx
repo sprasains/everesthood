@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import Card from '@/components/ui/Card';
+import CardComponent from '@/components/ui/CardComponent';
 import { Button } from '@mui/material';
 
 interface GuidePreview {
@@ -123,7 +123,7 @@ export default function MoneyHubPage() {
         <h2 className="text-xl font-semibold mb-4">Agent Actions</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {financialAgents.map(agent => (
-            <Card
+            <CardComponent
               key={agent.id}
               title={agent.name}
               subtitle={agent.description}
@@ -144,7 +144,7 @@ export default function MoneyHubPage() {
             >
               {/* Additional agent info can go here */}
               <></>
-            </Card>
+            </CardComponent>
           ))}
         </div>
       </div>

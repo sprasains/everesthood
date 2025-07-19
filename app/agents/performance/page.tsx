@@ -2,7 +2,9 @@
 export const dynamic = "force-dynamic";
 
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import CardComponent from '@/components/ui/CardComponent';
+import { CardContent } from '@mui/material';
+import { Typography, Box } from '@mui/material';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -65,35 +67,35 @@ export default function AgentPerformancePage() {
       <h1 className="text-3xl font-bold mb-6">Agent Performance Dashboard</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>Total Runs</CardTitle>
-          </CardHeader>
+        <CardComponent>
+          <Box sx={{ p: 2 }}>
+            <Typography variant="h6">Total Runs</Typography>
+          </Box>
           <CardContent>
             <p className="text-4xl font-bold">{performanceData.totalRuns}</p>
           </CardContent>
-        </Card>
+        </CardComponent>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Successful Runs</CardTitle>
-          </CardHeader>
+        <CardComponent>
+          <Box sx={{ p: 2 }}>
+            <Typography variant="h6">Successful Runs</Typography>
+          </Box>
           <CardContent>
             <p className="text-4xl font-bold">{performanceData.successfulRuns}</p>
             <Progress value={performanceData.successRate} className="mt-2" />
             <p className="text-sm text-gray-500 mt-1">{performanceData.successRate.toFixed(1)}% Success Rate</p>
           </CardContent>
-        </Card>
+        </CardComponent>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Average Run Time</CardTitle>
-          </CardHeader>
+        <CardComponent>
+          <Box sx={{ p: 2 }}>
+            <Typography variant="h6">Average Run Time</Typography>
+          </Box>
           <CardContent>
             <p className="text-4xl font-bold">{performanceData.averageRunTimeSeconds.toFixed(2)}s</p>
             <p className="text-sm text-gray-500 mt-1">Across successful runs</p>
           </CardContent>
-        </Card>
+        </CardComponent>
       </div>
 
       <h2 className="text-2xl font-bold mb-4">Performance by Agent Template</h2>
@@ -102,17 +104,17 @@ export default function AgentPerformancePage() {
       ) : (
         <div className="space-y-4">
           {Object.entries(performanceData.performanceByAgent).map(([templateId, data]) => (
-            <Card key={templateId}>
-              <CardHeader>
-                <CardTitle>{templateId}</CardTitle> {/* Ideally, fetch template name here */}
-              </CardHeader>
+            <CardComponent key={templateId}>
+              <Box sx={{ p: 2 }}>
+                <Typography variant="h6">{templateId}</Typography> {/* Ideally, fetch template name here */}
+              </Box>
               <CardContent className="space-y-2">
                 <p>Total Runs: {data.total}</p>
                 <p>Successful: {data.successful}</p>
                 <p>Failed: {data.failed}</p>
                 <p>Avg. Duration: {(data.avgDurationMs / 1000).toFixed(2)}s</p>
               </CardContent>
-            </Card>
+            </CardComponent>
           ))}
         </div>
       )}

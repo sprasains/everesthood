@@ -15,8 +15,11 @@ export async function awardAchievement(userId: string, achievementName: string) 
   });
   if (!achievement) return;
 
-  const existing = await prisma.userAchievement.findUnique({
-    where: { userId_achievementId: { userId, achievementId: achievement.id } },
+  const existing = await prisma.userAchievement.findFirst({
+    where: { 
+      userId,
+      achievementId: achievement.id 
+    },
   });
 
   if (!existing) {

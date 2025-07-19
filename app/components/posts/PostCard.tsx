@@ -1,6 +1,6 @@
 "use client";
 import { Card, CardContent, CardActions, CardMedia, Box, Avatar, Typography, Link as MuiLink, Button, TextField, IconButton } from "@mui/material";
-import { Post, User, NewsArticle } from "@prisma/client";
+import { Post, User } from "@prisma/client";
 import Link from "next/link";
 import ThreadedComments from "./ThreadedComments";
 import { useState, useEffect, useRef } from "react";
@@ -27,10 +27,10 @@ import { useUser } from '@/hooks/useUser';
 
 type PostWithDetails = Post & {
   author: Partial<User>;
-  newsArticle?: NewsArticle | null;
   likeCount?: number; // Add likeCount for UI
   viewCount?: number;
   commentCount?: number;
+  commentsJson?: any[]; // Added to match usage
   isLiked?: boolean;
 };
 
@@ -226,43 +226,7 @@ export default function PostCard({ post }: PostCardProps) {
             ))}
           </Box>
         )}
-        {post.newsArticle && (
-          <Card variant="outlined" sx={{ p: 2, mt: 2, borderColor: "rgba(255,255,255,0.2)" }}>
-            <MuiLink
-              href={post.newsArticle.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              underline="none"
-              sx={{ display: 'flex', alignItems: 'center', gap: 2 }}
-            >
-              {post.newsArticle.imageUrl && (
-                <CardMedia
-                  component="img"
-                  image={post.newsArticle.imageUrl}
-                  sx={{ width: 80, height: 80, objectFit: "cover", borderRadius: 1, flexShrink: 0 }}
-                />
-              )}
-              <Box sx={{ flex: 1 }}>
-                <Typography fontWeight="bold" sx={{ mt: 0 }}>
-                  {post.newsArticle.title}
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  {post.newsArticle.sourceName}
-                </Typography>
-                <Button
-                  href={post.newsArticle.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  size="small"
-                  variant="outlined"
-                  sx={{ mt: 1 }}
-                >
-                  Read Original
-                </Button>
-              </Box>
-            </MuiLink>
-          </Card>
-        )}
+        {/* Removed NewsArticle rendering */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 1 }}>
           <IconButton size="small" disabled>
             <FavoriteIcon fontSize="small" color="error" sx={{ mr: 0.5 }} />
@@ -465,3 +429,32 @@ export default function PostCard({ post }: PostCardProps) {
     </Card>
   );
 }
+
+// Skeleton loader for PostCard
+function PostCardSkeleton() {
+  return (
+    <Card sx={{ p: 0, bgcolor: 'rgba(255,255,255,0.07)', borderRadius: 3, mb: 2, boxShadow: 3 }}>
+      <CardContent>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+          <Avatar sx={{ bgcolor: 'grey.700', width: 40, height: 40 }} />
+          <Box>
+            <Box sx={{ width: 100, height: 16, bgcolor: 'grey.800', borderRadius: 1, mb: 1 }} />
+            <Box sx={{ width: 60, height: 12, bgcolor: 'grey.900', borderRadius: 1 }} />
+          </Box>
+        </Box>
+        <Box sx={{ width: '80%', height: 20, bgcolor: 'grey.800', borderRadius: 1, mb: 1 }} />
+        <Box sx={{ width: '100%', height: 48, bgcolor: 'grey.900', borderRadius: 2, mb: 2 }} />
+        <Box sx={{ display: 'flex', gap: 2, mt: 1 }}>
+          <Box sx={{ width: 32, height: 16, bgcolor: 'grey.800', borderRadius: 1 }} />
+          <Box sx={{ width: 32, height: 16, bgcolor: 'grey.800', borderRadius: 1 }} />
+          <Box sx={{ width: 32, height: 16, bgcolor: 'grey.800', borderRadius: 1 }} />
+        </Box>
+      </CardContent>
+    </Card>
+  );
+}
+
+// Attach Skeleton as a static property
+(PostCard as any).Skeleton = PostCardSkeleton;
+
+export { PostCardSkeleton };
