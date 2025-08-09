@@ -120,6 +120,7 @@ export default function Navbar() {
     {
       label: "Info",
       links: [
+        { href: '/help', label: 'Help Center', icon: <RocketLaunchIcon />, desc: 'Guides, walkthroughs, and resources' },
         { href: '/api-docs', label: 'API Docs', icon: <DescriptionOutlinedIcon />, desc: 'Developer documentation' },
         { href: '/contact', label: 'Contact', icon: <ContactMailIcon />, desc: 'Contact and support' },
         { href: '/privacy', label: 'Privacy', icon: <SecurityIcon />, desc: 'Privacy policy and controls' },

@@ -417,12 +417,293 @@ const templateDetails: Record<string, {
     rating: 4.8,
     complexity: "Advanced",
     tooltip: "Legal document analysis and contract review"
+  },
+  // Advanced Agents - Second Batch
+  "Multimodal AI Architect": {
+    icon: "🎭",
+    color: "#FF6B9D",
+    features: ["Text-Vision-Audio Integration", "Cross-Modal Learning", "Unified Representations", "Multimodal Synthesis"],
+    useCases: ["Autonomous Systems", "Content Creation", "Human-Computer Interaction"],
+    rating: 5.0,
+    complexity: "Advanced",
+    tooltip: "Advanced multimodal AI systems integrating text, vision, audio, and sensor data"
+  },
+  "Autonomous Drone Fleet Controller": {
+    icon: "🚁",
+    color: "#4ECDC4",
+    features: ["Fleet Management", "Collision Avoidance", "Formation Flying", "Mission Planning"],
+    useCases: ["Surveillance", "Delivery", "Aerial Mapping", "Search & Rescue"],
+    rating: 4.9,
+    complexity: "Advanced",
+    tooltip: "Intelligent drone fleet management and autonomous aerial operations"
+  },
+  "Quantum Cryptography Specialist": {
+    icon: "🔐",
+    color: "#2F3542",
+    features: ["Quantum Key Distribution", "Post-Quantum Security", "Quantum Networks", "Cryptographic Protocols"],
+    useCases: ["Secure Communications", "Financial Security", "Government Systems"],
+    rating: 5.0,
+    complexity: "Advanced",
+    tooltip: "Quantum-safe cryptography and post-quantum security systems"
+  },
+  "Brain-Computer Interface Engineer": {
+    icon: "🧠",
+    color: "#FF4757",
+    features: ["Neural Signal Processing", "Intent Decoding", "Brain-Computer Communication", "Medical Applications"],
+    useCases: ["Assistive Technology", "Medical Research", "Gaming", "Neuroscience"],
+    rating: 4.9,
+    complexity: "Advanced",
+    tooltip: "Neural interface systems and brain-computer communication"
+  },
+  "Synthetic Biology Designer": {
+    icon: "🧬",
+    color: "#FFA502",
+    features: ["Genetic Circuit Design", "DNA Synthesis", "Biological Systems", "Biomanufacturing"],
+    useCases: ["Drug Discovery", "Biomaterials", "Biofuels", "Medical Therapeutics"],
+    rating: 4.8,
+    complexity: "Advanced",
+    tooltip: "AI-driven synthetic biology and genetic circuit design"
+  },
+  "Autonomous Underwater Vehicle Controller": {
+    icon: "🌊",
+    color: "#3742FA",
+    features: ["Deep Sea Exploration", "Underwater Navigation", "Oceanographic Data", "Marine Research"],
+    useCases: ["Oceanography", "Marine Biology", "Underwater Archaeology", "Resource Exploration"],
+    rating: 4.7,
+    complexity: "Advanced",
+    tooltip: "Deep sea exploration and autonomous underwater operations"
+  },
+  "Holographic Display Engineer": {
+    icon: "✨",
+    color: "#5F27CD",
+    features: ["3D Holographic Rendering", "Spatial Computing", "Light Field Displays", "Immersive Experiences"],
+    useCases: ["Entertainment", "Education", "Medical Imaging", "Design Visualization"],
+    rating: 4.6,
+    complexity: "Advanced",
+    tooltip: "3D holographic display systems and spatial computing"
+  },
+  "Quantum Internet Architect": {
+    icon: "🌐",
+    color: "#2F3542",
+    features: ["Quantum Networks", "Entanglement Distribution", "Quantum Routing", "Quantum Memory"],
+    useCases: ["Secure Communications", "Quantum Computing", "Research Networks"],
+    rating: 5.0,
+    complexity: "Advanced",
+    tooltip: "Quantum network infrastructure and quantum internet protocols"
+  },
+  "Autonomous Mining Operations Manager": {
+    icon: "⛏️",
+    color: "#2ED573",
+    features: ["Resource Mapping", "Extraction Optimization", "Safety Monitoring", "Equipment Coordination"],
+    useCases: ["Open Pit Mining", "Underground Mining", "Mineral Processing", "Safety Management"],
+    rating: 4.8,
+    complexity: "Advanced",
+    tooltip: "Intelligent mining automation and resource extraction optimization"
+  },
+  "Synthetic Data Generation Specialist": {
+    icon: "🎲",
+    color: "#FF6348",
+    features: ["AI Data Generation", "Privacy Protection", "Quality Validation", "Dataset Creation"],
+    useCases: ["AI Training", "Privacy Protection", "Research", "Testing"],
+    rating: 4.7,
+    complexity: "Advanced",
+    tooltip: "AI-powered synthetic data creation for privacy and training"
+  },
+  "Autonomous Agricultural Systems Engineer": {
+    icon: "🌾",
+    color: "#5352ED",
+    features: ["Precision Agriculture", "Crop Monitoring", "Soil Analysis", "Harvest Optimization"],
+    useCases: ["Smart Farming", "Crop Management", "Resource Optimization", "Sustainable Agriculture"],
+    rating: 4.6,
+    complexity: "Advanced",
+    tooltip: "Smart farming and precision agriculture automation"
+  },
+  "Quantum Machine Learning Engineer": {
+    icon: "⚛️",
+    color: "#2F3542",
+    features: ["Quantum Neural Networks", "Hybrid Algorithms", "Quantum Kernels", "Quantum Optimization"],
+    useCases: ["Quantum Computing", "Machine Learning", "Research", "Optimization"],
+    rating: 5.0,
+    complexity: "Advanced",
+    tooltip: "Quantum-enhanced machine learning and quantum neural networks"
+  },
+  "Autonomous Construction Manager": {
+    icon: "🏗️",
+    color: "#FF9FF3",
+    features: ["Project Planning", "Resource Allocation", "Safety Monitoring", "Quality Control"],
+    useCases: ["Construction", "Infrastructure", "Safety Management", "Project Management"],
+    rating: 4.7,
+    complexity: "Advanced",
+    tooltip: "AI-driven construction automation and building optimization"
+  },
+  "Neuromorphic Computing Architect": {
+    icon: "🧠",
+    color: "#54A0FF",
+    features: ["Brain-Inspired Computing", "Spiking Neural Networks", "Cognitive Architectures", "Edge AI"],
+    useCases: ["Edge Computing", "Cognitive Systems", "Brain-Computer Interfaces", "Robotics"],
+    rating: 4.9,
+    complexity: "Advanced",
+    tooltip: "Brain-inspired computing systems and spiking neural networks"
+  },
+  "Autonomous Energy Grid Controller": {
+    icon: "⚡",
+    color: "#00D2D3",
+    features: ["Smart Grid Optimization", "Renewable Integration", "Grid Balancing", "Demand Response"],
+    useCases: ["Energy Management", "Renewable Energy", "Grid Optimization", "Sustainability"],
+    rating: 4.8,
+    complexity: "Advanced",
+    tooltip: "Smart grid optimization and renewable energy integration"
+  },
+  "Synthetic Reality Creator": {
+    icon: "🎪",
+    color: "#FF9F43",
+    features: ["Virtual World Generation", "AI Content Creation", "Immersive Experiences", "Spatial Computing"],
+    useCases: ["Entertainment", "Education", "Training", "Virtual Tourism"],
+    rating: 4.6,
+    complexity: "Advanced",
+    tooltip: "AI-generated virtual worlds and synthetic reality systems"
+  },
+  "Autonomous Logistics Coordinator": {
+    icon: "📦",
+    color: "#A29BFE",
+    features: ["Route Optimization", "Inventory Management", "Warehouse Automation", "Delivery Optimization"],
+    useCases: ["Supply Chain", "E-commerce", "Manufacturing", "Retail"],
+    rating: 4.7,
+    complexity: "Advanced",
+    tooltip: "Intelligent supply chain and logistics optimization"
+  },
+  "Quantum Sensing Specialist": {
+    icon: "🔍",
+    color: "#2F3542",
+    features: ["Quantum Sensors", "Ultra-Precise Measurement", "Quantum Imaging", "Atomic Clocks"],
+    useCases: ["Scientific Research", "Navigation", "Medical Imaging", "Environmental Monitoring"],
+    rating: 4.9,
+    complexity: "Advanced",
+    tooltip: "Quantum sensors and ultra-precise measurement systems"
+  },
+  "Autonomous Healthcare Systems Manager": {
+    icon: "🏥",
+    color: "#FD79A8",
+    features: ["Medical Robotics", "Diagnostic Assistance", "Treatment Planning", "Patient Monitoring"],
+    useCases: ["Healthcare", "Medical Research", "Patient Care", "Drug Discovery"],
+    rating: 4.8,
+    complexity: "Advanced",
+    tooltip: "AI-driven healthcare automation and medical robotics"
+  },
+  "Synthetic Biology Automation Engineer": {
+    icon: "🧪",
+    color: "#FDCB6E",
+    features: ["Lab Automation", "Genetic Engineering", "Biochemical Assays", "Data Management"],
+    useCases: ["Biomanufacturing", "Drug Discovery", "Research", "Industrial Biology"],
+    rating: 4.7,
+    complexity: "Advanced",
+    tooltip: "Automated laboratory systems and synthetic biology workflows"
+  },
+  "Autonomous Transportation Network Manager": {
+    icon: "🚗",
+    color: "#00B894",
+    features: ["Traffic Optimization", "Vehicle Coordination", "Safety Management", "Mobility Services"],
+    useCases: ["Smart Cities", "Transportation", "Urban Planning", "Mobility"],
+    rating: 4.8,
+    complexity: "Advanced",
+    tooltip: "Intelligent transportation systems and autonomous vehicle coordination"
+  },
+  "Quantum Communication Engineer": {
+    icon: "📡",
+    color: "#2F3542",
+    features: ["Quantum Networks", "Entanglement Distribution", "Quantum Protocols", "Secure Communication"],
+    useCases: ["Secure Communications", "Quantum Computing", "Government", "Financial"],
+    rating: 5.0,
+    complexity: "Advanced",
+    tooltip: "Quantum communication protocols and secure quantum networks"
+  },
+  "Autonomous Manufacturing Systems Engineer": {
+    icon: "🏭",
+    color: "#74B9FF",
+    features: ["Smart Manufacturing", "Quality Control", "Predictive Maintenance", "Production Optimization"],
+    useCases: ["Manufacturing", "Industry 4.0", "Supply Chain", "Quality Management"],
+    rating: 4.7,
+    complexity: "Advanced",
+    tooltip: "Smart manufacturing and Industry 4.0 automation"
+  },
+  "Synthetic Intelligence Architect": {
+    icon: "🤖",
+    color: "#FF7675",
+    features: ["Artificial General Intelligence", "Cognitive Architectures", "Reasoning Systems", "Consciousness Models"],
+    useCases: ["Research", "AI Development", "Cognitive Science", "Philosophy"],
+    rating: 5.0,
+    complexity: "Advanced",
+    tooltip: "Artificial general intelligence and synthetic consciousness systems"
+  },
+  "Autonomous Space Station Manager": {
+    icon: "🚀",
+    color: "#6C5CE7",
+    features: ["Space Operations", "Life Support Systems", "Power Management", "Mission Control"],
+    useCases: ["Space Exploration", "Satellite Operations", "Research", "Space Tourism"],
+    rating: 4.9,
+    complexity: "Advanced",
+    tooltip: "Intelligent space station operations and autonomous space systems"
+  },
+  "Quantum Materials Scientist": {
+    icon: "🔬",
+    color: "#2F3542",
+    features: ["Quantum Materials Design", "Device Engineering", "Characterization", "Fabrication"],
+    useCases: ["Materials Science", "Quantum Computing", "Electronics", "Research"],
+    rating: 4.8,
+    complexity: "Advanced",
+    tooltip: "Quantum materials design and quantum device engineering"
+  },
+  "Autonomous Disaster Response Coordinator": {
+    icon: "🚨",
+    color: "#FF4757",
+    features: ["Emergency Management", "Resource Allocation", "Response Coordination", "Recovery Planning"],
+    useCases: ["Emergency Response", "Disaster Management", "Search & Rescue", "Humanitarian Aid"],
+    rating: 4.9,
+    complexity: "Advanced",
+    tooltip: "Intelligent disaster response and emergency management systems"
+  },
+  "Synthetic Ecosystem Designer": {
+    icon: "🌍",
+    color: "#00B894",
+    features: ["Ecosystem Modeling", "Species Selection", "Environmental Control", "Biological Systems"],
+    useCases: ["Conservation", "Agriculture", "Research", "Bioremediation"],
+    rating: 4.6,
+    complexity: "Advanced",
+    tooltip: "AI-designed ecosystems and synthetic biology environments"
+  },
+  "Autonomous Research Laboratory Manager": {
+    icon: "🔬",
+    color: "#A29BFE",
+    features: ["Lab Automation", "Research Robotics", "Data Management", "Experiment Design"],
+    useCases: ["Scientific Research", "Drug Discovery", "Materials Science", "Biology"],
+    rating: 4.7,
+    complexity: "Advanced",
+    tooltip: "Intelligent laboratory automation and autonomous research systems"
+  },
+  "Quantum Internet Security Specialist": {
+    icon: "🛡️",
+    color: "#2F3542",
+    features: ["Quantum Security", "Network Protection", "Cryptographic Protocols", "Threat Monitoring"],
+    useCases: ["Cybersecurity", "Government", "Financial", "Research"],
+    rating: 5.0,
+    complexity: "Advanced",
+    tooltip: "Quantum internet security and quantum-safe communication"
+  },
+  "Autonomous Cultural Heritage Preservationist": {
+    icon: "🏛️",
+    color: "#FDCB6E",
+    features: ["Artifact Preservation", "3D Scanning", "Restoration Robotics", "Digital Archiving"],
+    useCases: ["Cultural Heritage", "Museums", "Archaeology", "Education"],
+    rating: 4.6,
+    complexity: "Advanced",
+    tooltip: "AI-driven cultural heritage preservation and restoration"
   }
 };
 
 const categories = [
   "All", "Finance", "Content", "Lifestyle", "Productivity", "Health", "AI", "Automation", "Education", "Social", "Marketing", "Research", "Wellness", "Personal", "Utility", "Custom",
-  "Analytics", "Security", "Quantum", "Blockchain", "IoT", "DevOps", "MLOps", "NLP", "Computer Vision", "Robotics", "AR/VR", "Edge Computing", "Digital Twin", "Federated Learning", "Autonomous Vehicles", "Smart Cities", "Healthcare", "FinTech", "Supply Chain", "Energy", "Environmental", "Space", "Quantum ML", "Neuromorphic", "Bioinformatics", "Digital Forensics", "Game AI", "Social Analytics", "Creative AI", "EdTech", "Legal AI"
+  "Analytics", "Security", "Quantum", "Blockchain", "IoT", "DevOps", "MLOps", "NLP", "Computer Vision", "Robotics", "AR/VR", "Edge Computing", "Digital Twin", "Federated Learning", "Autonomous Vehicles", "Smart Cities", "Healthcare", "FinTech", "Supply Chain", "Energy", "Environmental", "Space", "Quantum ML", "Neuromorphic", "Bioinformatics", "Digital Forensics", "Game AI", "Social Analytics", "Creative AI", "EdTech", "Legal AI",
+  "Multimodal AI", "Autonomous Systems", "Quantum Security", "Neural Interfaces", "Synthetic Biology", "Marine Robotics", "Holographic Computing", "Quantum Networks", "Industrial Automation", "Data Generation", "Agricultural AI", "Construction AI", "Energy Management", "Synthetic Reality", "Logistics AI", "Quantum Sensing", "Lab Automation", "Transportation AI", "Manufacturing AI", "AGI", "Cultural Heritage"
 ];
 
 interface AgentTemplate {
@@ -807,34 +1088,32 @@ export default function AgentTemplateListPage() {
               borderRadius: 2,
               border: '1px solid rgba(139, 92, 246, 0.3)'
             }}>
-              <Avatar
-                sx={{
-                  width: 60,
-                  height: 60,
-                  fontSize: '1.5rem',
-                  backgroundColor: getTemplateDetails(useModal.template.name).color,
-                  border: '2px solid rgba(255, 255, 255, 0.2)'
-                }}
-              >
-                {getTemplateDetails(useModal.template.name).icon}
+              <Avatar sx={{ 
+                width: 56, 
+                height: 56, 
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                fontSize: '24px',
+                marginRight: 2
+              }}>
+                {useModal.template ? getTemplateDetails(useModal.template.name).icon : '🤖'}
               </Avatar>
               <Box>
                 <Typography variant="h6" fontWeight="bold" sx={{ color: 'text.primary', mb: 1 }}>
-                  {useModal.template.name}
+                  {useModal.template?.name}
                 </Typography>
                 <Typography variant="body2" sx={{ color: 'text.secondary', mb: 1, lineHeight: 1.4 }}>
-                  {useModal.template.description}
+                  {useModal.template?.description}
                 </Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <Rating 
-                    value={getTemplateDetails(useModal.template.name).rating} 
+                    value={useModal.template ? getTemplateDetails(useModal.template.name).rating : 0} 
                     precision={0.1} 
                     readOnly 
                     size="small"
                     sx={{ '& .MuiRating-iconFilled': { color: '#FFD700' } }}
                   />
                   <Typography variant="body2" sx={{ ml: 1, color: 'text.secondary', fontWeight: 500 }}>
-                    {getTemplateDetails(useModal.template.name).rating}
+                    {useModal.template ? getTemplateDetails(useModal.template.name).rating : 0}
                   </Typography>
                 </Box>
               </Box>
@@ -883,7 +1162,7 @@ export default function AgentTemplateListPage() {
                 borderRadius: 2,
                 border: '1px solid rgba(255, 255, 255, 0.1)'
               }}>
-                {getTemplateDetails(useModal.template.name).features.map((feature, index) => (
+                {useModal.template && getTemplateDetails(useModal.template.name).features.map((feature, index) => (
                   <Typography 
                     key={index} 
                     variant="body2" 
@@ -896,7 +1175,7 @@ export default function AgentTemplateListPage() {
                     }}
                   >
                     <span style={{ 
-                      color: getTemplateDetails(useModal.template.name).color, 
+                      color: useModal.template ? getTemplateDetails(useModal.template.name).color : '#8b5cf6', 
                       marginRight: '8px',
                       fontSize: '16px',
                       fontWeight: 'bold'
@@ -912,7 +1191,7 @@ export default function AgentTemplateListPage() {
             {/* Additional Info */}
             <Box sx={{ mt: 3, p: 2, backgroundColor: 'rgba(139, 92, 246, 0.1)', borderRadius: 2 }}>
               <Typography variant="body2" sx={{ color: 'text.secondary', textAlign: 'center' }}>
-                <strong>Model:</strong> {useModal.template.defaultModel} • <strong>Complexity:</strong> {getTemplateDetails(useModal.template.name).complexity}
+                <strong>Model:</strong> {useModal.template?.defaultModel} • <strong>Complexity:</strong> {useModal.template ? getTemplateDetails(useModal.template.name).complexity : 'Advanced'}
               </Typography>
             </Box>
           </Box>
