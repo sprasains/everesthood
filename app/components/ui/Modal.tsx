@@ -79,11 +79,14 @@ export default function Modal({
       borderColor: 'divider',
     },
     glass: {
-      bgcolor: 'rgba(30, 30, 30, 0.95)',
-      backdropFilter: 'blur(10px)',
-      border: '1px solid rgba(255, 255, 255, 0.1)',
-      boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.4)',
-      color: '#ffffff',
+      bgcolor: 'rgba(255, 255, 255, 0.98)', // lighter, more opaque for clarity
+      color: '#222', // dark text for readability
+      backdropFilter: 'blur(4px)', // less blur for less distraction
+      border: '2px solid #8b5cf6', // subtle colored border for appeal
+      boxShadow: '0 12px 48px 0 rgba(139, 92, 246, 0.18), 0 2px 8px 0 rgba(0,0,0,0.10)', // strong, modern shadow
+      borderRadius: 4, // more rounded corners
+      padding: '32px 28px', // more padding for modern look
+      transition: 'box-shadow 0.2s',
     },
     minimal: {
       bgcolor: 'background.paper',
@@ -122,8 +125,8 @@ export default function Modal({
       }}
       BackdropProps={{
         sx: {
-          bgcolor: 'rgba(0, 0, 0, 0.6)',
-          backdropFilter: 'blur(2px)',
+          bgcolor: 'rgba(0, 0, 0, 0.35)', // lighter, less intrusive overlay
+          backdropFilter: 'blur(1.5px)', // less blur
         },
       }}
       {...dialogProps}

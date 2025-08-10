@@ -1,5 +1,73 @@
 # 🛠️ Everhood Developer Setup Guide
 
+## 🚦 Local Setup (No Docker)
+
+### Prerequisites
+- [Node.js](https://nodejs.org/) (v18+)
+- [Git](https://git-scm.com/)
+- [Homebrew](https://brew.sh/) (macOS only)
+- [Postgres](https://www.postgresql.org/download/)
+- [Redis](https://redis.io/docs/getting-started/installation/)
+
+### 1. Install Postgres & Redis (macOS example)
+```sh
+brew install postgresql
+brew services start postgresql
+brew install redis
+brew services start redis
+```
+
+### 2. Clone the repo & install dependencies
+```sh
+git clone <your-repo-url>
+cd everesthood
+npm install
+```
+
+### 3. Setup environment variables
+```sh
+cp .env.example .env
+# Fill in all required secrets in .env
+```
+
+### 4. Setup database
+```sh
+npx prisma migrate dev
+npx prisma db seed
+```
+
+### 5. Start the app
+```sh
+npm run dev
+```
+### 6. Worker Service (Required for LLM/AI Jobs)
+- A minimal worker template is now provided in `worker/index.js`.
+- This worker listens for jobs on the Redis queue and simulates LLM processing.
+- To run the worker, open a new terminal and run:
+  ```sh
+  cd worker
+  npm install ioredis
+  node index.js
+  ```
+- This is a placeholder. For real LLM jobs, replace the logic in `worker/index.js` with actual OpenAI/Gemini API calls and DB updates.
+- If you do not run the worker, LLM jobs (AI code generation, summaries, etc.) will not work locally.
+
+### Troubleshooting
+- If you see errors about Redis or Postgres, make sure both are running.
+- If you see errors about the worker, see above.
+- For more help, see [Redis Quickstart](https://redis.io/docs/getting-started/installation/) and [Postgres Quickstart](https://www.postgresql.org/download/).
+
+### First Run Checklist
+- [ ] Install Node.js, Git, Redis, Postgres
+- [ ] Copy `.env.example` to `.env` and fill in all secrets
+- [ ] Start Redis and Postgres
+- [ ] Run `npm install`
+- [ ] Run `npx prisma migrate dev` and `npx prisma db seed`
+- [ ] Start the worker (if present)
+- [ ] Run `npm run dev` to start the app
+
+---
+
 ## 📋 Prerequisites
 
 Before you start, make sure you have the following installed on your computer:
@@ -432,4 +500,177 @@ Your development environment is now set up and ready to go! Here's what you can 
 3. **Make your first change** - Try adding a new feature or fixing a bug
 4. **Join the community** - Connect with other developers working on the project
 
-**Happy coding! 🚀** 
+**Happy coding! 🚀**
+
+---
+
+## 🧑‍💻 How the Worker Service & Queue Work (Layman's Guide)
+
+### What is the Worker Service?
+The worker is a background process that handles heavy/slow AI jobs (like LLM code generation or summaries) so your main app stays fast and responsive. It listens for jobs on a queue (in Redis), processes them, and saves the results to the database.
+
+### How Does It All Work Together?
+
+1. **User triggers an AI action** (e.g., generate summary) in the web app.
+2. **The app adds a job** to a queue in Redis (using BullMQ).
+3. **The worker process** (in `worker/index.js`) listens for new jobs on that queue.
+4. **When a job arrives**, the worker processes it (calls OpenAI/Gemini, etc.).
+5. **The worker saves the result** (e.g., summary text) to the database.
+6. **The app fetches the result** and shows it to the user.
+
+### Visual Diagram
+```
+[User] → [Web App/API] → [Redis Queue] → [Worker] → [Database] → [Web App]
+```
+
+### Why Use This Pattern?
+- **Keeps the web app fast:** Heavy AI work doesn't block user requests.
+- **Scalable:** Add more workers for more jobs.
+- **Reliable:** Jobs are retried if they fail, and not lost if the server restarts.
+
+### Pros & Cons
+**Pros:**
+- Decouples slow work from the UI
+- Scalable and robust (handles retries, failures)
+- Easy to monitor and debug jobs
+
+**Cons:**
+- More moving parts (need Redis, worker process)
+- Slightly more complex to set up and debug
+- Need to keep job schema in sync between app and worker
+
+### How to Run the Worker
+1. Open a new terminal in the `worker/` directory.
+2. Install dependencies:
+   ```sh
+   npm install bullmq ioredis prisma @prisma/client
+   ```
+3. Start the worker:
+   ```sh
+   node index.js
+   ```
+4. The worker will log jobs as it processes them.
+
+### How to Extend the Worker
+- Edit `worker/index.js` to add new job types or integrate real LLM APIs (see code comments).
+- Update the Prisma model if you want to store more job info/results.
+- Use BullMQ features like repeatable jobs, rate limiting, and concurrency for advanced needs.
+
+### Where to Look for Examples
+- See the full, annotated BullMQ worker in `worker/index.js` (with layman explanations).
+- See the "Advanced Worker Service Setup & Examples" section below for more code samples.
+
+---
+
+## 🧑‍💻 Advanced Worker Service Setup & Examples
+
+The Everesthood app uses a background worker to process LLM/AI jobs (e.g., code generation, summaries) via a Redis-backed queue. For robust, production-grade job processing, use [BullMQ](https://docs.bullmq.io/) (already installed) and [Prisma](https://www.prisma.io/) for DB updates.
+
+### 1. Install Required Packages
+
+In the `worker/` directory:
+```sh
+npm install bullmq ioredis prisma @prisma/client
+```
+
+### 2. Example: BullMQ Worker Template
+
+Create or update `worker/index.js`:
+```js
+// worker/index.js
+const { Worker, Queue } = require('bullmq');
+const IORedis = require('ioredis');
+const { PrismaClient } = require('@prisma/client');
+
+const connection = new IORedis(process.env.REDIS_URL || 'redis://localhost:6379');
+const prisma = new PrismaClient();
+
+// Define the queue name (must match the producer)
+const queueName = 'llm-jobs';
+
+// Example job processor
+const processor = async (job) => {
+  console.log('Processing job:', job.id, job.name, job.data);
+  // Simulate LLM API call (replace with real OpenAI/Gemini logic)
+  const result = `Simulated LLM result for prompt: ${job.data.prompt}`;
+  // Optionally update DB with result
+  await prisma.llmJob.update({
+    where: { id: job.data.dbId },
+    data: { status: 'completed', result },
+  });
+  return result;
+};
+
+// Start the worker
+const worker = new Worker(queueName, processor, { connection });
+
+worker.on('completed', (job, result) => {
+  console.log(`Job ${job.id} completed:`, result);
+});
+worker.on('failed', (job, err) => {
+  console.error(`Job ${job.id} failed:`, err);
+});
+
+console.log(`Worker started for queue: ${queueName}`);
+```
+
+### 3. Example: Adding Jobs to the Queue (Producer)
+
+In your app (e.g., API route or service):
+```js
+const { Queue } = require('bullmq');
+const IORedis = require('ioredis');
+const connection = new IORedis(process.env.REDIS_URL || 'redis://localhost:6379');
+const queue = new Queue('llm-jobs', { connection });
+
+// Add a job
+await queue.add('generate-summary', {
+  prompt: 'Summarize this text...',
+  dbId: 123, // Reference to DB row
+});
+```
+
+### 4. Example: LLM API Integration (OpenAI/Gemini)
+
+Replace the simulated logic in the worker with real API calls:
+```js
+const { OpenAI } = require('openai');
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+const processor = async (job) => {
+  const { prompt, dbId } = job.data;
+  const response = await openai.chat.completions.create({
+    model: 'gpt-4',
+    messages: [{ role: 'user', content: prompt }],
+  });
+  const result = response.choices[0].message.content;
+  await prisma.llmJob.update({ where: { id: dbId }, data: { status: 'completed', result } });
+  return result;
+};
+```
+
+### 5. Example: Prisma Model for LLM Jobs
+
+Add to `prisma/schema.prisma`:
+```prisma
+model LlmJob {
+  id        Int      @id @default(autoincrement())
+  prompt   String
+  result   String?
+  status   String   @default("pending")
+  createdAt DateTime @default(now())
+}
+```
+Then run:
+```sh
+npx prisma migrate dev
+```
+
+### 6. Extending the Worker
+- Add new job types by changing the job name (e.g., `queue.add('summarize', {...})`) and branching logic in the worker's processor.
+- Use BullMQ's repeatable jobs, rate limiting, and concurrency for advanced use cases.
+- See [BullMQ docs](https://docs.bullmq.io/) for more features.
+
+### 7. Monitoring & Debugging
+- Use [Arena](https://github.com/bee-queue/arena) or [Bull Board](https://github.com/vcapretz/bull-board) for a web UI to monitor jobs.
+- Log job events in the worker for troubleshooting.

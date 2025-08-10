@@ -220,4 +220,18 @@ NEXTAUTH_SECRET=your-secret
   ```sh
   docker-compose down
   ```
-- **Docs:** [Docker Compose Docs](https://docs.docker.com/compose/) 
+- **Docs:** [Docker Compose Docs](https://docs.docker.com/compose/)
+
+---
+
+## Worker Service (LLM/AI Job Processing)
+- The worker service is responsible for processing jobs from the Redis queue (e.g., LLM/AI jobs).
+- A minimal worker template is provided in `worker/index.js`.
+- To run the worker locally:
+  ```sh
+  cd worker
+  npm install ioredis
+  node index.js
+  ```
+- This template simulates job processing. For real LLM jobs, replace the logic with actual OpenAI/Gemini API calls and DB updates.
+- If you do not run the worker, LLM jobs (AI code generation, summaries, etc.) will not work.

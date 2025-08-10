@@ -1,5 +1,65 @@
 # 🌟 Everhood - AI Vibe Hub for Gen-Z
 
+## 🚦 Local Setup (No Docker)
+
+### Prerequisites
+- [Node.js](https://nodejs.org/) (v18+)
+- [Git](https://git-scm.com/)
+- [Homebrew](https://brew.sh/) (macOS only)
+- [Postgres](https://www.postgresql.org/download/)
+- [Redis](https://redis.io/docs/getting-started/installation/)
+
+### 1. Install Postgres & Redis (macOS example)
+```sh
+brew install postgresql
+brew services start postgresql
+brew install redis
+brew services start redis
+```
+
+### 2. Clone the repo & install dependencies
+```sh
+git clone <your-repo-url>
+cd everesthood
+npm install
+```
+
+### 3. Setup environment variables
+```sh
+cp .env.example .env
+# Fill in all required secrets in .env
+```
+
+### 4. Setup database
+```sh
+npx prisma migrate dev
+npx prisma db seed
+```
+
+### 5. Start the app
+```sh
+npm run dev
+```
+
+### 6. Worker Service (Required for LLM/AI Jobs)
+- A minimal worker template is now provided in `worker/index.js`.
+- This worker listens for jobs on the Redis queue and simulates LLM processing.
+- To run the worker, open a new terminal and run:
+  ```sh
+  cd worker
+  npm install ioredis
+  node index.js
+  ```
+- This is a placeholder. For real LLM jobs, replace the logic in `worker/index.js` with actual OpenAI/Gemini API calls and DB updates.
+- If you do not run the worker, LLM jobs (AI code generation, summaries, etc.) will not work locally.
+
+### Troubleshooting
+- If you see errors about Redis or Postgres, make sure both are running.
+- If you see errors about the worker, see above.
+- For more help, see [Redis Quickstart](https://redis.io/docs/getting-started/installation/) and [Postgres Quickstart](https://www.postgresql.org/download/).
+
+---
+
 ## 🚀 Overview
 Everhood is a next-generation social and productivity platform designed for Gen-Z and young professionals. It combines AI-powered insights, gamified learning, career tools, and a vibrant social community—all in one place.
 

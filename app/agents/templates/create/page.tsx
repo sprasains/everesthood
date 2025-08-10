@@ -454,7 +454,7 @@ export default function CreateAgentTemplatePage() {
               </Tabs>
 
                              {activeTab === 0 && (
-                 <Box>
+          <Box>
                    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 3 }}>
                      {templateExamples.map((template) => (
                        <Card 
@@ -623,7 +623,7 @@ export default function CreateAgentTemplatePage() {
                   </Typography>
                 </Box>
               )}
-            </Box>
+          </Box>
           )}
 
           {/* Step 2: Customize */}
@@ -640,9 +640,9 @@ export default function CreateAgentTemplatePage() {
                  <TextField
                    fullWidth
                    label="Assistant Name"
-                   value={name}
-                   onChange={(e) => setName(e.target.value)}
-                   required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
                    placeholder="e.g., My Writing Helper, Career Advisor"
                    helperText="Give your AI assistant a memorable name"
                  />
@@ -675,35 +675,35 @@ export default function CreateAgentTemplatePage() {
                      />
                    </RadioGroup>
                  </FormControl>
-               </Box>
+            </Box>
                <TextField
                  fullWidth
                  label="Description"
-                 value={description}
-                 onChange={(e) => setDescription(e.target.value)}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
                  required
                  multiline
-                 rows={3}
+                rows={3}
                  placeholder="Describe what your AI assistant does and who it helps..."
                  helperText="Explain the purpose and capabilities of your assistant"
                  sx={{ mb: 3 }}
-               />
+              />
                                <Accordion sx={{ mb: 3 }}>
                  <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
                      <PsychologyIcon sx={{ mr: 2, color: 'primary.main' }} />
                      <Typography variant="h6">AI Personality & Instructions</Typography>
-                   </Box>
+            </Box>
                  </AccordionSummary>
                  <AccordionDetails>
                    <TextField
                      fullWidth
                      label="Instructions for your AI"
-                     value={defaultPrompt}
-                     onChange={(e) => setDefaultPrompt(e.target.value)}
+                value={defaultPrompt}
+                onChange={(e) => setDefaultPrompt(e.target.value)}
                      required
                      multiline
-                     rows={6}
+                rows={6}
                      placeholder="You are a helpful AI assistant. Your role is to..."
                      helperText="Define how your AI should behave and respond to users"
                    />
@@ -917,8 +917,8 @@ export default function CreateAgentTemplatePage() {
                 </Button>
               )}
             </Box>
-          </Box>
-        </form>
+        </Box>
+      </form>
       </Paper>
 
              {/* Example Instructions Dialog */}
@@ -1058,7 +1058,7 @@ export default function CreateAgentTemplatePage() {
                  • Consulting: $2000-10000/month
                </Typography>
              </Card>
-           </Box>
+    </Box>
 
            <Typography variant="h6" gutterBottom sx={{ color: 'success.main' }}>
              🎯 Marketing & Growth Tips
