@@ -1,44 +1,37 @@
+// BullMQ queue and Redis client export for agent jobs
 import { Queue } from 'bullmq';
 import Redis from 'ioredis';
 import { isRedisBypassed } from './featureFlags';
 
+const queueName = 'agent-jobs';
 const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
 
 let redis: any;
-let agentJobQueue: any;
-let initialized = false;
+let agentJobQueue: Queue<any, any, string>;
+let initialised = false;
 
-async function initRedis() {
-  if (initialized) return;
-  if (await isRedisBypassed()) {
-    // eslint-disable-next-line no-console
-    console.warn('[DEV] Redis is bypassed (feature flag). All cache/queue operations are no-ops.');
-    redis = {
-      get: async () => null,
-      set: async () => true,
-      del: async () => true,
-    };
+async function init() {
+  if (initialised) return;
+  if (await isRedisBypassed?.()) {
+    console.warn('[DEV] Redis bypassed; queue ops are no-ops');
+    redis = { get: async () => null, set: async () => true };
     agentJobQueue = {
       add: async () => true,
       addBulk: async () => true,
-      getJob: async () => null,
-      getJobs: async () => [],
-    };
+    } as any;
   } else {
     redis = new Redis(redisUrl);
-    agentJobQueue = new Queue('agent-jobs', {
-      connection: redis,
-    });
+    agentJobQueue = new Queue(queueName, { connection: redis });
   }
-  initialized = true;
+  initialised = true;
 }
 
 export async function getRedis() {
-  await initRedis();
+  await init();
   return redis;
 }
 
 export async function getAgentJobQueue() {
-  await initRedis();
+  await init();
   return agentJobQueue;
-} 
+}

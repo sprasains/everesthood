@@ -1,68 +1,68 @@
-// Everhood BullMQ Worker Example
-// ---------------------------------------------
-// This worker listens for LLM/AI jobs on a Redis-backed queue using BullMQ.
-// It processes jobs (e.g., code generation, summaries) and updates the database.
+// worker/index.js
+// Production-ready agent job worker for EverestHood
+// -------------------------------------------------
+// This worker listens for jobs on the 'agent-jobs' queue, dynamically loads the correct agent module,
+// executes it, and updates the AgentRun record in the database.
 //
-// How it works (in plain English):
-// 1. The main app adds jobs to a queue ("llm-jobs") in Redis when an AI task is needed.
-// 2. This worker listens for new jobs on that queue.
-// 3. When a job arrives, the worker processes it (calls OpenAI/Gemini, etc.).
-// 4. The worker saves the result/status back to the database.
-// 5. The app can then show the result to the user.
-//
-// This pattern is called a "producer-consumer" or "job queue" architecture.
-//
-// Pros:
-// - Decouples heavy/slow AI work from the web server (keeps UI fast)
-// - Can scale workers independently (add more for more throughput)
-// - Handles retries, failures, and job persistence
-//
-// Cons:
-// - More moving parts (need Redis, worker process)
-// - Slightly more complex to debug
-// - Need to keep queue and job schema in sync
+// How it works:
+// 1. The app enqueues a job (with agentInstanceId, runId, input, etc.)
+// 2. The worker fetches the AgentInstance and AgentTemplate from the DB
+// 3. It loads the correct agent handler from src/agents
+// 4. It merges credentials (instance → template → env)
+// 5. It calls the agent's run() function
+// 6. It updates the AgentRun record with status/output/error
 
 const { Worker } = require('bullmq');
 const IORedis = require('ioredis');
 const { PrismaClient } = require('@prisma/client');
+const path = require('path');
+const { getAgentHandler } = require(path.join(__dirname, '../src/agents'));
 
-const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
-const connection = new IORedis(redisUrl);
 const prisma = new PrismaClient();
+const redis = new IORedis(process.env.REDIS_URL || 'redis://localhost:6379');
 
-const queueName = 'llm-jobs'; // Must match the queue used by the app
-
-// Main job processor function
-async function processJob(job) {
-  console.log('Received job:', job.id, job.name, job.data);
-  // Simulate LLM API call (replace with real OpenAI/Gemini logic)
-  const result = `Simulated LLM result for prompt: ${job.data.prompt}`;
-  // Save result to DB (replace with your model/table)
-  if (job.data.dbId) {
-    await prisma.llmJob.update({
-      where: { id: job.data.dbId },
-      data: { status: 'completed', result },
+const agentWorker = new Worker('agent-jobs', async job => {
+  const { runId, agentInstanceId, input, templateName, userId } = job.data;
+  await prisma.agentRun.update({
+    where: { id: runId },
+    data: { status: 'RUNNING', startedAt: new Date() },
+  });
+  try {
+    // fetch instance & template for credentials/config
+    const instance = await prisma.agentInstance.findUnique({
+      where: { id: agentInstanceId },
+      include: { template: true },
     });
+    if (!instance) throw new Error(`AgentInstance ${agentInstanceId} not found`);
+    const handlerName = instance.template.metadata?.moduleName || templateName;
+    const handler = getAgentHandler(handlerName);
+    if (!handler) throw new Error(`No handler for agent ${handlerName}`);
+    // credentials: override → template → env
+    const creds = { ...instance.template.credentials, ...instance.configOverride?.credentials };
+    const result = await handler.run(input, 'run', userId, creds);
+    await prisma.agentRun.update({
+      where: { id: runId },
+      data: { status: 'COMPLETED', output: result, completedAt: new Date() },
+    });
+  } catch (err) {
+    console.error('Agent job failed:', err);
+    await prisma.agentRun.update({
+      where: { id: runId },
+      data: { status: 'FAILED', error: err.message, completedAt: new Date() },
+    });
+    throw err;
   }
-  return result;
-}
+}, { connection: redis });
 
-// Start the BullMQ worker
-const worker = new Worker(queueName, processJob, { connection });
+agentWorker.on('completed', job => console.log(`Run ${job.data.runId} completed`));
+agentWorker.on('failed', (job, err) => console.error(`Run ${job.data.runId} failed`, err));
 
-worker.on('completed', (job, result) => {
-  console.log(`Job ${job.id} completed:`, result);
-});
-worker.on('failed', (job, err) => {
-  console.error(`Job ${job.id} failed:`, err);
-});
-
-console.log(`Worker started for queue: ${queueName}. Waiting for jobs...`);
+console.log('Agent worker started. Waiting for jobs...');
 
 // Graceful shutdown
 process.on('SIGINT', async () => {
   console.log('Shutting down worker...');
-  await worker.close();
+  await agentWorker.close();
   await prisma.$disconnect();
   process.exit(0);
 });
