@@ -41,16 +41,16 @@ npx prisma db seed
 npm run dev
 ```
 ### 6. Worker Service (Required for LLM/AI Jobs)
-- A minimal worker template is now provided in `worker/index.js`.
-- This worker listens for jobs on the Redis queue and simulates LLM processing.
+- The worker in `worker/index.js` now processes real agent jobs using BullMQ and Prisma.
+- It dynamically loads agent modules from `src/agents/`, merges credentials, and updates job status in the database.
 - To run the worker, open a new terminal and run:
   ```sh
   cd worker
-  npm install ioredis
+  npm install bullmq ioredis prisma @prisma/client pino
   node index.js
   ```
-- This is a placeholder. For real LLM jobs, replace the logic in `worker/index.js` with actual OpenAI/Gemini API calls and DB updates.
 - If you do not run the worker, LLM jobs (AI code generation, summaries, etc.) will not work locally.
+- See the "Advanced Agent Infrastructure" and "Monitoring" sections below for more details.
 
 ### Troubleshooting
 - If you see errors about Redis or Postgres, make sure both are running.
@@ -445,62 +445,43 @@ npm run clean        # Clean build artifacts
 
 ---
 
-## 🔍 Debugging
+## ⏰ Running the Agent Scheduler
 
-### VS Code Debugging
-1. **Open VS Code** in the project directory
-2. **Go to Run and Debug** (Ctrl+Shift+D)
-3. **Select "Next.js: debug server-side"**
-4. **Press F5** to start debugging
+The scheduler runs agent jobs on a schedule (every minute by default).
 
-### Browser Debugging
-1. **Open browser developer tools** (F12)
-2. **Go to Console tab** to see errors
-3. **Go to Network tab** to see API calls
-4. **Go to Sources tab** to set breakpoints
-
-### Database Debugging
-1. **Use Prisma Studio:**
-   ```bash
-   npx prisma studio
-   ```
-2. **Check database logs:**
-   ```bash
-   docker-compose logs postgres
-   ```
+```bash
+node src/scheduler/index.ts
+```
+- Uses cron and Redlock for reliability.
+- Only one instance will enqueue jobs at a time.
 
 ---
 
-## 📞 Getting Help
+## 📊 Bull-Board Dashboard (Job Monitoring)
 
-### Documentation
-- **README.md** - Main project documentation
-- **USER_GUIDE.md** - User-facing documentation
-- **TECHNICAL_GUIDE.md** - Technical architecture details
+To monitor agent jobs:
 
-### Community
-- **GitHub Issues** - Report bugs and request features
-- **Discord** - Join the community chat
-- **Email** - Contact the development team
+```bash
+node bull-board-server.js
+```
 
-### Common Resources
-- **Next.js Documentation** - [nextjs.org/docs](https://nextjs.org/docs)
-- **Prisma Documentation** - [prisma.io/docs](https://prisma.io/docs)
-- **MUI Documentation** - [mui.com](https://mui.com)
-- **TypeScript Documentation** - [typescriptlang.org/docs](https://typescriptlang.org/docs)
+Visit [http://localhost:3009/admin/queues](http://localhost:3009/admin/queues)
 
 ---
 
-## 🎉 You're Ready!
+## 📋 Structured Logging
 
-Your development environment is now set up and ready to go! Here's what you can do next:
+The worker uses [pino](https://getpino.io/) for logs. Logs include job IDs, agent names, user IDs, and errors. Set log level with `LOG_LEVEL` in your .env.
 
-1. **Explore the codebase** - Start with `app/page.tsx` and work your way through
-2. **Try the features** - Test the AI agents, job board, and social features
-3. **Make your first change** - Try adding a new feature or fixing a bug
-4. **Join the community** - Connect with other developers working on the project
+---
 
-**Happy coding! 🚀**
+## 🤖 Advanced Agent Infrastructure
+
+- **Dynamic Agent Registry:** Add new agents by creating files in `src/agents/` (see `exampleAgent.ts`, `enterpriseDataAnalyst.ts`).
+- **Credential Handling:** AgentTemplate defines required credentials; users provide them when creating AgentInstances. Credentials are merged (instance → template → env) and used securely by the worker.
+- **Job API:** The API at `app/api/v1/agents/run/route.ts` authenticates, creates an AgentRun, and enqueues a job.
+- **Worker:** `worker/index.js` loads the correct agent, merges credentials, runs the job, and updates status/output.
+- **Scheduler:** `src/scheduler/index.ts` runs scheduled jobs using cron and Redlock (see below).
 
 ---
 

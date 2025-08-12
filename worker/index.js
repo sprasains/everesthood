@@ -17,12 +17,15 @@ const IORedis = require('ioredis');
 const { PrismaClient } = require('@prisma/client');
 const path = require('path');
 const { getAgentHandler } = require(path.join(__dirname, '../src/agents'));
+const pino = require('pino');
 
 const prisma = new PrismaClient();
 const redis = new IORedis(process.env.REDIS_URL || 'redis://localhost:6379');
+const logger = pino({ level: process.env.LOG_LEVEL || 'info' });
 
 const agentWorker = new Worker('agent-jobs', async job => {
   const { runId, agentInstanceId, input, templateName, userId } = job.data;
+  logger.info({ runId, agentInstanceId, templateName, userId }, 'Job started');
   await prisma.agentRun.update({
     where: { id: runId },
     data: { status: 'RUNNING', startedAt: new Date() },
@@ -44,8 +47,9 @@ const agentWorker = new Worker('agent-jobs', async job => {
       where: { id: runId },
       data: { status: 'COMPLETED', output: result, completedAt: new Date() },
     });
+    logger.info({ runId, agentInstanceId, templateName, userId }, 'Job completed');
   } catch (err) {
-    console.error('Agent job failed:', err);
+    logger.error({ runId, agentInstanceId, templateName, userId, err }, 'Job failed');
     await prisma.agentRun.update({
       where: { id: runId },
       data: { status: 'FAILED', error: err.message, completedAt: new Date() },
@@ -54,14 +58,14 @@ const agentWorker = new Worker('agent-jobs', async job => {
   }
 }, { connection: redis });
 
-agentWorker.on('completed', job => console.log(`Run ${job.data.runId} completed`));
-agentWorker.on('failed', (job, err) => console.error(`Run ${job.data.runId} failed`, err));
+agentWorker.on('completed', job => logger.info({ runId: job.data.runId }, 'Run completed'));
+agentWorker.on('failed', (job, err) => logger.error({ runId: job.data.runId, err }, 'Run failed'));
 
-console.log('Agent worker started. Waiting for jobs...');
+logger.info('Agent worker started. Waiting for jobs...');
 
 // Graceful shutdown
 process.on('SIGINT', async () => {
-  console.log('Shutting down worker...');
+  logger.info('Shutting down worker...');
   await agentWorker.close();
   await prisma.$disconnect();
   process.exit(0);

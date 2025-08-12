@@ -5,10 +5,13 @@
 import { prisma } from '../../lib/prisma';
 import { agentJobQueue } from '../../lib/redis';
 import cron from 'node-cron';
-import Redis from 'ioredis';
-import cronParser from 'cron-parser';
+import Redlock from 'redlock';
+import { getRedis, getAgentJobQueue } from '../../lib/redis';
+import { checkAndEnqueueDueAgents } from './helpers'; // You must implement this
 import { DateTime } from 'luxon';
 import { isRedisBypassed } from '../../lib/featureFlags';
+
+const SCHEDULE = '* * * * *'; // every minute
 
 let redis: any;
 let redlock: any;
@@ -29,14 +32,11 @@ async function initRedis() {
       release: async () => true,
     };
   } else {
-    const Redlock = require('redlock');
-    const Redis = require('ioredis');
-    redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
-    redlock = new Redlock([redis]);
+    redis = await getRedis();
+    redlock = new Redlock([redis], { retryCount: 0 });
   }
   initialized = true;
 }
-
 
 async function getScheduledAgentInstances() {
   return prisma.agentInstance.findMany({
@@ -76,6 +76,18 @@ async function checkAndEnqueueDueAgents() {
   }
 }
 
+async function startScheduler() {
+  await initRedis();
+  cron.schedule(SCHEDULE, async () => {
+    try {
+      await redlock.using(['agent-scheduler-lock'], 55000, async () => {
+        await checkAndEnqueueDueAgents(await getAgentJobQueue());
+      });
+    } catch (err) {
+      if (err.name !== 'LockError') console.error('Scheduler error:', err);
+    }
+  });
+  console.log('Agent scheduler started.');
+}
 
-
-console.log('[Scheduler] Started agent scheduler.'); 
+startScheduler();
