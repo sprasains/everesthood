@@ -467,6 +467,23 @@ node bull-board-server.js
 
 Visit [http://localhost:3009/admin/queues](http://localhost:3009/admin/queues)
 
+- **User authentication required:**
+  - Set `JWT_SECRET=your-jwt-secret` in your `.env`.
+  - When accessing the dashboard, include the header:
+    - `Authorization: Bearer <your-jwt-token>`
+  - Only jobs belonging to the authenticated user (by userId in the JWT) will be shown.
+  - If the token is missing or invalid, access is denied.
+- The dashboard uses the centralized BullMQ queue from `lib/queue.js`.
+- All job filtering and authentication is handled server-side.
+
+---
+
+## ⏰ Scheduler & Helpers
+
+- The scheduler uses the centralized queue and Redlock for distributed cron.
+- Scheduled jobs are enqueued via `checkAndEnqueueDueAgents` in `src/scheduler/helpers.js`.
+- All agent executions (manual or scheduled) go through the queue.
+
 ---
 
 ## 📋 Structured Logging

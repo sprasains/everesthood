@@ -3,29 +3,27 @@
 // -------------------------------------------------
 // This worker listens for jobs on the 'agent-jobs' queue, dynamically loads the correct agent module,
 // executes it, and updates the AgentRun record in the database.
-//
-// How it works:
-// 1. The app enqueues a job (with agentInstanceId, runId, input, etc.)
-// 2. The worker fetches the AgentInstance and AgentTemplate from the DB
-// 3. It loads the correct agent handler from src/agents
-// 4. It merges credentials (instance → template → env)
-// 5. It calls the agent's run() function
-// 6. It updates the AgentRun record with status/output/error
 
 const { Worker } = require('bullmq');
-const IORedis = require('ioredis');
+const { agentJobQueue, connection } = require('../lib/queue');
 const { PrismaClient } = require('@prisma/client');
 const path = require('path');
 const { getAgentHandler } = require(path.join(__dirname, '../src/agents'));
 const pino = require('pino');
+const logger = pino({ level: process.env.LOG_LEVEL || 'info' });
+const { logCredentialAccess } = require('../lib/audit');
+const { decrypt } = require('../lib/crypto');
 
 const prisma = new PrismaClient();
-const redis = new IORedis(process.env.REDIS_URL || 'redis://localhost:6379');
-const logger = pino({ level: process.env.LOG_LEVEL || 'info' });
 
 const agentWorker = new Worker('agent-jobs', async job => {
   const { runId, agentInstanceId, input, templateName, userId } = job.data;
-  logger.info({ runId, agentInstanceId, templateName, userId }, 'Job started');
+  // Idempotency: skip if already completed/failed
+  const run = await prisma.agentRun.findUnique({ where: { id: runId } });
+  if (!run || run.status === 'COMPLETED' || run.status === 'FAILED') {
+    logger.info({ runId }, 'Skipping already processed job');
+    return;
+  }
   await prisma.agentRun.update({
     where: { id: runId },
     data: { status: 'RUNNING', startedAt: new Date() },
@@ -41,7 +39,25 @@ const agentWorker = new Worker('agent-jobs', async job => {
     const handler = getAgentHandler(handlerName);
     if (!handler) throw new Error(`No handler for agent ${handlerName}`);
     // credentials: override → template → env
-    const creds = { ...instance.template.credentials, ...instance.configOverride?.credentials };
+    let creds = { ...instance.template.credentials, ...instance.configOverride?.credentials };
+    // Fetch and decrypt AgentCredential if present
+    const agentCred = await prisma.agentCredential.findFirst({
+      where: { userId, agentId: agentInstanceId },
+    });
+    if (agentCred) {
+      creds = {
+        ...creds,
+        key: decrypt(agentCred.encryptedKey),
+        secret: decrypt(agentCred.encryptedSecret),
+      };
+      await logCredentialAccess({
+        userId,
+        agentId: agentInstanceId,
+        action: 'CREDENTIAL_DECRYPT',
+        provider: agentCred.provider,
+        details: `runId=${runId}`,
+      });
+    }
     const result = await handler.run(input, 'run', userId, creds);
     await prisma.agentRun.update({
       where: { id: runId },
@@ -56,7 +72,11 @@ const agentWorker = new Worker('agent-jobs', async job => {
     });
     throw err;
   }
-}, { connection: redis });
+}, {
+  connection,
+  concurrency: 5,
+  // Optionally, add job lock duration, etc.
+});
 
 agentWorker.on('completed', job => logger.info({ runId: job.data.runId }, 'Run completed'));
 agentWorker.on('failed', (job, err) => logger.error({ runId: job.data.runId, err }, 'Run failed'));

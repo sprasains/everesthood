@@ -235,3 +235,14 @@ NEXTAUTH_SECRET=your-secret
   ```
 - This template simulates job processing. For real LLM jobs, replace the logic with actual OpenAI/Gemini API calls and DB updates.
 - If you do not run the worker, LLM jobs (AI code generation, summaries, etc.) will not work.
+
+---
+
+## 🧠 Agent Execution & Observability (Production-Grade)
+
+- **Handler Pattern:** Each agent must have a handler in `src/agents/<moduleName>.ts` exporting `run(input, mode, userId, creds)`. All agent runs are dispatched via the queue and processed by the worker using `getAgentHandler`.
+- **Scheduler:** The scheduler uses `node-cron` and Redlock to enqueue jobs every minute, ensuring no duplicate runs in multi-instance deployments.
+- **BullMQ Dashboard:** The Bull-Board dashboard is served via Express at `/admin/queues` and is JWT-protected.
+- **Logging:** All logs (worker/API) include runId, agentInstanceId, templateName, userId for traceability.
+- **Credential Security:** Credentials are encrypted at rest and only decrypted for job execution in the worker.
+- **Testing:** Add at least one unit test per agent handler and two integration tests per agent class (happy path, credential fallback).

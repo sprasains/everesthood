@@ -142,6 +142,15 @@ Successfully implemented a **complete enterprise-grade agent marketplace** with 
 - Error handling and recovery
 - Parallel processing capabilities
 
+---
+
+## 🧠 Agent Infrastructure & Observability
+
+- All agents use a unified queue/worker/scheduler architecture.
+- Credentials, workflows, connectors, and securityConfig are defined per agent in the schema and seed files.
+- Bull-Board dashboard, structured logging, and per-agent performance metrics are implemented.
+- Each agent is expected to have handler, credential UI, and tests as per the production-readiness checklist.
+
 ## 🛠️ Technical Implementation
 
 ### **Database Schema**
@@ -227,4 +236,4 @@ The system is ready for production deployment and can serve as a foundation for 
 
 **Status**: ✅ **COMPLETE**  
 **Last Updated**: January 2025  
-**Version**: 1.0.0 
+**Version**: 1.0.0

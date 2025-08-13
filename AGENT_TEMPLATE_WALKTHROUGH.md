@@ -103,6 +103,17 @@ The AI Agent Template creation process has been completely redesigned to be **in
 - **Success message** with your AI's name
 - **Automatic redirect** to templates page
 
+---
+
+## 🧠 Agent Execution & Production Standards
+
+- All agent runs are queued and processed by a worker (never direct execution).
+- The scheduler enqueues jobs every minute using Redlock for distributed locking.
+- The Bull-Board dashboard is available at `/admin/queues` and is protected by JWT authentication.
+- Credentials are securely captured via UI and encrypted at rest; only decrypted for job execution.
+- Logging and observability are production-grade, with structured logs including runId, agentInstanceId, templateName, userId.
+- Tests (unit and integration) are required for all agents.
+
 ## 🎨 Template Examples & Use Cases
 
 ### 🎨 Creative Writer Template
@@ -425,4 +436,4 @@ The key to success is **starting with a template** that matches your expertise, 
 
 ---
 
-*This guide is regularly updated with new features and success stories. Check back often for the latest tips and strategies!* 
+*This guide is regularly updated with new features and success stories. Check back often for the latest tips and strategies!*

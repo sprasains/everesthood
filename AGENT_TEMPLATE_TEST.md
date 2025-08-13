@@ -166,6 +166,17 @@ This checklist ensures all components of the **newly enhanced** agent template c
 - [ ] **No memory leaks** during navigation
 - [ ] **Smooth animations** without lag
 
+---
+
+## 🧠 Agent Infra & QA Checklist
+
+- [ ] All agent runs are queued and processed by a worker (never direct execution)
+- [ ] Scheduler enqueues jobs every minute with Redlock
+- [ ] Bull-Board dashboard is available and protected
+- [ ] Credentials are securely captured and encrypted
+- [ ] Logging and observability are production-grade
+- [ ] Tests (unit and integration) are required for all agents
+
 ## 🧪 Test Scenarios
 
 ### Scenario 1: Complete Beginner Flow
@@ -279,4 +290,4 @@ Overall Status: ✅ Ready for Production / ⚠️ Needs Fixes / ❌ Major Issues
 
 This comprehensive test checklist ensures the **newly enhanced** agent template creation process works flawlessly for all user types. The simplified interface, rich template selection, monetization guidance, and success stories create an exceptional user experience that helps users quickly create profitable AI assistants.
 
-**Ready to test?** Run through this checklist to ensure everything is working perfectly! 🚀 
+**Ready to test?** Run through this checklist to ensure everything is working perfectly! 🚀

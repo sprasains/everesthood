@@ -90,6 +90,17 @@ STRIPE_SYNC_AUTH_TOKEN (for usage sync endpoints
 
 ---
 
+## 🧠 Agent Execution & Monitoring
+
+- All agent jobs are queued and processed by the worker (never direct execution).
+- The scheduler enqueues jobs every minute using Redlock.
+- The Bull-Board dashboard is available at `/admin/queues` and is protected.
+- Credentials are securely captured and encrypted.
+- Logging and observability are production-grade.
+- Tests are required for all agents.
+
+---
+
 ## 🎯 Pro Tips for Success
 
 ### Maximize Your AI Assistant
@@ -211,4 +222,4 @@ A: Yes! Create different assistants for different services and clients.
 
 ---
 
-*This quick start guide gets you up and running fast. For detailed instructions, check out the complete User Guide and Agent Template Walkthrough.* 
+*This quick start guide gets you up and running fast. For detailed instructions, check out the complete User Guide and Agent Template Walkthrough.*

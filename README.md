@@ -362,6 +362,17 @@ UPDATE "FeatureFlag" SET value = false WHERE key = 'bypass_redis';
 
 ---
 
+## 🧠 Agent Infrastructure & Execution
+
+- **Unified Queue:** All agent runs (manual or scheduled) are enqueued to a Redis-backed BullMQ queue.
+- **Worker:** The worker (`worker/index.js`) processes jobs by dynamically loading agent modules from `src/agents/`, merging credentials, and updating job status in the database.
+- **Scheduler:** The scheduler (`src/scheduler/index.ts`) runs every minute (cron), enqueues due agent jobs, and uses Redlock for distributed locking.
+- **BullMQ Dashboard:** A Bull-Board dashboard is available at `/admin/queues` (see `bull-board-server.js`). It is protected by JWT authentication and supports per-user job filtering.
+- **Credentials:** Agent credentials are captured via UI (if required by the template), stored encrypted in `AgentInstance.configOverride.credentials`, and never echoed back to the client.
+- **Testing:** Run `npm test` for unit/integration tests. See `src/tests/agents/` and `src/tests/integration/`.
+
+---
+
 ## ⏰ Running the Agent Scheduler
 
 The scheduler runs agent jobs on a schedule (every minute by default).
@@ -383,6 +394,23 @@ node bull-board-server.js
 ```
 
 Visit [http://localhost:3009/admin/queues](http://localhost:3009/admin/queues)
+
+- **User authentication required:**
+  - Set `JWT_SECRET=your-jwt-secret` in your `.env`.
+  - When accessing the dashboard, include the header:
+    - `Authorization: Bearer <your-jwt-token>`
+  - Only jobs belonging to the authenticated user (by userId in the JWT) will be shown.
+  - If the token is missing or invalid, access is denied.
+- The dashboard uses the centralized BullMQ queue from `lib/queue.js`.
+- All job filtering and authentication is handled server-side.
+
+---
+
+## ⏰ Scheduler & Helpers
+
+- The scheduler uses the centralized queue and Redlock for distributed cron.
+- Scheduled jobs are enqueued via `checkAndEnqueueDueAgents` in `src/scheduler/helpers.js`.
+- All agent executions (manual or scheduled) go through the queue.
 
 ---
 

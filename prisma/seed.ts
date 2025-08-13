@@ -3,6 +3,9 @@ import { seedCoreStaticData } from './seed-core';
 import { seedUsers } from './seed-users';
 import { seedSocialGraph } from './seed-social';
 import { seedFeatures } from './seed-features';
+import './seedAgentTemplates';
+import './seedAdvancedAgents';
+import './seedSophisticatedAgents';
 
 const prisma = new PrismaClient();
 
@@ -67,6 +70,11 @@ async function main() {
     await seedSocialGraph(prisma, allUsers);
     await seedFeatures(prisma, allUsers);
 
+    // Run agent template seeders
+    await import('./seedAgentTemplates');
+    await import('./seedAdvancedAgents');
+    await import('./seedSophisticatedAgents');
+
     console.log('--- ✅✅✅ Seeding Process Finished Successfully! ---');
     console.log('--- Your database is now populated with a large, complex, and interconnected dataset. ---');
 
@@ -84,4 +92,4 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
     console.log('Prisma client disconnected.');
-  }); 
+  });

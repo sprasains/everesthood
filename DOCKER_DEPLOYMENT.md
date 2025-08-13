@@ -115,6 +115,15 @@ Agent Logic (src/agents/)
 
 ---
 
+## 🧠 Agent Worker, Scheduler, and Dashboard
+
+- **Worker & Scheduler:** Both the worker and scheduler are run as separate services/containers. You can scale workers horizontally for throughput.
+- **BullMQ Dashboard:** The dashboard is available at `http://localhost:3009/admin/queues` (JWT required).
+- **Redis Persistence:** Redis is configured with AOF persistence for durability.
+- **Monitoring:** Use the dashboard and logs (`docker-compose logs -f worker`) to monitor job status and failures.
+
+---
+
 ## 🛠️ Common Tasks
 
 - **Apply database migrations:**
@@ -154,4 +163,4 @@ Agent Logic (src/agents/)
 
 ---
 
-**This guide supersedes all previous deployment instructions. For questions, open an issue or contact the maintainers.** 
+**This guide supersedes all previous deployment instructions. For questions, open an issue or contact the maintainers.**
