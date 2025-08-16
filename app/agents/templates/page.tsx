@@ -7,6 +7,7 @@ import Modal from '@/components/ui/Modal';
 import { toast } from 'react-hot-toast';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
+import AgentTemplateForm from './AgentTemplateForm';
 
 // Enhanced icon mapping with more detailed icons
 const categoryIcons: Record<string, React.ReactNode> = {
@@ -719,7 +720,7 @@ interface AgentTemplate {
   category?: string;
 }
 
-export default function AgentTemplateListPage() {
+export default function AgentTemplatesPage() {
   const [templates, setTemplates] = useState<AgentTemplate[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -791,6 +792,12 @@ export default function AgentTemplateListPage() {
     } finally {
       setUsing(false);
     }
+  };
+
+  const handleCreate = async (data) => {
+    // TODO: Call API to create agent template
+    // Optimistic update, error handling, etc.
+    return Promise.resolve();
   };
 
   const getTemplateDetails = (templateName: string) => {
@@ -871,6 +878,9 @@ export default function AgentTemplateListPage() {
             }}
           />
         </Box>
+        
+        {/* Create Agent Template Form */}
+        <AgentTemplateForm onSubmit={handleCreate} />
         
         {/* Grid of Cards */}
         {loading ? (
@@ -1199,4 +1209,4 @@ export default function AgentTemplateListPage() {
       </Modal>
     </Box>
   );
-} 
+}

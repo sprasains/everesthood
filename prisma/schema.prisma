@@ -1,5 +1,4 @@
-// EverestHood Platform - Prisma Schema
-// Supports users, vibes, squads, posts, agentic AI, productivity, wellness, jobs, guides, notifications, and more
+// Everesthood Agent Marketplace - Production-Grade Prisma Schema
 
 datasource db {
   provider = "postgresql"
@@ -12,22 +11,8 @@ generator client {
 
 enum UserRole {
   USER
-  CREATOR
-  ADMIN
-}
-
-enum PostType {
-  TEXT
-  POLL
-  IMAGE
-  VIDEO
-}
-
-enum FriendshipStatus {
-  PENDING
-  ACCEPTED
-  DECLINED
-  BLOCKED
+  ORG_ADMIN
+  SUPER_ADMIN
 }
 
 enum AgentRunStatus {
@@ -35,600 +20,216 @@ enum AgentRunStatus {
   RUNNING
   COMPLETED
   FAILED
+  CANCELLED
   AWAITING_INPUT
 }
 
-enum Mood {
-  GREAT
-  GOOD
-  MEH
-  BAD
-  AWFUL
+enum AgentVisibility {
+  PRIVATE
+  ORG
+  PUBLIC
 }
 
-enum GuideCategory {
-  FINANCE
-  CAREER
-  WELLNESS
-  TECHNOLOGY
-}
-
-enum JournalPromptCategory {
-  GRATITUDE
-  REFLECTION
-  GOAL_SETTING
-}
-
-enum NotificationType {
-  FRIEND_REQUEST
-  FRIEND_ACCEPT
-  POST_LIKE
-  NEW_COMMENT
-  MENTION
-  ACHIEVEMENT
-  SYSTEM
-  SQUAD_INVITE
+enum BillingStatus {
+  PENDING
+  PAID
+  FAILED
+  CANCELLED
 }
 
 model User {
-  id                String   @id @default(cuid())
-  name              String?
-  email             String?  @unique
-  emailVerified     DateTime?
-  passwordHash      String?
-  profilePicture    String?
-  coverPicture      String?
-  bio               String?
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  publicProfile     Boolean  @default(true)
-  // Stripe/Billing fields
-  stripeCustomerId String?
-  stripeSubscriptionId String?
-  stripePriceId String?
-  stripeCurrentPeriodEnd DateTime?
-  subscriptionTier String? @default("FREE")
-  creatorBalance Float @default(0)
-  profileSpotlightEndsAt DateTime?
-  monthlyExecutionLimit Int @default(0)
-  currentMonthExecutionCount Int @default(0)
-  bonusExecutionCredits Int @default(0)
-  languagePreference String  @default("en")
-  socialLinks       Json?
-  lastActiveAt      DateTime @updatedAt
-  familyId          String?
-  family            Family?  @relation(fields: [familyId], references: [id], onDelete: SetNull)
-  xp                Int      @default(0)
-  level             Int      @default(1)
-  currentStreak     Int      @default(0)
-  role              UserRole @default(USER)
-  isBanned          Boolean  @default(false)
-  banReason         String?
-  isAmbassador      Boolean  @default(false)
-  referralCode      String?  @unique
-  // Relations
-  posts             Post[]
-  comments          Comment[]
-  postLikes         PostLike[]
-  commentLikes      CommentLike[]
-  friendshipsSent   Friendship[] @relation("sentFriendships")
-  friendshipsReceived Friendship[] @relation("receivedFriendships")
-  moodLogs          MoodLog[]
-  agentInstances    AgentInstance[]
-  agentRuns         AgentRun[]
-  customPersonas    CustomPersona[]
-  guideViews        GuideView[]
-  guideFavorites    GuideFavorite[]
-  squads            SquadMembership[]
-  ownedSquads       Squad[] @relation("OwnedSquads")
-  currentVibeId     String?
-  currentVibe       Vibe? @relation(fields: [currentVibeId], references: [id], onDelete: SetNull)
-  // Back-relations
-  createdEvents     Event[] @relation("CreatedEvents")
-  budgets           Budget[]
-  transactions      Transaction[]
-  tasks             Task[]
-  journalEntries    JournalEntry[]
-  userActivities    UserActivity[]
-  userAchievements  UserAchievement[]
-  userBadges        UserBadge[]
-  userChangelogSeen UserChangelogSeen[]
-  agentConfigRevisions AgentConfigRevision[]
-  ambassadorMetricsAsAmbassador AmbassadorMetric[] @relation("Ambassador")
-  ambassadorMetricsAsReferred AmbassadorMetric[] @relation("Referred")
-  tipsGiven Tip[] @relation("Tipper")
-  tipsReceived Tip[] @relation("Creator")
-  agentShares       AgentShare[]
-  bills             Bill[]
-  subscriptions     Subscription[]
-  eventAttendees    EventAttendee[]
-  digitalDetoxProgress DigitalDetoxProgress[]
-}
-
-model Vibe {
-  id    String  @id @default(cuid())
-  name  String  @unique
-  emoji String
-  users User[]
-}
-
-model Post {
-  id        String   @id @default(cuid())
-  title     String
-  content   Json
-  authorId  String
-  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  type      PostType @default(TEXT)
-  mediaUrls String[]
-  viewCount Int      @default(0)
-  isDeleted Boolean  @default(false)
-  deletedAt DateTime?
-  comments  Comment[]
-  likes     PostLike[]
-  contentVectors ContentVector[]
-  postRevisions PostRevision[]
-}
-
-model Comment {
-  id        String   @id @default(cuid())
-  content   String
-  authorId  String
-  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  postId    String
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  isDeleted Boolean  @default(false)
-  deletedAt DateTime?
-  parentId  String?
-  parent    Comment? @relation("Replies", fields: [parentId], references: [id], onDelete: Cascade)
-  replies   Comment[] @relation("Replies")
-  likes     CommentLike[]
-}
-
-model PostLike {
-  userId    String
-  postId    String
-  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  post      Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  @@id([userId, postId])
-}
-
-model CommentLike {
-  userId    String
-  commentId String
-  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  comment   Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  @@id([userId, commentId])
-}
-
-model Friendship {
-  requesterId String
-  receiverId  String
-  status      FriendshipStatus @default(PENDING)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  requester   User     @relation("sentFriendships", fields: [requesterId], references: [id], onDelete: Cascade)
-  receiver    User     @relation("receivedFriendships", fields: [receiverId], references: [id], onDelete: Cascade)
-  @@id([requesterId, receiverId])
-  @@index([status])
-}
-
-model Squad {
-  id          String            @id @default(cuid())
-  name        String            @unique
-  description String
-  ownerId     String
-  owner       User              @relation("OwnedSquads", fields: [ownerId], references: [id])
-  members     SquadMembership[]
-  createdAt   DateTime          @default(now())
-}
-
-model SquadMembership {
-  squadId  String
-  squad    Squad    @relation(fields: [squadId], references: [id], onDelete: Cascade)
-  userId   String
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  joinedAt DateTime @default(now())
-  @@id([squadId, userId])
+  id            String   @id @default(cuid())
+  email         String   @unique
+  name          String?
+  orgId         String?
+  role          UserRole @default(USER)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  deletedAt     DateTime?
+  agentInstances AgentInstance[]
+  billingAccount BillingAccount?
+  agentCredentials AgentCredential[]
 }
 
 model AgentTemplate {
   id             String   @id @default(cuid())
   name           String   @unique
   description    String
+  version        Int      @default(1)
+  category       String?
   defaultPrompt  String
   defaultModel   String   @default("gpt-4o")
-  defaultTools   String[] @default([])
-  category       String?  @default("General")
+  defaultTools   Json?
+  defaultConfig  Json?
   isPublic       Boolean  @default(true)
-  version        Int      @default(1)
+  orgId          String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
-  
-  // Sophisticated Agent Architecture Fields
-  credentials    Json?    // API keys, tokens, authentication data
-  workflows      Json?    // Workflow definitions and steps
-  workflowRelationships Json? // Relationships between workflows
-  connectors     Json?    // External service connections
-  metadata       Json?    // Additional configuration and metadata
-  capabilities   Json?    // Agent capabilities and features
-  integrations   Json?    // Third-party integrations
-  securityConfig Json?    // Security and access control settings
-  performanceMetrics Json? // Performance tracking and analytics
-  customFields   Json?    // Template-specific custom fields
-  
+  deletedAt      DateTime?
   agentInstances AgentInstance[]
+  steps         Json?    // Multi-step config, array of steps
+  credentials   Json?    // Credential requirements/types
+  health        Json?    // Health/resource status
+  jobQueue      Json?    // Job queue info, DLQ status
+
+  @@index([orgId])
+  @@unique([name, orgId], name: "unique_template_per_org")
+  @@index([deletedAt])
 }
 
 model AgentInstance {
   id             String   @id @default(cuid())
   userId         String
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   templateId     String
-  template       AgentTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
   name           String
   configOverride Json?
+  status         String   @default("ACTIVE")
+  visibility     AgentVisibility @default(PRIVATE)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
-  runs           AgentRun[]
-  configRevisions AgentConfigRevision[]
-  agentShares    AgentShare[]
-}
+  deletedAt      DateTime?
+  agentRuns      AgentRun[]
+  agentCredentials AgentCredential[]
+  user           User     @relation(fields: [userId], references: [id])
+  template       AgentTemplate @relation(fields: [templateId], references: [id])
 
-model AgentRun {
-  id              String         @id @default(cuid())
-  agentInstanceId String
-  agentInstance   AgentInstance  @relation(fields: [agentInstanceId], references: [id], onDelete: Cascade)
-  userId          String
-  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  status          AgentRunStatus @default(PENDING)
-  input           Json?
-  output          Json?
-  error           String?
-  startedAt       DateTime       @default(now())
-  completedAt     DateTime?
-}
-
-model CustomPersona {
-  id      String   @id @default(cuid())
-  ownerId String
-  owner   User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  name    String
-  prompt  String
-  icon    String?
-}
-
-model Family {
-  id    String  @id @default(cuid())
-  name  String
-  users User[]
-  events Event[]
-}
-
-model Event {
-  id            String   @id @default(cuid())
-  familyId      String
-  family        Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
-  createdById   String
-  createdBy     User     @relation("CreatedEvents", fields: [createdById], references: [id], onDelete: Cascade)
-  title         String
-  description   String?
-  startTime     DateTime
-  endTime       DateTime
-  attendees     EventAttendee[]
-}
-
-model Budget {
-  id          String   @id @default(cuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name        String
-  limitAmount Float
-  category    String
-  transactions Transaction[]
-}
-
-model Transaction {
-  id          String   @id @default(cuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  budgetId    String?
-  budget      Budget?  @relation(fields: [budgetId], references: [id], onDelete: SetNull)
-  amount      Float
-  description String
-  date        DateTime
-}
-
-model Task {
-  id          String    @id @default(cuid())
-  content     String
-  isCompleted Boolean   @default(false)
-  completedAt DateTime?
-  ownerId     String
-  owner       User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-}
-
-model MoodLog {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  mood      Mood
-  notes     String?
-  createdAt DateTime @default(now())
-}
-
-model JournalPrompt {
-  id         String               @id @default(cuid())
-  promptText String
-  category   JournalPromptCategory
-  entries    JournalEntry[]
-}
-
-model JournalEntry {
-  id        String       @id @default(cuid())
-  userId    String
-  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  promptId  String
-  prompt    JournalPrompt @relation(fields: [promptId], references: [id], onDelete: Cascade)
-  content   String
-  createdAt DateTime     @default(now())
-}
-
-model Guide {
-  id               String   @id @default(cuid())
-  title            String
-  slug             String   @unique
-  shortDescription String
-  coverImageUrl    String
-  category         GuideCategory
-  content          String
-  author           String
-  publishedAt      DateTime
-  views            GuideView[]
-  favorites        GuideFavorite[]
-}
-
-model GuideView {
-  id       String   @id @default(cuid())
-  guideId  String
-  guide    Guide    @relation(fields: [guideId], references: [id], onDelete: Cascade)
-  userId   String?
-  user     User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
-  viewedAt DateTime @default(now())
-}
-
-model GuideFavorite {
-  guideId     String
-  userId      String
-  guide       Guide    @relation(fields: [guideId], references: [id], onDelete: Cascade)
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  favoritedAt DateTime @default(now())
-  @@id([userId, guideId])
-}
-
-model ProductivityTip {
-  id   String @id @default(cuid())
-  text String
-}
-
-model Notification {
-  id          String           @id @default(cuid())
-  recipientId String
-  actorId     String
-  type        NotificationType
-  entityId    String?
-  isRead      Boolean          @default(false)
-  createdAt   DateTime         @default(now())
-}
-
-model UserActivity {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  type      String
-  metadata  Json?
-  createdAt DateTime @default(now())
-}
-
-model ContentVector {
-  id        String   @id @default(cuid())
-  postId    String   @unique
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  embedding Json
-}
-
-model PostRevision {
-  id        String   @id @default(cuid())
-  postId    String
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  content   Json
-  reason    String?
-  createdAt DateTime @default(now())
-}
-
-model Tip {
-  id        String   @id @default(cuid())
-  fromUserId String
-  toUserId   String
-  fromUser   User     @relation("Tipper", fields: [fromUserId], references: [id], onDelete: Cascade)
-  toUser     User     @relation("Creator", fields: [toUserId], references: [id], onDelete: Cascade)
-  amount    Float
-  createdAt DateTime @default(now())
-}
-
-model UserAchievement {
-  id             String   @id @default(cuid())
-  userId         String
-  achievementId  String
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  achievement    Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
-  achievedAt     DateTime @default(now())
-}
-
-model Achievement {
-  id          String   @id @default(cuid())
-  name        String  @unique
-  description String
-  icon        String
-  xpReward    Int
-  userAchievements UserAchievement[]
-}
-
-model UserBadge {
-  id        String   @id @default(cuid())
-  userId    String
-  badgeId   String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  badge     Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
-  awardedAt DateTime @default(now())
-}
-
-model Badge {
-  id          String   @id @default(cuid())
-  name        String  @unique
-  description String
-  imageUrl    String
-  userBadges  UserBadge[]
-}
-
-model UserChangelogSeen {
-  userId      String
-  changelogId String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  changelog   Changelog @relation(fields: [changelogId], references: [id], onDelete: Cascade)
-  seenAt      DateTime  @default(now())
-  @@id([userId, changelogId])
-}
-
-model Changelog {
-  id          String   @id @default(cuid())
-  title       String
-  description String
-  publishedAt DateTime @default(now())
-  version     String?
-  seenByUsers UserChangelogSeen[]
-}
-
-model FeatureFlag {
-  key   String  @id
-  value Boolean
-  description String?
-}
-
-model AgentConfigRevision {
-  id              String   @id @default(cuid())
-  agentInstanceId String
-  agentInstance   AgentInstance @relation(fields: [agentInstanceId], references: [id], onDelete: Cascade)
-  userId          String
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  configSnapshot  Json
-  createdAt       DateTime @default(now())
-}
-
-model AgentShare {
-  id               String   @id @default(cuid())
-  agentInstanceId  String
-  sharedWithUserId String
-  agentInstance    AgentInstance @relation(fields: [agentInstanceId], references: [id], onDelete: Cascade)
-  sharedWithUser   User     @relation(fields: [sharedWithUserId], references: [id], onDelete: Cascade)
-  createdAt        DateTime @default(now())
-}
-
-model Bill {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  amount    Float
-  dueDate   DateTime
-  paid      Boolean  @default(false)
-  createdAt DateTime @default(now())
-}
-
-model Subscription {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  tier      String
-  startDate DateTime
-  endDate   DateTime?
-  active    Boolean  @default(true)
-}
-
-model EventAttendee {
-  eventId String
-  userId  String
-  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  @@id([eventId, userId])
-}
-
-model DigitalDetoxPlan {
-  id          String   @id @default(cuid())
-  title       String
-  description String
-  coverImage  String
-  tasks       DigitalDetoxTask[]
-}
-
-model DigitalDetoxTask {
-  id         String   @id @default(cuid())
-  planId     String
-  plan       DigitalDetoxPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
-  day        Int
-  title      String
-  content    String
-  order      Int
-  progresses DigitalDetoxProgress[]
-}
-
-model DigitalDetoxProgress {
-  userId      String
-  taskId      String
-  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  task        DigitalDetoxTask   @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  completedAt DateTime           @default(now())
-  @@id([userId, taskId])
-}
-
-model AmbassadorMetric {
-  id             String   @id @default(cuid())
-  ambassadorId   String
-  referredUserId String
-  ambassador     User     @relation("Ambassador", fields: [ambassadorId], references: [id], onDelete: Cascade)
-  referredUser   User     @relation("Referred", fields: [referredUserId], references: [id], onDelete: Cascade)
-  createdAt      DateTime @default(now())
-}
-
-model Tool {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  description String
-  inputSchema Json?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  @@index([userId])
+  @@index([templateId])
+  @@index([deletedAt])
 }
 
 model AgentCredential {
-  id              Int      @id @default(autoincrement())
+  id             String   @id @default(cuid())
+  userId         String
+  agentInstanceId String
+  provider       String
+  secretId       String
+  rotatedAt      DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  user           User     @relation(fields: [userId], references: [id])
+  agentInstance  AgentInstance @relation(fields: [agentInstanceId], references: [id])
+  secret         Secret   @relation(fields: [secretId], references: [id])
+
+  @@index([provider])
+  @@index([secretId])
+  @@unique([userId, agentInstanceId, provider], name: "unique_cred_per_user_agent")
+}
+
+model Secret {
+  id             String   @id @default(cuid())
+  encryptedBlob  Bytes
+  kmsKeyId       String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  agentCredentials AgentCredential[]
+}
+
+model AgentRun {
+  id              String   @id @default(cuid())
   userId          String
-  agentId         Int
-  provider        String
-  encryptedKey    String
-  encryptedSecret String
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  agentInstanceId String
+  status          String
+  tokensUsed      Int?
+  cost            Float?
+  startedAt       DateTime @default(now())
+  finishedAt      DateTime?
+  steps           AgentRunStep[]
+  agentInstance   AgentInstance @relation(fields: [agentInstanceId], references: [id])
+  events          AgentEvent[]
+}
+
+model AgentRunStep {
+  id         String   @id @default(cuid())
+  runId      String
+  index      Int
+  name       String
+  input      Json
+  output     Json?
+  error      String?
+  startedAt  DateTime @default(now())
+  finishedAt DateTime?
+  AgentRun   AgentRun @relation(fields: [runId], references: [id])
+}
+
+model AgentEvent {
+  id             String   @id @default(cuid())
+  agentRunId     String
+  eventType      String
+  payload        Json?
+  createdAt      DateTime @default(now())
+  agentRun       AgentRun @relation(fields: [agentRunId], references: [id])
+}
+
+model UsageMeter {
+  id             String   @id @default(cuid())
+  userId         String?
+  orgId          String?
+  model          String?
+  tool           String?
+  agentId        String?
+  count          Int      @default(0)
+  periodStart    DateTime
+  periodEnd      DateTime
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([periodStart, periodEnd])
+}
+
+model BillingAccount {
+  id             String   @id @default(cuid())
+  userId         String? @unique
+  orgId          String?
+  stripeCustomerId String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  invoices       Invoice[]
+  user           User?    @relation(fields: [userId], references: [id])
+}
+
+model Invoice {
+  id             String   @id @default(cuid())
+  billingAccountId String
+  stripeInvoiceId String?
+  status         BillingStatus @default(PENDING)
+  amount         Float
+  currency       String
+  issuedAt       DateTime @default(now())
+  paidAt         DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  charges        Charge[]
+  billingAccount BillingAccount @relation(fields: [billingAccountId], references: [id])
+}
+
+model Charge {
+  id             String   @id @default(cuid())
+  invoiceId      String
+  stripeChargeId String?
+  amount         Float
+  currency       String
+  status         BillingStatus @default(PENDING)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  invoice        Invoice  @relation(fields: [invoiceId], references: [id])
+}
+
+model FeatureFlag {
+  id             String   @id @default(cuid())
+  name           String   @unique
+  enabled        Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }
 
 model AuditLog {
-  id          Int      @id @default(autoincrement())
-  userId      String
-  agentId     Int
-  action      String   // e.g. 'CREDENTIAL_DECRYPT', 'CREDENTIAL_CREATE'
-  provider    String?
-  timestamp   DateTime @default(now())
-  details     String?  // Optional: extra info (IP, jobId, etc)
+  id             String   @id @default(cuid())
+  userId         String?
+  orgId          String?
+  action         String
+  targetId       String?
+  details        Json?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }

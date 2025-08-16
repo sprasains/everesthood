@@ -687,56 +687,20 @@ const advancedAgents = [
   }
 ];
 
-async function seedAdvancedAgents() {
+export async function seedAdvancedAgents(prisma) {
   console.log('🌱 Seeding advanced agents...');
   
   for (const agent of advancedAgents) {
     try {
       await prisma.agentTemplate.upsert({
         where: { name: agent.name },
-        update: {
-          description: agent.description,
-          defaultPrompt: agent.defaultPrompt,
-          defaultModel: agent.defaultModel,
-          category: agent.category,
-          credentials: agent.credentials,
-          workflows: agent.workflows,
-          workflowRelationships: agent.workflows ? { relationships: "defined_in_workflows" } : null,
-          connectors: agent.connectors,
-          metadata: agent.metadata,
-          capabilities: agent.metadata,
-          integrations: agent.connectors,
-          securityConfig: { compliance: agent.metadata?.compliance || [] },
-          performanceMetrics: { complexity: agent.metadata?.complexity || "Advanced" },
-          customFields: { domain: agent.category }
-        },
-        create: {
-          name: agent.name,
-          description: agent.description,
-          defaultPrompt: agent.defaultPrompt,
-          defaultModel: agent.defaultModel,
-          category: agent.category,
-          credentials: agent.credentials,
-          workflows: agent.workflows,
-          workflowRelationships: agent.workflows ? { relationships: "defined_in_workflows" } : null,
-          connectors: agent.connectors,
-          metadata: agent.metadata,
-          capabilities: agent.metadata,
-          integrations: agent.connectors,
-          securityConfig: { compliance: agent.metadata?.compliance || [] },
-          performanceMetrics: { complexity: agent.metadata?.complexity || "Advanced" },
-          customFields: { domain: agent.category }
-        }
+        update: agent,
+        create: agent,
       });
-      console.log(`✅ Created/Updated: ${agent.name}`);
+      console.log(`✅ Created/updated advanced agent: ${agent.name}`);
     } catch (error) {
-      console.error(`❌ Error creating ${agent.name}:`, error);
+      console.error(`❌ Error creating advanced agent ${agent.name}:`, error);
     }
   }
-  
   console.log('🎉 Advanced agents seeding completed!');
 }
-
-seedAdvancedAgents()
-  .catch(console.error)
-  .finally(() => prisma.$disconnect()); 

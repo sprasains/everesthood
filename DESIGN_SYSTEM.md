@@ -338,6 +338,44 @@ return (
 );
 ```
 
+## Shared Components Usage Examples
+
+### SecretInput
+```tsx
+import SecretInput from '@/components/SecretInput';
+<SecretInput label="API Key" value={apiKey} onChange={setApiKey} />
+```
+- Use for credential capture in modals and forms.
+- Always redact secrets in debug panels and logs.
+
+### JsonViewer
+```tsx
+import JsonViewer from '@/components/JsonViewer';
+<JsonViewer data={payload} />
+```
+- Use for displaying technical details, debug payloads, and API responses.
+
+### RunProgress
+```tsx
+import RunProgress from '@/components/RunProgress';
+<RunProgress result={testRunResult} />
+```
+- Use for streaming agent run progress and showing test run results.
+
+### Agent Template Form Pattern
+- Use `react-hook-form` + Zod for validation and helper text.
+- Provide example values and error toasts.
+- Add a "Test run" button for optimistic feedback.
+- Include a debug panel toggle to show the final payload (secrets redacted).
+- Use skeletons and empty states for loading and no data.
+
+#### Example
+```tsx
+<AgentTemplateForm onSubmit={handleCreate} />
+```
+
+See `app/agents/templates/AgentTemplateForm.tsx` for a full implementation.
+
 ## Best Practices
 
 1. **Consistency**: Always use design system components and tokens
@@ -353,4 +391,4 @@ return (
 - [ ] Design tokens export for design tools
 - [ ] Accessibility audit and improvements
 - [ ] Performance optimization guidelines
-- [ ] Component testing examples 
+- [ ] Component testing examples

@@ -246,3 +246,25 @@ NEXTAUTH_SECRET=your-secret
 - **Logging:** All logs (worker/API) include runId, agentInstanceId, templateName, userId for traceability.
 - **Credential Security:** Credentials are encrypted at rest and only decrypted for job execution in the worker.
 - **Testing:** Add at least one unit test per agent handler and two integration tests per agent class (happy path, credential fallback).
+
+---
+
+## Bull Board Dashboard (Admin Queues)
+
+### How to Access
+- Visit `/admin/queues` (must be logged in as admin)
+- Bull Board will show queues: `agent:run`, `agent:webhook`, `agent:cron`
+- Non-admins see read-only dashboard; admins can retry, pause, clean jobs
+
+### Validation Steps
+1. Log in as admin
+2. Go to `/admin/queues`
+3. Confirm all queues are listed
+4. Trigger a test job (see scripts/queue-smoke.ts)
+5. See job appear in Bull Board
+6. Retry, pause, or clean jobs as admin
+7. For stuck jobs, use `/api/queue/debug` endpoint
+
+### Screenshot Instructions
+- Screenshot `/admin/queues` showing all queues and job stats
+- For validation, include job details and admin controls

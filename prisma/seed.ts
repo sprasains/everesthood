@@ -3,9 +3,9 @@ import { seedCoreStaticData } from './seed-core';
 import { seedUsers } from './seed-users';
 import { seedSocialGraph } from './seed-social';
 import { seedFeatures } from './seed-features';
-import './seedAgentTemplates';
-import './seedAdvancedAgents';
-import './seedSophisticatedAgents';
+import { seedAgentTemplates } from './seedAgentTemplates';
+import { seedAdvancedAgents } from './seedAdvancedAgents';
+import { seedSophisticatedAgents } from './seedSophisticatedAgents';
 
 const prisma = new PrismaClient();
 
@@ -70,14 +70,13 @@ async function main() {
     await seedSocialGraph(prisma, allUsers);
     await seedFeatures(prisma, allUsers);
 
-    // Run agent template seeders
-    await import('./seedAgentTemplates');
-    await import('./seedAdvancedAgents');
-    await import('./seedSophisticatedAgents');
+    // Run agent template seeders explicitly
+    await seedAgentTemplates(prisma);
+    await seedAdvancedAgents(prisma);
+    await seedSophisticatedAgents(prisma);
 
     console.log('--- ✅✅✅ Seeding Process Finished Successfully! ---');
     console.log('--- Your database is now populated with a large, complex, and interconnected dataset. ---');
-
   } catch (error) {
     console.error('A critical error occurred during the seeding process:', error);
     process.exit(1);

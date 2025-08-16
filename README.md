@@ -406,14 +406,24 @@ Visit [http://localhost:3009/admin/queues](http://localhost:3009/admin/queues)
 
 ---
 
-## ⏰ Scheduler & Helpers
+## Bull Board Dashboard (Admin Queues)
 
-- The scheduler uses the centralized queue and Redlock for distributed cron.
-- Scheduled jobs are enqueued via `checkAndEnqueueDueAgents` in `src/scheduler/helpers.js`.
-- All agent executions (manual or scheduled) go through the queue.
+### How to Access
+- Visit `/admin/queues` (must be logged in as admin)
+- You will see Bull Board with queues: `agent:run`, `agent:webhook`, `agent:cron`
+- Non-admins see read-only dashboard; admins can retry, pause, clean jobs
+
+### Validation Steps
+1. Log in as admin
+2. Go to `/admin/queues`
+3. Confirm all queues are listed
+4. Trigger a test job (see scripts/queue-smoke.ts)
+5. See job appear in Bull Board
+6. Retry, pause, or clean jobs as admin
+7. For stuck jobs, use `/api/queue/debug` endpoint
+
+### Screenshot Instructions
+- Take a screenshot of `/admin/queues` showing all queues and job stats
+- For validation, include job details and admin controls
 
 ---
-
-## 📋 Structured Logging
-
-The worker uses [pino](https://getpino.io/) for logs. Logs include job IDs, agent names, user IDs, and errors. Set log level with `LOG_LEVEL` in your .env.

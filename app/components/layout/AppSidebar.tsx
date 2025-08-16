@@ -65,6 +65,7 @@ const navSections: NavSection[] = [
       { text: 'AI Personas', icon: <AutoAwesomeIcon />, href: '/settings/personas' },
       { text: 'Settings', icon: <SettingsIcon />, href: '/settings' },
       { text: 'Subscription', icon: <MonetizationOnIcon />, href: '/billing' },
+      { text: 'Billing & Usage', icon: <MonetizationOnIcon />, href: '/settings/billing' },
     ],
   },
   {
@@ -111,6 +112,10 @@ const navSections: NavSection[] = [
       { text: 'Admin Dashboard', icon: <SupervisorAccountIcon />, href: '/admin' },
       // Only show Moderation if user is admin/moderator
       // { text: 'Moderation', icon: <SupervisorAccountIcon />, href: '/moderation' },
+      // Only show Queues if user is admin
+      ...(user?.role === 'admin' ? [
+        { text: 'Queues', icon: <SettingsIcon />, href: '/admin/queues' }
+      ] : [])
     ],
   },
 ];

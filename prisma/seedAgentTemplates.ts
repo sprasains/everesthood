@@ -10,6 +10,13 @@ const sampleTemplates = [
     defaultModel: "gpt-4o",
     category: "Content",
     isPublic: true,
+    steps: [
+      { label: "Input", description: "Provide content details." },
+      { label: "Generate", description: "AI generates content." }
+    ],
+    credentials: { openai: { label: "OpenAI API Key", type: "password" } },
+    health: { status: "Healthy", resources: "1 worker, 512MB RAM" },
+    jobQueue: { status: "Active", dlq: "0 jobs" },
   },
   {
     name: "Financial Advisor",
@@ -18,6 +25,14 @@ const sampleTemplates = [
     defaultModel: "gpt-4o",
     category: "Finance",
     isPublic: true,
+    steps: [
+      { label: "Input", description: "Provide financial details and goals." },
+      { label: "Analyze", description: "AI analyzes financial situation." },
+      { label: "Advise", description: "AI provides financial advice." }
+    ],
+    credentials: { openai: { label: "OpenAI API Key", type: "password" } },
+    health: { status: "Healthy", resources: "1 worker, 512MB RAM" },
+    jobQueue: { status: "Active", dlq: "0 jobs" },
   },
   {
     name: "Health & Wellness Coach",
@@ -26,6 +41,14 @@ const sampleTemplates = [
     defaultModel: "gpt-4o",
     category: "Health",
     isPublic: true,
+    steps: [
+      { label: "Input", description: "Provide health and fitness details." },
+      { label: "Assess", description: "AI assesses health data." },
+      { label: "Recommend", description: "AI provides health and wellness recommendations." }
+    ],
+    credentials: { openai: { label: "OpenAI API Key", type: "password" } },
+    health: { status: "Healthy", resources: "1 worker, 512MB RAM" },
+    jobQueue: { status: "Active", dlq: "0 jobs" },
   },
   {
     name: "Productivity Master",
@@ -34,6 +57,14 @@ const sampleTemplates = [
     defaultModel: "gpt-4o",
     category: "Productivity",
     isPublic: true,
+    steps: [
+      { label: "Input", description: "Provide current workflow and time management details." },
+      { label: "Analyze", description: "AI analyzes workflow and time usage." },
+      { label: "Optimize", description: "AI provides optimization suggestions." }
+    ],
+    credentials: { openai: { label: "OpenAI API Key", type: "password" } },
+    health: { status: "Healthy", resources: "1 worker, 512MB RAM" },
+    jobQueue: { status: "Active", dlq: "0 jobs" },
   },
   {
     name: "AI Research Assistant",
@@ -42,6 +73,14 @@ const sampleTemplates = [
     defaultModel: "gpt-4o",
     category: "AI",
     isPublic: true,
+    steps: [
+      { label: "Input", description: "Provide AI research topic or paper." },
+      { label: "Analyze", description: "AI analyzes the research material." },
+      { label: "Explain", description: "AI provides explanations and guidance." }
+    ],
+    credentials: { openai: { label: "OpenAI API Key", type: "password" } },
+    health: { status: "Healthy", resources: "1 worker, 512MB RAM" },
+    jobQueue: { status: "Active", dlq: "0 jobs" },
   },
   {
     name: "Social Media Manager",
@@ -50,6 +89,14 @@ const sampleTemplates = [
     defaultModel: "gpt-4o",
     category: "Social",
     isPublic: true,
+    steps: [
+      { label: "Input", description: "Provide social media goals and current performance." },
+      { label: "Analyze", description: "AI analyzes social media data." },
+      { label: "Strategize", description: "AI provides strategy and content suggestions." }
+    ],
+    credentials: { openai: { label: "OpenAI API Key", type: "password" } },
+    health: { status: "Healthy", resources: "1 worker, 512MB RAM" },
+    jobQueue: { status: "Active", dlq: "0 jobs" },
   },
   {
     name: "Learning Tutor",
@@ -58,6 +105,14 @@ const sampleTemplates = [
     defaultModel: "gpt-4o",
     category: "Education",
     isPublic: true,
+    steps: [
+      { label: "Input", description: "Provide subject and learning goals." },
+      { label: "Assess", description: "AI assesses learning needs." },
+      { label: "Guide", description: "AI provides study strategies and support." }
+    ],
+    credentials: { openai: { label: "OpenAI API Key", type: "password" } },
+    health: { status: "Healthy", resources: "1 worker, 512MB RAM" },
+    jobQueue: { status: "Active", dlq: "0 jobs" },
   },
   {
     name: "Marketing Strategist",
@@ -66,6 +121,14 @@ const sampleTemplates = [
     defaultModel: "gpt-4o",
     category: "Marketing",
     isPublic: true,
+    steps: [
+      { label: "Input", description: "Provide business and marketing details." },
+      { label: "Analyze", description: "AI analyzes market data and business goals." },
+      { label: "Strategize", description: "AI provides marketing strategy and campaign ideas." }
+    ],
+    credentials: { openai: { label: "OpenAI API Key", type: "password" } },
+    health: { status: "Healthy", resources: "1 worker, 512MB RAM" },
+    jobQueue: { status: "Active", dlq: "0 jobs" },
   },
   {
     name: "Personal Assistant",
@@ -74,6 +137,14 @@ const sampleTemplates = [
     defaultModel: "gpt-4o",
     category: "Personal",
     isPublic: true,
+    steps: [
+      { label: "Input", description: "Provide tasks and schedule details." },
+      { label: "Organize", description: "AI organizes tasks and schedule." },
+      { label: "Remind", description: "AI sets reminders and provides assistance." }
+    ],
+    credentials: { openai: { label: "OpenAI API Key", type: "password" } },
+    health: { status: "Healthy", resources: "1 worker, 512MB RAM" },
+    jobQueue: { status: "Active", dlq: "0 jobs" },
   },
   {
     name: "Creative Writer",
@@ -82,10 +153,18 @@ const sampleTemplates = [
     defaultModel: "gpt-4o",
     category: "Content",
     isPublic: true,
+    steps: [
+      { label: "Input", description: "Provide story or content ideas." },
+      { label: "Develop", description: "AI helps develop stories, characters, and plots." },
+      { label: "Refine", description: "AI provides refinement and editing suggestions." }
+    ],
+    credentials: { openai: { label: "OpenAI API Key", type: "password" } },
+    health: { status: "Healthy", resources: "1 worker, 512MB RAM" },
+    jobQueue: { status: "Active", dlq: "0 jobs" },
   },
 ];
 
-async function main() {
+export async function seedAgentTemplates(prisma) {
   console.log('🌱 Seeding agent templates...');
 
   for (const template of sampleTemplates) {
@@ -103,12 +182,3 @@ async function main() {
 
   console.log('🎉 Agent templates seeding completed!');
 }
-
-main()
-  .catch((e) => {
-    console.error('❌ Seeding failed:', e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  }); 

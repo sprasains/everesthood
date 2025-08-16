@@ -9,6 +9,9 @@ const { agentJobQueue, connection } = require('../lib/queue');
 const { PrismaClient } = require('@prisma/client');
 const path = require('path');
 const { getAgentHandler } = require(path.join(__dirname, '../src/agents'));
+const { runAgentWorkflow } = require('../src/agents/runtime');
+const { agentRegistry } = require('../src/agents/registry');
+const { AgentRunInput } = require('../src/agents/contracts');
 const pino = require('pino');
 const logger = pino({ level: process.env.LOG_LEVEL || 'info' });
 const { logCredentialAccess } = require('../lib/audit');
@@ -58,10 +61,36 @@ const agentWorker = new Worker('agent-jobs', async job => {
         details: `runId=${runId}`,
       });
     }
-    const result = await handler.run(input, 'run', userId, creds);
+    // Find agent in registry
+    const agentDef = agentRegistry.find(a => a.key === handlerName);
+    if (!agentDef) throw new Error(`No agent registered for key ${handlerName}`);
+    // Prepare AgentRunInput
+    const runInput = { userId, agentInstanceId, input };
+    // Orchestrate multi-step run
+    const result = await runAgentWorkflow(agentDef.steps || [{ name: agentDef.name, run: agentDef.run }], runInput, { creds }, async step => {
+      // Store each step in DB
+      await prisma.agentRunStep.create({
+        data: {
+          runId,
+          index: step.index,
+          name: step.name,
+          input: step.input,
+          output: step.output,
+          error: step.error,
+          startedAt: new Date(step.startedAt),
+          finishedAt: new Date(step.finishedAt),
+        },
+      });
+      // Optionally emit progress via SSE/Socket.IO
+    });
     await prisma.agentRun.update({
       where: { id: runId },
-      data: { status: 'COMPLETED', output: result, completedAt: new Date() },
+      data: {
+        status: 'COMPLETED',
+        tokensUsed: result.tokensUsed,
+        cost: result.cost,
+        finishedAt: new Date(),
+      },
     });
     logger.info({ runId, agentInstanceId, templateName, userId }, 'Job completed');
   } catch (err) {

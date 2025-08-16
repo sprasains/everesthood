@@ -714,56 +714,20 @@ const sophisticatedAgents = [
   }
 ];
 
-async function seedSophisticatedAgents() {
+export async function seedSophisticatedAgents(prisma) {
   console.log('🌱 Seeding sophisticated agents...');
   
   for (const agent of sophisticatedAgents) {
     try {
       await prisma.agentTemplate.upsert({
         where: { name: agent.name },
-        update: {
-          description: agent.description,
-          defaultPrompt: agent.defaultPrompt,
-          defaultModel: agent.defaultModel,
-          category: agent.category,
-          credentials: agent.credentials,
-          workflows: agent.workflows,
-          workflowRelationships: agent.workflows ? { relationships: "defined_in_workflows" } : null,
-          connectors: agent.connectors,
-          metadata: agent.metadata,
-          capabilities: agent.metadata,
-          integrations: agent.connectors,
-          securityConfig: { compliance: agent.metadata?.compliance || [] },
-          performanceMetrics: { complexity: agent.metadata?.complexity || "Intermediate" },
-          customFields: { domain: agent.category }
-        },
-        create: {
-          name: agent.name,
-          description: agent.description,
-          defaultPrompt: agent.defaultPrompt,
-          defaultModel: agent.defaultModel,
-          category: agent.category,
-          credentials: agent.credentials,
-          workflows: agent.workflows,
-          workflowRelationships: agent.workflows ? { relationships: "defined_in_workflows" } : null,
-          connectors: agent.connectors,
-          metadata: agent.metadata,
-          capabilities: agent.metadata,
-          integrations: agent.connectors,
-          securityConfig: { compliance: agent.metadata?.compliance || [] },
-          performanceMetrics: { complexity: agent.metadata?.complexity || "Intermediate" },
-          customFields: { domain: agent.category }
-        }
+        update: agent,
+        create: agent,
       });
-      console.log(`✅ Created/Updated: ${agent.name}`);
+      console.log(`✅ Created/updated sophisticated agent: ${agent.name}`);
     } catch (error) {
-      console.error(`❌ Error creating ${agent.name}:`, error);
+      console.error(`❌ Error creating sophisticated agent ${agent.name}:`, error);
     }
   }
-  
   console.log('🎉 Sophisticated agents seeding completed!');
 }
-
-seedSophisticatedAgents()
-  .catch(console.error)
-  .finally(() => prisma.$disconnect()); 

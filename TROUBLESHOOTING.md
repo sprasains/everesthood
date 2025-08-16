@@ -21,6 +21,20 @@
   - Check worker logs: `docker-compose logs -f worker`
   - Check Redis: `docker-compose exec redis redis-cli`
   - Restart worker: `docker-compose restart worker`
+  - Check BullMQ dashboard: Visit `/admin/queues` (admin only)
+  - List queue stats: `curl http://localhost:3000/api/queue/debug`
+  - Retry stuck jobs (admin): Use Bull Board dashboard or run:
+    - `redis-cli` > `DEL bull:<queue>:wait` (dangerous, only if jobs are truly stuck)
+    - BullMQ CLI: `npx bullmq list --queue agent:run`
+    - BullMQ retry: `npx bullmq retry --queue agent:run`
+
+#### FAQ: Why are jobs stuck?
+- Worker is not running or crashed
+- Redis is down or unreachable
+- Job payload is invalid (see `/api/queue/debug` for failed reasons)
+- Concurrency or rate limits exceeded
+- DLQ (dead letter queue) is full
+- RBAC or org boundaries blocking job execution
 
 ### 3. Database Issues
 - **Layman:** Data missing or not saving? The database might be having trouble.
@@ -77,4 +91,4 @@
 - [Deployment Guide](./DOCKER_DEPLOYMENT.md)
 - [Technical Guide](./TECHNICAL_GUIDE.md)
 - [Business Overview](./BUSINESS_OVERVIEW.md)
-- [System Overview](./SYSTEM_OVERVIEW.md) 
+- [System Overview](./SYSTEM_OVERVIEW.md)
