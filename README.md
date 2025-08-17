@@ -1,3 +1,26 @@
+---
+
+# 🛠️ DX Automation Fixers
+
+## Available Fix Scripts
+
+- `fix:missing-env` — Verifies `.env` against `required-env.json`, prints missing. Report: `tmp/reports/fix-missing-env.json`
+- `fix:imports` — Organizes and dedupes imports in all code files. Report: `tmp/reports/fix-imports.json`
+- `fix:dead-code` — Reports unused exports/files using `ts-prune`. Report: `tmp/reports/fix-dead-code.json`
+- `fix:routes` — Checks API/file co-location and missing handlers. Report: `tmp/reports/fix-routes.json`
+
+## Usage
+
+Run any fixer with:
+
+```sh
+npm run fix:missing-env
+npm run fix:imports
+npm run fix:dead-code
+npm run fix:routes
+```
+
+Each fixer writes a report under `tmp/reports` with file paths and suggested patches.
 # 🌟 Everhood - AI Vibe Hub for Gen-Z
 
 ## 🚦 Local Setup (No Docker)

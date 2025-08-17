@@ -1,3 +1,40 @@
+# 👩‍💻 USER GUIDE
+
+## Verification Checklist
+- [ ] Can create a multi-step agent via UI (`/agents/templates/create`)
+- [ ] Credentials setup works (see below)
+- [ ] All screenshots/links are present
+- [ ] All referenced file paths exist
+
+---
+
+## Creating Multi-Step Agents
+
+1. Go to [Agent Template Creator](/agents/templates/create)
+2. Fill out the form (see README for required fields)
+3. Add steps, configure logic, and save
+4. Agent appears in dashboard
+
+---
+
+## Credential Setup
+
+- Store credentials in `.env` (see [README](./README.md#environment-variables))
+- For OAuth/API keys, see `src/lib/credentials/`
+- Never commit secrets to git
+
+---
+
+## Screenshots
+- ![Agent Creation Screenshot](./docs/screenshots/agent-create.png)
+
+---
+
+## Links
+- [README](./README.md)
+- [TECHNICAL_GUIDE](./TECHNICAL_GUIDE.md)
+- [TROUBLESHOOTING](./TROUBLESHOOTING.md)
+- [CHANGELOG](./CHANGELOG.md)
 # 🌟 Everhood User Guide - Complete Walkthrough (Updated)
 
 ## 📋 Table of Contents

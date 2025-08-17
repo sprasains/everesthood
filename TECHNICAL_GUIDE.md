@@ -1,3 +1,48 @@
+# 🛠️ TECHNICAL GUIDE
+
+## Verification Checklist
+- [ ] Review architecture diagrams: All major components and data flows are represented
+- [ ] Queue topology matches current codebase (see `src/lib/queue/`)
+- [ ] Worker lifecycle steps are up-to-date (see `worker/index.js`)
+- [ ] All referenced file paths exist
+- [ ] All diagrams/screenshots are present or have placeholders
+
+---
+
+## System Architecture
+
+![System Architecture Diagram](./docs/screenshots/architecture-diagram.png)
+
+- **App**: Next.js frontend (`app/`, `src/pages/`)
+- **API**: Route handlers (`src/api/v1/`)
+- **Queue**: BullMQ, Redis (`src/lib/queue/`)
+- **Worker**: Processes jobs (`worker/index.js`)
+- **Database**: Prisma/Postgres (`prisma/`)
+
+---
+
+## Queue Topology
+
+- **Queues**: Defined in `src/lib/queue/`
+- **Types**: LLM jobs, notifications, digests, etc.
+- **Monitoring**: [Bull Board](http://localhost:3000/admin/queues) ![Bull Board Screenshot](./docs/screenshots/bull-board.png)
+
+---
+
+## Worker Lifecycle
+
+1. **Startup**: Loads agent modules from `src/agents/`
+2. **Job Fetch**: Listens to queues via BullMQ/Redis
+3. **Execution**: Runs agent logic, updates DB
+4. **Completion**: Updates job status, emits events
+
+---
+
+## Links
+- [README](./README.md)
+- [USER_GUIDE](./USER_GUIDE.md)
+- [TROUBLESHOOTING](./TROUBLESHOOTING.md)
+- [CHANGELOG](./CHANGELOG.md)
 # 🛠️ Technical Guide: EverestHood/AgentForge
 
 > **See also:** [DOCKER_DEPLOYMENT.md](./DOCKER_DEPLOYMENT.md) | [BUSINESS_OVERVIEW.md](./BUSINESS_OVERVIEW.md) | [SYSTEM_OVERVIEW.md](./SYSTEM_OVERVIEW.md) | [TROUBLESHOOTING.md](./TROUBLESHOOTING.md)

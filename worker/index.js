@@ -19,6 +19,9 @@ const { decrypt } = require('../lib/crypto');
 
 const prisma = new PrismaClient();
 
+const StepBuffer = require('./batchStepBuffer');
+const stepBuffer = new StepBuffer(prisma, 10, 1000); // batch size 10, flush every 1s
+
 const agentWorker = new Worker('agent-jobs', async job => {
   const { runId, agentInstanceId, input, templateName, userId } = job.data;
   // Idempotency: skip if already completed/failed
@@ -67,10 +70,13 @@ const agentWorker = new Worker('agent-jobs', async job => {
     // Prepare AgentRunInput
     const runInput = { userId, agentInstanceId, input };
     // Orchestrate multi-step run
-    const result = await runAgentWorkflow(agentDef.steps || [{ name: agentDef.name, run: agentDef.run }], runInput, { creds }, async step => {
-      // Store each step in DB
-      await prisma.agentRunStep.create({
-        data: {
+    const result = await runAgentWorkflow(
+      agentDef.steps || [{ name: agentDef.name, run: agentDef.run }],
+      runInput,
+      { creds },
+      async step => {
+        // Buffer step for batch DB write
+        stepBuffer.add({
           runId,
           index: step.index,
           name: step.name,
@@ -79,11 +85,13 @@ const agentWorker = new Worker('agent-jobs', async job => {
           error: step.error,
           startedAt: new Date(step.startedAt),
           finishedAt: new Date(step.finishedAt),
-        },
-      });
-      // Optionally emit progress via SSE/Socket.IO
-    });
-    await prisma.agentRun.update({
+        });
+        // Optionally emit progress via SSE/Socket.IO
+      }
+    );
+  // Flush any remaining steps for this run
+  await stepBuffer.flush();
+  await prisma.agentRun.update({
       where: { id: runId },
       data: {
         status: 'COMPLETED',

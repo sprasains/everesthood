@@ -1,4 +1,7 @@
+
 import nextPwa from "next-pwa";
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -13,6 +16,18 @@ const nextConfig = {
   },
   experimental: {
     webpackBuildWorker: true // Add this to enable parallel builds
+  },
+  webpack: (config) => {
+    config.resolve = config.resolve || {};
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      events: require.resolve('events/'),
+      util: require.resolve('util/'),
+      buffer: require.resolve('buffer/'),
+      url: require.resolve('url/'),
+      assert: require.resolve('assert/'),
+    };
+    return config;
   },
 };
 

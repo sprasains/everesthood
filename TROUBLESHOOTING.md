@@ -1,3 +1,41 @@
+# 🛠️ TROUBLESHOOTING
+
+## Verification Checklist
+- [ ] Can reproduce and resolve each issue below
+- [ ] All commands and file paths are valid
+- [ ] All screenshots/links are present
+
+---
+
+## Redis Down
+- **Symptom**: Jobs not processed, errors in logs
+- **Check**: `redis-cli ping` (expect `PONG`)
+- **Fix**: Restart Redis (`brew services restart redis` or Docker)
+- **Docs**: [Redis Quickstart](https://redis.io/docs/getting-started/installation/)
+
+## Jobs Stuck
+- **Symptom**: Jobs remain in "active" or "waiting"
+- **Check**: Visit [Bull Board](http://localhost:3000/admin/queues)
+- **Fix**: Restart worker (`cd worker && node index.js`)
+- **Screenshot**: ![Bull Board Screenshot](./docs/screenshots/bull-board.png)
+
+## Stripe Webhook Failed
+- **Symptom**: Payment events not received
+- **Check**: Logs in `src/api/v1/webhooks/stripe.ts`
+- **Fix**: Verify webhook secret in `.env`, check Stripe dashboard
+
+## How to Capture Logs
+- **App**: See `logs/` or use `console.log`
+- **Worker**: Logs to stdout, or use `pino` for structured logs
+- **API**: Check Vercel/host logs
+
+---
+
+## Links
+- [README](./README.md)
+- [TECHNICAL_GUIDE](./TECHNICAL_GUIDE.md)
+- [USER_GUIDE](./USER_GUIDE.md)
+- [CHANGELOG](./CHANGELOG.md)
 # 🛠️ Troubleshooting Guide: EverestHood/AgentForge
 
 > **See also:** [DOCKER_DEPLOYMENT.md](./DOCKER_DEPLOYMENT.md) | [TECHNICAL_GUIDE.md](./TECHNICAL_GUIDE.md) | [BUSINESS_OVERVIEW.md](./BUSINESS_OVERVIEW.md) | [SYSTEM_OVERVIEW.md](./SYSTEM_OVERVIEW.md)

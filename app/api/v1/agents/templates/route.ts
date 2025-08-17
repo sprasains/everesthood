@@ -12,11 +12,8 @@ export async function GET() {
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    // Bypass cache for now: query all agent templates directly from Prisma
-    const agentTemplates = await prisma.agentTemplate.findMany({
-      orderBy: { name: 'asc' },
-    });
-
+    // Use cache for agent templates
+    const agentTemplates = await getAgentTemplatesWithCache();
     return NextResponse.json(agentTemplates);
   } catch (error) {
     console.error('Error fetching agent templates:', error);
@@ -32,10 +29,19 @@ export async function POST(req: Request) {
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    const { name, description, defaultPrompt, defaultModel, defaultTools, isPublic } = await req.json();
+    const {
+      name,
+      description,
+      defaultPrompt,
+      defaultModel,
+      defaultTools,
+      isPublic,
+    } = await req.json();
 
     if (!name || !defaultPrompt) {
-      return new NextResponse('Name and defaultPrompt are required', { status: 400 });
+      return new NextResponse('Name and defaultPrompt are required', {
+        status: 400,
+      });
     }
 
     const newAgentTemplate = await prisma.agentTemplate.create({
@@ -44,10 +50,7 @@ export async function POST(req: Request) {
         description: description || '',
         defaultPrompt,
         defaultModel: defaultModel || 'gpt-4o',
-        // Store tools in metadata to avoid schema mismatch if the column isn't present
-        metadata: {
-          defaultTools: Array.isArray(defaultTools) ? defaultTools : [],
-        },
+        defaultTools: Array.isArray(defaultTools) ? defaultTools : [],
         isPublic: isPublic !== undefined ? isPublic : true,
         version: 1,
       },
@@ -57,7 +60,10 @@ export async function POST(req: Request) {
   } catch (error) {
     // Handle unique constraint on name
     if ((error as any)?.code === 'P2002') {
-      return NextResponse.json({ message: 'An agent template with this name already exists.' }, { status: 409 });
+      return NextResponse.json(
+        { message: 'An agent template with this name already exists.' },
+        { status: 409 }
+      );
     }
     console.error('Error creating agent template:', error);
     return new NextResponse('Internal Server Error', { status: 500 });
