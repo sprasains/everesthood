@@ -1,4 +1,4 @@
-// lib/queue.ts
+// server/queue.ts
 // Centralized BullMQ queue, worker, and scheduler initialization (server-only)
 import { Queue } from 'bullmq';
 import { JobScheduler } from 'bullmq/dist/esm/classes/job-scheduler.js';

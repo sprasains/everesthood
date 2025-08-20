@@ -1,9 +1,17 @@
 import { NextRequest } from 'next/server';
-import { prisma } from '../../../../prisma';
-import { agentJobQueue } from '../../../../lib/queue';
-import { requireUser } from '../../../../lib/auth/guard';
+import { prisma } from '../../../../../prisma';
+
+// Use dynamic import to ensure server-only loading
+let agentJobQueue;
+async function loadQueue() {
+  if (!agentJobQueue) {
+    const queues = await import('../../../../../server/queue');
+    agentJobQueue = queues.agentJobQueue;
+  }
+}
+import { requireUser } from '../../../../../lib/auth/guard';
 import { z } from 'zod';
-import { setSecureHeaders } from '../../../../lib/security/headers';
+import { setSecureHeaders } from '../../../../../lib/security/headers';
 
 const AgentRunInputSchema = z.object({
   input: z.any(),
@@ -11,22 +19,32 @@ const AgentRunInputSchema = z.object({
 });
 
 // POST /api/agents/[id]/runs - enqueue agent run
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   setSecureHeaders();
   let session;
   try {
     session = requireUser(req);
   } catch (err: any) {
-    return new Response(JSON.stringify({ error: err.message }), { status: err.status || 401 });
+    return new Response(JSON.stringify({ error: err.message }), {
+      status: err.status || 401,
+    });
   }
   const body = await req.json();
   const result = AgentRunInputSchema.safeParse(body);
   if (!result.success) {
-    return new Response(JSON.stringify({ error: 'Invalid input', details: result.error.errors }), { status: 400 });
+    return new Response(
+      JSON.stringify({ error: 'Invalid input', details: result.error.errors }),
+      { status: 400 }
+    );
   }
   // Tenant isolation: only allow user to enqueue for self
   if (result.data.userId !== session.userId) {
-    return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403 });
+    return new Response(JSON.stringify({ error: 'Forbidden' }), {
+      status: 403,
+    });
   }
   // Rate limiting (pseudo-code, implement KV/counter)
   // if (await isRateLimited(session.userId)) {
@@ -40,6 +58,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       startedAt: new Date(),
     },
   });
+  await loadQueue();
   await agentJobQueue.add('run', {
     runId: run.id,
     agentInstanceId: params.id,
@@ -51,13 +70,18 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 }
 
 // GET /api/agents/[id]/runs - list runs for agent instance
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   setSecureHeaders();
   let session;
   try {
     session = requireUser(req);
   } catch (err: any) {
-    return new Response(JSON.stringify({ error: err.message }), { status: err.status || 401 });
+    return new Response(JSON.stringify({ error: err.message }), {
+      status: err.status || 401,
+    });
   }
   // Tenant isolation: only allow user to view their own runs
   const runs = await prisma.agentRun.findMany({

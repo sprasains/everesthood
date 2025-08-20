@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
-import prisma from '../../../../lib/prisma';
+import { prisma } from '../../../../lib/prisma';
 
-export async function GET(req) {
+import { NextRequest } from 'next/server';
+
+export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const userId = searchParams.get('userId');
   // Fetch feature flags for user

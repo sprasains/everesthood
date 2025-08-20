@@ -1,7 +1,7 @@
 import { renderHook, act } from '@testing-library/react-hooks';
 import { useAgentCreateData } from './useAgentCreateData';
 
-jest.mock('../../lib/agentMarketplaceApi', () => ({
+jest.mock('../../../lib/agentMarketplaceApi', () => ({
   getAgentTemplates: jest.fn(() => Promise.resolve([{ id: 1, name: 'Test' }])),
   getOrgInfo: jest.fn(() => Promise.resolve({ name: 'Org', tenantId: 't1' })),
   getUserBilling: jest.fn(() => Promise.resolve({ status: 'active', plan: 'pro' })),

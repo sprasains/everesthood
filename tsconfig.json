@@ -43,7 +43,11 @@
     ".next/types/**/*.ts",
     "src/types/index.ts"
   ],
-  "exclude": ["node_modules"],
+  "exclude": [
+    "node_modules",
+    "worker",
+    "server"
+  ],
   "ts-node": {
     "compilerOptions": {
       "module": "commonjs",

@@ -1,5 +1,6 @@
+"use client";
 import React, { useState } from 'react';
-import { saveCredential } from '../../../lib/credentials/store';
+import { saveCredential } from '../../../../lib/credentials/store';
 
 const providers = [
   { id: 'openai', label: 'OpenAI API Key', placeholder: 'sk-...' },

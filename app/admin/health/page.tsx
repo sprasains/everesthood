@@ -28,7 +28,11 @@ export default function HealthDashboard() {
     healthStatus: typeof metrics.healthStatus === 'string' ? metrics.healthStatus : 'unknown',
   };
   // Set default jobId if not set and jobs exist
-  const jobIds = Array.isArray(metrics.perAgent) ? metrics.perAgent.map((a: any) => a.agentId || a.id || a.name) : [];
+  const jobIds = React.useMemo(() => (
+    Array.isArray(metrics.perAgent)
+      ? metrics.perAgent.map((a: any) => a.agentId || a.id || a.name)
+      : []
+  ), [metrics.perAgent]);
   React.useEffect(() => {
     if (!selectedJobId && jobIds.length > 0) {
       setSelectedJobId(jobIds[0]);

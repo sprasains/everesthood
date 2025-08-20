@@ -2,7 +2,7 @@
 // Business: Ensures all scheduled agent runs use the same execution workflow as user-triggered runs, for unified monitoring and scaling.
 // Technical: Queries AgentInstance with cronSchedule, uses node-cron to trigger jobs, and enqueues to agentJobQueue from lib/redis.
 
-const { agentJobQueue, connection } = require('../../lib/queue');
+const { agentJobQueue, connection } = require('../../server/queue');
 const cron = require('node-cron');
 const Redlock = require('redlock');
 const { checkAndEnqueueDueAgents } = require('./helpers'); // You must implement this

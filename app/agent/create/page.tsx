@@ -1,8 +1,9 @@
+"use client";
 // app/agent/create/page.tsx
 import React, { useState } from 'react';
 import { AgentInstanceForm } from '../../components/AgentInstanceForm';
 import { useAgentCreateData } from './useAgentCreateData';
-import { isAdmin } from '../../lib/auth/roles';
+import { isAdmin } from '../../../lib/auth/roles';
 
 // TODO(GAP REPORT: #1-AgentTemplates): Add Zod validation for agent template config
 // TODO(GAP REPORT: #7-Auth): Enforce RBAC and org boundaries in agent creation

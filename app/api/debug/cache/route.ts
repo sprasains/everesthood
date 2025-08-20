@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cacheKeys, cacheGetJson } from '@/lib/cache/index';
+import { cacheKeys, cacheGetJson } from '../../../../lib/cache/index';
 
 export const dynamic = 'force-dynamic';
 

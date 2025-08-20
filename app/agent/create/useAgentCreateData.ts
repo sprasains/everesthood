@@ -1,5 +1,13 @@
 import { useState, useEffect } from 'react';
-import { getAgentTemplates, getUserBilling, getRunHistory, getFeatureFlags, getUsageMeter, getAuditLogs, getOrgInfo } from '../../lib/agentMarketplaceApi';
+import {
+  getAgentTemplates,
+  getUserBilling,
+  getRunHistory,
+  getFeatureFlags,
+  getUsageMeter,
+  getAuditLogs,
+  getOrgInfo,
+} from '../../../lib/agentMarketplaceApi';
 
 export function useAgentCreateData(userId: string, selected: number | null) {
   const [templates, setTemplates] = useState<any[]>([]);
@@ -22,7 +30,7 @@ export function useAgentCreateData(userId: string, selected: number | null) {
       getUserBilling(userId),
       getFeatureFlags(userId),
       getUsageMeter(userId),
-      getAuditLogs(userId)
+      getAuditLogs(userId),
     ])
       .then(([templates, orgInfo, billing, featureFlags, usage, auditLogs]) => {
         setTemplates(templates);
@@ -33,7 +41,7 @@ export function useAgentCreateData(userId: string, selected: number | null) {
         setAuditLogs(auditLogs);
         setError(null);
       })
-      .catch(e => {
+      .catch((e) => {
         setError('Failed to load agent creation data');
         console.error('Agent creation data error:', e);
       })
@@ -42,12 +50,12 @@ export function useAgentCreateData(userId: string, selected: number | null) {
 
   useEffect(() => {
     if (selected) {
-      const t = templates.find(t => t.id === selected);
+      const t = templates.find((t) => t.id === selected);
       setTemplateDetails(t);
       setLoading(true);
       getRunHistory(userId, selected)
         .then(setRunHistory)
-        .catch(e => {
+        .catch((e) => {
           setError('Failed to load run history');
           console.error('Run history error:', e);
         })
