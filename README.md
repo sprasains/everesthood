@@ -1,3 +1,38 @@
+<!-- Doc Cleanup — See SYSTEM_OVERVIEW.md and BUSINESS_OVERVIEW.md for original architecture and business notes. Merged on 2025-08-21 -->
+
+# 🏔️ EverestHood/AgentForge Overview
+
+> **Layman:** A digital assistant factory—create, schedule, and run smart agents to automate your work and life.
+> **Business:** A SaaS platform for scalable, reliable automation, social learning, and creator monetization, supporting both on-demand and scheduled workflows.
+> **Technical:** A Dockerized, full-stack system with unified job queueing, modular agent logic, robust scheduling, and modern cloud infrastructure.
+
+---
+
+## System Diagram
+
+```mermaid
+graph TD;
+  User["User"] --> API["API"]
+  API --> Queue["Redis Queue"]
+  Scheduler["Scheduler"] --> Queue
+  Queue --> Worker["Worker"]
+  Worker --> Agent["Agent Logic"]
+  Worker --> DB["Database"]
+  API --> DB
+  API --> Redis
+```
+
+---
+
+## Business Value
+
+- **All-in-one social, learning, and productivity hub for Gen-Z**
+- **AI-powered insights and automation for career and life**
+- **Gamified engagement and community building**
+- **Monetization for creators and influencers**
+- **Premium SaaS model with clear upgrade paths**
+
+---
 ---
 
 # 🛠️ DX Automation Fixers

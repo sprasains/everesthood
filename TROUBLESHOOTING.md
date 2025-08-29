@@ -1,3 +1,46 @@
+# How to Detect Duplicate Routes
+
+1. **Search for route files in both `/pages` and `/app` folders:**
+  - Use a file search for `page.tsx`, `index.tsx`, or `[param].tsx` in both folders.
+2. **Compare route paths:**
+  - A route like `/app/agents/page.tsx` and `/pages/agents/index.tsx` are duplicates for `/agents`.
+3. **Compare file contents:**
+  - Keep the file with richer UI, docs, or integrations.
+  - Delete weaker/empty duplicates.
+4. **Update imports:**
+  - Update any imports in the repo to point to the surviving file.
+5. **Add a comment:**
+  - At the top of the kept file, add:
+    `// Duplicate cleanup: merged from [oldFile1, oldFile2] on YYYY-MM-DD`
+
+This prevents route conflicts and keeps the codebase clean.
+# Troubleshooting & Error Tracing in Everesthood
+
+## How to Trace Errors
+
+1. **Check the logs:**
+  - Console output (dev): All logs are pretty-printed for readability.
+  - `logs/app.log`: Raw log output (all levels).
+  - `logs/app.json`: JSON-formatted logs for ingestion/analysis.
+2. **Log Levels:**
+  - `info`: General app events (startup, shutdown, user actions)
+  - `warn`: Recoverable issues, unexpected but non-fatal
+  - `error`: Application or system errors
+  - `debug`: Detailed context for troubleshooting
+3. **Sentry Dashboard:**
+  - All unhandled errors and traces are sent to Sentry (if configured).
+  - Visit your Sentry project dashboard for stack traces, breadcrumbs, and distributed traces.
+4. **React Error Boundary:**
+  - UI errors are caught and logged in the global error boundary (`pages/_error.tsx`).
+5. **API/Worker Errors:**
+  - All API and worker errors should be logged using the central logger (`lib/logger.ts`).
+6. **Best Practices:**
+  - Always add a comment to new log statements explaining what the log helps debug.
+  - Use `logger.debug` for verbose output, `logger.error` for failures, etc.
+
+---
+
+For more, see the README or contact the Everesthood maintainers.
 # 🛠️ TROUBLESHOOTING
 
 ## Verification Checklist

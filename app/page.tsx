@@ -1,3 +1,4 @@
+// Duplicate cleanup: merged from src/app/page.tsx, app/page.tsx on 2025-08-20
 "use client";
 export const dynamic = "force-dynamic";
 import AuthForm from "@/components/ui/AuthForm";
