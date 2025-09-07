@@ -43,6 +43,41 @@ This prevents route conflicts and keeps the codebase clean.
 For more, see the README or contact the Everesthood maintainers.
 # 🛠️ TROUBLESHOOTING
 
+## Agent & Job Troubleshooting Runbook
+
+### Common Issues & Steps
+1. **Jobs Stuck:**
+  - Symptom: Jobs remain in "active" or "waiting"
+  - Check: Visit Bull Board at `/admin/queues`
+  - Fix: Restart worker (`cd worker && node index.js`)
+  - See: [TECHNICAL_GUIDE.md](./TECHNICAL_GUIDE.md)
+2. **Webhook Failures:**
+  - Symptom: Payment events not received
+  - Check: Logs in `src/api/v1/webhooks/stripe.ts`
+  - Fix: Verify webhook secret in `.env`, check Stripe dashboard
+  - See: [README.md](./README.md)
+3. **Rate Limit Issues:**
+  - Symptom: API requests fail or are throttled
+  - Check: Logs and error messages
+  - Fix: Wait and retry, check rate limit config in API
+  - See: [README.md](./README.md)
+
+### URLs & Verification
+- Bull Board: `/admin/queues`
+- Worker: `worker/index.js`
+- Webhook: `src/api/v1/webhooks/stripe.ts`
+- Troubleshooting: [README.md](./README.md)
+
+<!--
+Why this doc exists: This guide helps you diagnose and resolve common errors in EverestHood, including jobs stuck, webhook failures, and rate limits. It is kept in sync with code and error handling patterns.
+-->
+
+## Verification Checklist
+- [ ] Can reproduce and resolve each issue below
+- [ ] Can view usage graph on billing page
+- [ ] All commands and file paths are valid
+- [ ] All screenshots/links are present
+
 ## Verification Checklist
 - [ ] Can reproduce and resolve each issue below
 - [ ] All commands and file paths are valid

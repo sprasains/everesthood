@@ -1,15 +1,26 @@
 // server/queue.ts
-// Centralized BullMQ queue, worker, and scheduler initialization (server-only)
-import { Queue } from 'bullmq';
-import { JobScheduler } from 'bullmq/dist/esm/classes/job-scheduler.js';
-import Redis from 'ioredis';
+// Compatibility shim: re-export the new centralized queue and connection helpers
+// so older modules that require/import `server/queue` keep working.
+import { JobScheduler } from 'bullmq';
+import { agentQueue } from '../lib/queue/producer';
+import { getRedisConnection } from '../lib/queue/connection';
 
-const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
-const connection = new Redis(redisUrl);
+// Lazy create a connection instance from the new connection factory
+const connection = getRedisConnection();
 
-const queueName = 'agent-jobs';
+// Provide a best-effort JobScheduler for consumers that expect one.
+let agentJobScheduler: JobScheduler | undefined;
+try {
+  agentJobScheduler = new JobScheduler(
+    (agentQueue as any).name || 'agent-run',
+    {
+      connection,
+    }
+  );
+} catch (err) {
+  // If JobScheduler can't be constructed in this environment, export undefined
+  // Consumers should handle missing scheduler gracefully.
+  agentJobScheduler = undefined;
+}
 
-const agentJobQueue = new Queue(queueName, { connection });
-const agentJobScheduler = new JobScheduler(queueName, { connection });
-
-export { agentJobQueue, agentJobScheduler, connection };
+export { agentQueue as agentJobQueue, agentJobScheduler, connection };

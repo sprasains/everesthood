@@ -4,7 +4,7 @@ import Parser from 'rss-parser';
 import { PrismaClient } from '@prisma/client';
 import { logger } from '@/services/logger';
 
-const prisma = new PrismaClient();
+import { prisma } from './prisma';
 const parser = new Parser();
 
 export const RSS_FEEDS = [
@@ -60,5 +60,7 @@ export async function fetchAndStoreNews() {
 
 // Placeholder function to prevent import errors
 export async function fetchAndStoreNews() {
-  console.log('News fetching is temporarily disabled - NewsArticle model not in schema');
+  console.log(
+    'News fetching is temporarily disabled - NewsArticle model not in schema'
+  );
 }

@@ -2,15 +2,7 @@
 import { NextRequest } from 'next/server';
 import { isAdmin } from '../../../lib/auth/roles';
 
-// Use dynamic import to ensure server-only loading
-import type { Queue } from 'bullmq';
-let agentJobQueue: Queue | undefined;
-async function loadQueues() {
-  if (!agentJobQueue) {
-    const queues = await import('../../../server/queue');
-    agentJobQueue = queues.agentJobQueue;
-  }
-}
+import { agentQueue } from '../../../lib/queue/producer';
 
 // Bull Board v6+ API
 import { createBullBoard } from '@bull-board/api';
@@ -26,12 +18,8 @@ export async function GET(req: NextRequest) {
   if (!isAdmin(user)) {
     return new Response('Forbidden', { status: 403 });
   }
-  await loadQueues();
-  if (!agentJobQueue) {
-    return new Response('Queue not initialized', { status: 500 });
-  }
   createBullBoard({
-    queues: [new BullMQAdapter(agentJobQueue)],
+    queues: [new BullMQAdapter(agentQueue)],
     serverAdapter,
   });
 

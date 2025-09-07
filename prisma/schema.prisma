@@ -37,18 +37,131 @@ enum BillingStatus {
   CANCELLED
 }
 
+enum PersonaStatus {
+  DRAFT
+  ACTIVE
+  INACTIVE
+  ARCHIVED
+}
+
+enum PersonaVisibility {
+  PRIVATE
+  PUBLIC
+  SHARED
+}
+
+enum GuideStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+  UNDER_REVIEW
+}
+
+enum GuideDifficulty {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  EXPERT
+}
+
+enum GuideStepType {
+  TEXT
+  IMAGE
+  VIDEO
+  CODE
+  QUIZ
+  EXERCISE
+}
+
+enum NewsArticleStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+  FEATURED
+}
+
+enum NewsSourceType {
+  RSS
+  API
+  MANUAL
+  SCRAPED
+}
+
+enum NewsCategory {
+  TECHNOLOGY
+  BUSINESS
+  SCIENCE
+  HEALTH
+  ENTERTAINMENT
+  SPORTS
+  POLITICS
+  EDUCATION
+  LIFESTYLE
+  TRAVEL
+  FOOD
+  FASHION
+  GAMING
+  AI_ML
+  PROGRAMMING
+  STARTUPS
+  CRYPTO
+  OTHER
+}
+
 model User {
   id            String   @id @default(cuid())
   email         String   @unique
   name          String?
   orgId         String?
   role          UserRole @default(USER)
+  subscriptionTier String @default("FREE")
+  level         Int      @default(1)
+  xp            Int      @default(0)
+  image         String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   deletedAt     DateTime?
   agentInstances AgentInstance[]
   billingAccount BillingAccount?
   agentCredentials AgentCredential[]
+  summaries     AISummary[]
+  posts         Post[]
+  comments      Comment[]
+  notifications Notification[]
+  wellnessSessions WellnessSession[]
+  jobApplications JobApplication[]
+  wallet        Wallet?
+  sentTips      Tip[]    @relation("SentTips")
+  receivedTips  Tip[]    @relation("ReceivedTips")
+  friends       Friendship[] @relation("UserFriendships")
+  friendOf      Friendship[] @relation("FriendOf")
+  achievements  UserAchievement[]
+  ambassadorProfile AmbassadorProfile?
+  referrals     Referral[] @relation("Referrer")
+  referredBy    Referral? @relation("Referred")
+  exclusiveContent ExclusiveContent[]
+  contentAccess ContentAccess[]
+  spotlightProfile SpotlightProfile?
+  healthMetrics HealthMetric[]
+  healthGoals HealthGoal[]
+  products Product[]
+  cartItems CartItem[]
+  wishlistItems WishlistItem[]
+  productReviews ProductReview[]
+  transactions Transaction[]
+  budgets Budget[]
+  bills Bill[]
+  personas Persona[]
+  personaInstances PersonaInstance[]
+  personaReviews PersonaReview[]
+  personaShares PersonaShare[]
+  guides Guide[]
+  guideReviews GuideReview[]
+  guideProgress GuideProgress[]
+  guideBookmarks GuideBookmark[]
+  newsInteractions NewsInteraction[]
+  newsBookmarks NewsBookmark[]
+  newsPreferences UserNewsPreference?
 }
 
 model AgentTemplate {
@@ -232,4 +345,992 @@ model AuditLog {
   details        Json?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+}
+
+// AI Summaries Models
+model AISummary {
+  id             String   @id @default(cuid())
+  userId         String
+  title          String
+  content        String
+  summary        String
+  sourceType     String   // "url", "text", "document", "video", "audio"
+  sourceUrl      String?
+  sourceText     String?
+  model          String   @default("gpt-4o")
+  tokensUsed     Int?
+  cost           Float?
+  status         String   @default("COMPLETED") // "PENDING", "PROCESSING", "COMPLETED", "FAILED"
+  tags           String[]
+  isPublic       Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  deletedAt      DateTime?
+  user           User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([sourceType])
+  @@index([isPublic])
+  @@index([deletedAt])
+}
+
+// Community Features Models
+model Post {
+  id             String   @id @default(cuid())
+  userId         String
+  title          String?
+  content        String
+  type           String   @default("text") // "text", "image", "video", "link", "poll"
+  mediaUrls      String[]
+  tags           String[]
+  isPublic       Boolean  @default(true)
+  likes          Int      @default(0)
+  comments       Int      @default(0)
+  shares         Int      @default(0)
+  views          Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  deletedAt      DateTime?
+  user           User     @relation(fields: [userId], references: [id])
+  postComments   Comment[]
+
+  @@index([userId])
+  @@index([type])
+  @@index([isPublic])
+  @@index([deletedAt])
+}
+
+model Comment {
+  id             String   @id @default(cuid())
+  userId         String
+  postId         String?
+  parentCommentId String?
+  content        String
+  likes          Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  deletedAt      DateTime?
+  user           User     @relation(fields: [userId], references: [id])
+  post           Post?    @relation(fields: [postId], references: [id])
+  replies        Comment[] @relation("CommentReplies")
+  parentComment  Comment? @relation("CommentReplies", fields: [parentCommentId], references: [id])
+
+  @@index([userId])
+  @@index([postId])
+  @@index([parentCommentId])
+  @@index([deletedAt])
+}
+
+// Notifications System
+model Notification {
+  id             String   @id @default(cuid())
+  userId         String
+  type           String   // "like", "comment", "follow", "mention", "system"
+  title          String
+  message        String
+  data           Json?
+  isRead         Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  user           User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+// Digital Wellness Models
+model WellnessSession {
+  id             String   @id @default(cuid())
+  userId         String
+  type           String   // "meditation", "breathing", "focus", "break"
+  duration       Int      // in minutes
+  completed      Boolean  @default(false)
+  notes          String?
+  moodBefore     Int?     // 1-10 scale
+  moodAfter      Int?     // 1-10 scale
+  createdAt      DateTime @default(now())
+  user           User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([type])
+  @@index([createdAt])
+}
+
+// Job Board Models
+model Job {
+  id             String   @id @default(cuid())
+  title          String
+  company        String
+  description    String
+  requirements   String[]
+  benefits       String[]
+  location       String
+  remote         Boolean  @default(false)
+  salaryMin      Int?
+  salaryMax      Int?
+  currency       String   @default("USD")
+  type           String   // "full-time", "part-time", "contract", "internship"
+  level          String   // "entry", "mid", "senior", "executive"
+  category       String
+  tags           String[]
+  isActive       Boolean  @default(true)
+  postedBy       String?  // User ID who posted
+  applications   Int      @default(0)
+  views          Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  expiresAt      DateTime?
+  jobApplications JobApplication[]
+
+  @@index([category])
+  @@index([type])
+  @@index([level])
+  @@index([isActive])
+  @@index([expiresAt])
+}
+
+model JobApplication {
+  id             String   @id @default(cuid())
+  userId         String
+  jobId          String
+  coverLetter    String?
+  resumeUrl      String?
+  status         String   @default("PENDING") // "PENDING", "REVIEWED", "INTERVIEW", "ACCEPTED", "REJECTED"
+  notes          String?
+  appliedAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  user           User     @relation(fields: [userId], references: [id])
+  job            Job      @relation(fields: [jobId], references: [id])
+
+  @@index([userId])
+  @@index([jobId])
+  @@index([status])
+  @@unique([userId, jobId])
+}
+
+// Subscription Models
+model Subscription {
+  id             String   @id @default(cuid())
+  userId         String
+  planId         String
+  status         String   @default("ACTIVE") // "ACTIVE", "CANCELLED", "PAUSED", "EXPIRED"
+  startDate      DateTime @default(now())
+  endDate        DateTime?
+  nextBillingDate DateTime?
+  amount         Float
+  currency       String   @default("USD")
+  billingPeriod  String   // "MONTHLY", "YEARLY", "QUARTERLY"
+  stripeSubscriptionId String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([nextBillingDate])
+}
+
+// Wallet and Tipping Models
+model Wallet {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  balance        Float    @default(0.0)
+  currency       String   @default("USD")
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  user           User     @relation(fields: [userId], references: [id])
+  transactions   WalletTransaction[]
+
+  @@index([userId])
+}
+
+model WalletTransaction {
+  id             String   @id @default(cuid())
+  walletId       String
+  type           String   // "DEPOSIT", "WITHDRAWAL", "TIP_SENT", "TIP_RECEIVED", "REFUND"
+  amount         Float
+  currency       String   @default("USD")
+  description    String
+  referenceId    String?  // Reference to tip, payment, etc.
+  status         String   @default("COMPLETED") // "PENDING", "COMPLETED", "FAILED", "CANCELLED"
+  metadata       Json?
+  createdAt      DateTime @default(now())
+  wallet         Wallet   @relation(fields: [walletId], references: [id])
+
+  @@index([walletId])
+  @@index([type])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Tip {
+  id             String   @id @default(cuid())
+  senderId       String
+  receiverId     String
+  amount         Float
+  currency       String   @default("USD")
+  message        String?
+  isAnonymous    Boolean  @default(false)
+  status         String   @default("PENDING") // "PENDING", "COMPLETED", "FAILED", "CANCELLED"
+  createdAt      DateTime @default(now())
+  completedAt    DateTime?
+  sender         User     @relation("SentTips", fields: [senderId], references: [id])
+  receiver       User     @relation("ReceivedTips", fields: [receiverId], references: [id])
+
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// Social/Friends Models
+model Friendship {
+  id             String   @id @default(cuid())
+  userId         String
+  friendId       String
+  status         String   @default("PENDING") // "PENDING", "ACCEPTED", "BLOCKED", "DECLINED"
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  user           User     @relation("UserFriendships", fields: [userId], references: [id])
+  friend         User     @relation("FriendOf", fields: [friendId], references: [id])
+
+  @@index([userId])
+  @@index([friendId])
+  @@index([status])
+  @@unique([userId, friendId])
+}
+
+// Achievement/Gamification Models
+model Achievement {
+  id             String   @id @default(cuid())
+  name           String   @unique
+  description    String
+  icon           String
+  category       String   // "SOCIAL", "CREATOR", "LEARNER", "COMMUNITY", "SPECIAL"
+  points         Int      @default(10)
+  requirements   Json     // Criteria for earning the achievement
+  isActive       Boolean  @default(true)
+  isSecret       Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  userAchievements UserAchievement[]
+
+  @@index([category])
+  @@index([isActive])
+}
+
+model UserAchievement {
+  id             String   @id @default(cuid())
+  userId         String
+  achievementId  String
+  earnedAt       DateTime @default(now())
+  progress       Int      @default(100) // Progress percentage
+  metadata       Json?    // Additional data about how it was earned
+  user           User     @relation(fields: [userId], references: [id])
+  achievement    Achievement @relation(fields: [achievementId], references: [id])
+
+  @@index([userId])
+  @@index([achievementId])
+  @@index([earnedAt])
+  @@unique([userId, achievementId])
+}
+
+// Ambassador Program Models
+model AmbassadorProfile {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  tier           String   @default("BRONZE") // "BRONZE", "SILVER", "GOLD", "PLATINUM", "DIAMOND"
+  status         String   @default("ACTIVE") // "ACTIVE", "INACTIVE", "SUSPENDED"
+  totalReferrals Int      @default(0)
+  totalEarnings  Float    @default(0.0)
+  monthlyEarnings Float   @default(0.0)
+  lifetimeEarnings Float  @default(0.0)
+  joinDate       DateTime @default(now())
+  lastActivity   DateTime @default(now())
+  bio            String?
+  socialLinks    Json?    // LinkedIn, Twitter, etc.
+  specialties    String[] // Areas of expertise
+  isVerified     Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  user           User     @relation(fields: [userId], references: [id])
+  activities     AmbassadorActivity[]
+  rewards        AmbassadorReward[]
+
+  @@index([userId])
+  @@index([tier])
+  @@index([status])
+  @@index([totalReferrals])
+}
+
+model AmbassadorActivity {
+  id             String   @id @default(cuid())
+  ambassadorId   String
+  type           String   // "REFERRAL", "SOCIAL_SHARE", "CONTENT_CREATION", "COMMUNITY_ENGAGEMENT", "EVENT_PARTICIPATION"
+  description    String
+  points         Int      @default(0)
+  earnings       Float    @default(0.0)
+  metadata       Json?    // Additional activity data
+  createdAt      DateTime @default(now())
+  ambassador     AmbassadorProfile @relation(fields: [ambassadorId], references: [id])
+
+  @@index([ambassadorId])
+  @@index([type])
+  @@index([createdAt])
+}
+
+model AmbassadorReward {
+  id             String   @id @default(cuid())
+  ambassadorId   String
+  type           String   // "CASH", "CREDITS", "BADGE", "EXCLUSIVE_ACCESS", "MERCHANDISE"
+  title          String
+  description    String
+  value          Float    @default(0.0)
+  status         String   @default("PENDING") // "PENDING", "CLAIMED", "EXPIRED"
+  claimedAt      DateTime?
+  expiresAt      DateTime?
+  createdAt      DateTime @default(now())
+  ambassador     AmbassadorProfile @relation(fields: [ambassadorId], references: [id])
+
+  @@index([ambassadorId])
+  @@index([type])
+  @@index([status])
+  @@index([expiresAt])
+}
+
+model Referral {
+  id             String   @id @default(cuid())
+  referrerId     String
+  referredId     String
+  status         String   @default("PENDING") // "PENDING", "COMPLETED", "EXPIRED"
+  rewardAmount   Float    @default(0.0)
+  completedAt    DateTime?
+  createdAt      DateTime @default(now())
+  referrer       User     @relation("Referrer", fields: [referrerId], references: [id])
+  referred       User     @relation("Referred", fields: [referredId], references: [id])
+
+  @@index([referrerId])
+  @@index([referredId])
+  @@index([status])
+  @@index([createdAt])
+  @@unique([referrerId, referredId])
+}
+
+// Exclusive Content Models
+model ExclusiveContent {
+  id             String   @id @default(cuid())
+  authorId       String
+  title          String
+  description    String
+  content        String
+  type           String   // "ARTICLE", "VIDEO", "AUDIO", "DOCUMENT", "COURSE", "WORKSHOP"
+  category       String   // "TECHNOLOGY", "BUSINESS", "CREATIVITY", "EDUCATION", "LIFESTYLE"
+  tags           String[]
+  tier           String   @default("PREMIUM") // "FREE", "PREMIUM", "VIP", "EXCLUSIVE"
+  price          Float    @default(0.0)
+  currency       String   @default("USD")
+  isPublished    Boolean  @default(false)
+  publishedAt    DateTime?
+  featured       Boolean  @default(false)
+  viewCount      Int      @default(0)
+  likeCount      Int      @default(0)
+  shareCount     Int      @default(0)
+  thumbnailUrl   String?
+  mediaUrls      String[]
+  duration       Int?     // For video/audio content in minutes
+  difficulty     String?  // "BEGINNER", "INTERMEDIATE", "ADVANCED"
+  prerequisites  String[]
+  learningOutcomes String[]
+  metadata       Json?    // Additional content data
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  deletedAt      DateTime?
+  author         User     @relation(fields: [authorId], references: [id])
+  accessRecords  ContentAccess[]
+  comments       ContentComment[]
+
+  @@index([authorId])
+  @@index([type])
+  @@index([category])
+  @@index([tier])
+  @@index([isPublished])
+  @@index([featured])
+  @@index([publishedAt])
+  @@index([deletedAt])
+}
+
+model ContentAccess {
+  id             String   @id @default(cuid())
+  userId         String
+  contentId      String
+  accessType     String   @default("PURCHASED") // "PURCHASED", "SUBSCRIPTION", "FREE", "GIFT"
+  grantedAt      DateTime @default(now())
+  expiresAt      DateTime?
+  isActive       Boolean  @default(true)
+  user           User     @relation(fields: [userId], references: [id])
+  content        ExclusiveContent @relation(fields: [contentId], references: [id])
+
+  @@index([userId])
+  @@index([contentId])
+  @@index([accessType])
+  @@index([isActive])
+  @@unique([userId, contentId])
+}
+
+model ContentComment {
+  id             String   @id @default(cuid())
+  contentId      String
+  userId         String
+  parentId       String?  // For nested comments
+  content        String
+  isApproved     Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  deletedAt      DateTime?
+  content        ExclusiveContent @relation(fields: [contentId], references: [id])
+  user           User     @relation(fields: [userId], references: [id])
+  parent         ContentComment? @relation("CommentReplies", fields: [parentId], references: [id])
+  replies        ContentComment[] @relation("CommentReplies")
+
+  @@index([contentId])
+  @@index([userId])
+  @@index([parentId])
+  @@index([isApproved])
+  @@index([createdAt])
+  @@index([deletedAt])
+}
+
+// Profile Spotlight Models
+model SpotlightProfile {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  title          String
+  description    String
+  category       String   // "CREATOR", "EXPERT", "INFLUENCER", "ENTREPRENEUR", "EDUCATOR"
+  specialties    String[]
+  socialLinks    Json?    // LinkedIn, Twitter, Instagram, etc.
+  portfolio      Json?    // Portfolio items, projects, achievements
+  isActive       Boolean  @default(true)
+  isVerified     Boolean  @default(false)
+  featuredUntil  DateTime?
+  viewCount      Int      @default(0)
+  clickCount     Int      @default(0)
+  contactCount   Int      @default(0)
+  rating         Float    @default(0.0)
+  reviewCount    Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  user           User     @relation(fields: [userId], references: [id])
+  reviews        SpotlightReview[]
+
+  @@index([userId])
+  @@index([category])
+  @@index([isActive])
+  @@index([isVerified])
+  @@index([featuredUntil])
+}
+
+model SpotlightReview {
+  id             String   @id @default(cuid())
+  spotlightId    String
+  reviewerId     String
+  rating         Int      // 1-5 stars
+  title          String
+  content        String
+  isVerified     Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  spotlight      SpotlightProfile @relation(fields: [spotlightId], references: [id])
+  reviewer       User     @relation(fields: [reviewerId], references: [id])
+
+  @@index([spotlightId])
+  @@index([reviewerId])
+  @@index([rating])
+  @@index([isVerified])
+  @@index([createdAt])
+}
+
+// Health & Wellness Models
+model HealthMetric {
+  id        String   @id @default(cuid())
+  userId    String
+  metric    String   // "Weight", "Heart Rate", "Steps", etc.
+  value     Float
+  unit      String   // "kg", "bpm", "steps", etc.
+  date      DateTime
+  notes     String?
+  category  String   // "fitness", "vitals", "nutrition", "sleep", "mental"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([category])
+  @@index([date])
+  @@index([metric])
+}
+
+model HealthGoal {
+  id           String   @id @default(cuid())
+  userId       String
+  title        String
+  description  String
+  targetValue  Float
+  currentValue Float
+  unit         String
+  deadline     DateTime
+  category     String
+  progress     Float    @default(0.0) // Percentage (0-100)
+  isCompleted  Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([category])
+  @@index([deadline])
+  @@index([isCompleted])
+}
+
+// Shopping & E-commerce Models
+model Product {
+  id            String   @id @default(cuid())
+  name          String
+  description   String
+  price         Float
+  originalPrice Float?
+  currency      String   @default("USD")
+  category      String
+  brand         String
+  image         String?
+  rating        Float    @default(0.0)
+  reviewCount   Int      @default(0)
+  inStock       Boolean  @default(true)
+  discount      Int?     // Percentage discount
+  tags          String[]
+  sellerId      String
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  seller        User     @relation(fields: [sellerId], references: [id])
+  cartItems     CartItem[]
+  wishlistItems WishlistItem[]
+  reviews       ProductReview[]
+
+  @@index([category])
+  @@index([brand])
+  @@index([inStock])
+  @@index([isActive])
+  @@index([sellerId])
+  @@index([price])
+  @@index([rating])
+}
+
+model CartItem {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  quantity  Int      @default(1)
+  addedAt   DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
+
+  @@unique([userId, productId])
+  @@index([userId])
+  @@index([productId])
+}
+
+model WishlistItem {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  addedAt   DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
+
+  @@unique([userId, productId])
+  @@index([userId])
+  @@index([productId])
+}
+
+model ProductReview {
+  id        String   @id @default(cuid())
+  productId String
+  userId    String
+  rating    Int      // 1-5 stars
+  title     String?
+  content   String
+  isVerified Boolean @default(false)
+  helpful   Int      @default(0)
+  notHelpful Int     @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  product   Product  @relation(fields: [productId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([productId])
+  @@index([userId])
+  @@index([rating])
+  @@index([isVerified])
+  @@index([createdAt])
+}
+
+// Financial Models (Enhanced)
+model Transaction {
+  id          String   @id @default(cuid())
+  userId      String
+  amount      Float
+  currency    String   @default("USD")
+  description String
+  category    String
+  type        String   // "income", "expense", "transfer"
+  date        DateTime
+  tags        String[]
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([category])
+  @@index([type])
+  @@index([date])
+}
+
+model Budget {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  amount    Float
+  currency  String   @default("USD")
+  category  String
+  period    String   // "weekly", "monthly", "yearly"
+  startDate DateTime
+  endDate   DateTime?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([category])
+  @@index([period])
+  @@index([isActive])
+}
+
+model Bill {
+  id         String   @id @default(cuid())
+  userId     String
+  name       String
+  amount     Float
+  currency   String   @default("USD")
+  dueDate    DateTime
+  frequency  String   // "once", "weekly", "monthly", "yearly"
+  category   String
+  isPaid     Boolean  @default(false)
+  notes      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([category])
+  @@index([dueDate])
+  @@index([isPaid])
+  @@index([frequency])
+}
+
+// Custom AI Personas Models
+model Persona {
+  id          String            @id @default(cuid())
+  userId      String
+  name        String
+  description String
+  personality String            // JSON string containing personality traits
+  systemPrompt String
+  avatar      String?
+  status      PersonaStatus     @default(DRAFT)
+  visibility  PersonaVisibility @default(PRIVATE)
+  tags        String[]          @default([])
+  isDefault   Boolean           @default(false)
+  usageCount  Int               @default(0)
+  rating      Float?            @default(0)
+  reviewCount Int               @default(0)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  user        User              @relation(fields: [userId], references: [id])
+  instances   PersonaInstance[]
+  reviews     PersonaReview[]
+  shares      PersonaShare[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([visibility])
+  @@index([tags])
+  @@index([isDefault])
+  @@index([rating])
+}
+
+model PersonaInstance {
+  id        String   @id @default(cuid())
+  personaId String
+  userId    String
+  name      String
+  config    String   // JSON string containing instance-specific config
+  isActive  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  persona   Persona  @relation(fields: [personaId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([personaId])
+  @@index([userId])
+  @@index([isActive])
+}
+
+model PersonaReview {
+  id        String   @id @default(cuid())
+  personaId String
+  userId    String
+  rating    Int      // 1-5 stars
+  title     String?
+  content   String?
+  helpful   Int      @default(0)
+  notHelpful Int     @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  persona   Persona  @relation(fields: [personaId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([personaId])
+  @@index([userId])
+  @@index([rating])
+}
+
+model PersonaShare {
+  id        String   @id @default(cuid())
+  personaId String
+  userId    String
+  sharedWith String  // User ID or "public"
+  permissions String // JSON string containing permissions
+  createdAt DateTime @default(now())
+  persona   Persona  @relation(fields: [personaId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([personaId])
+  @@index([userId])
+  @@index([sharedWith])
+}
+
+// Guides & Tutorials Models
+model Guide {
+  id          String         @id @default(cuid())
+  userId      String
+  title       String
+  description String
+  content     String         // Rich text content
+  category    String
+  tags        String[]       @default([])
+  difficulty  GuideDifficulty @default(BEGINNER)
+  status      GuideStatus     @default(DRAFT)
+  isPublic    Boolean         @default(false)
+  isFeatured  Boolean         @default(false)
+  thumbnail   String?
+  estimatedTime Int?          // in minutes
+  prerequisites String[]      @default([])
+  learningOutcomes String[]   @default([])
+  viewCount   Int             @default(0)
+  likeCount   Int             @default(0)
+  shareCount  Int             @default(0)
+  rating      Float?          @default(0)
+  reviewCount Int             @default(0)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  publishedAt DateTime?
+  user        User            @relation(fields: [userId], references: [id])
+  steps       GuideStep[]
+  reviews     GuideReview[]
+  progress    GuideProgress[]
+  bookmarks   GuideBookmark[]
+
+  @@index([userId])
+  @@index([category])
+  @@index([status])
+  @@index([difficulty])
+  @@index([isPublic])
+  @@index([isFeatured])
+  @@index([rating])
+}
+
+model GuideStep {
+  id          String        @id @default(cuid())
+  guideId     String
+  title       String
+  content     String
+  type        GuideStepType @default(TEXT)
+  order       Int
+  isOptional  Boolean       @default(false)
+  estimatedTime Int?        // in minutes
+  mediaUrl    String?       // for images/videos
+  codeLanguage String?      // for code steps
+  quizData    String?       // JSON for quiz steps
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  guide       Guide         @relation(fields: [guideId], references: [id], onDelete: Cascade)
+
+  @@index([guideId])
+  @@index([order])
+}
+
+model GuideReview {
+  id        String   @id @default(cuid())
+  guideId   String
+  userId    String
+  rating    Int      // 1-5 stars
+  title     String?
+  content   String?
+  helpful   Int      @default(0)
+  notHelpful Int     @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  guide     Guide    @relation(fields: [guideId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([guideId])
+  @@index([userId])
+  @@index([rating])
+}
+
+model GuideProgress {
+  id          String   @id @default(cuid())
+  guideId     String
+  userId      String
+  completedSteps String[] @default([]) // Array of step IDs
+  currentStep String?  // Current step ID
+  progress    Float    @default(0) // 0-100 percentage
+  timeSpent   Int      @default(0) // in minutes
+  isCompleted Boolean  @default(false)
+  completedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  guide       Guide    @relation(fields: [guideId], references: [id])
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@unique([guideId, userId])
+  @@index([guideId])
+  @@index([userId])
+  @@index([isCompleted])
+}
+
+model GuideBookmark {
+  id        String   @id @default(cuid())
+  guideId   String
+  userId    String
+  createdAt DateTime @default(now())
+  guide     Guide    @relation(fields: [guideId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([guideId, userId])
+  @@index([guideId])
+  @@index([userId])
+}
+
+// News & Content Curation Models
+model NewsSource {
+  id          String         @id @default(cuid())
+  name        String
+  url         String
+  description String?
+  type        NewsSourceType @default(RSS)
+  isActive    Boolean        @default(true)
+  lastFetched DateTime?
+  fetchInterval Int          @default(3600) // in seconds
+  categories  NewsCategory[] @default([])
+  tags        String[]       @default([])
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  articles    NewsArticle[]
+
+  @@index([isActive])
+  @@index([type])
+  @@index([lastFetched])
+}
+
+model NewsArticle {
+  id          String            @id @default(cuid())
+  sourceId    String
+  title       String
+  content     String
+  summary     String?
+  url         String
+  imageUrl    String?
+  author      String?
+  publishedAt DateTime
+  status      NewsArticleStatus @default(PUBLISHED)
+  category    NewsCategory
+  tags        String[]          @default([])
+  viewCount   Int               @default(0)
+  likeCount   Int               @default(0)
+  shareCount  Int               @default(0)
+  isFeatured  Boolean           @default(false)
+  isTrending  Boolean           @default(false)
+  sentiment   Float?            // -1 to 1 sentiment score
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  source      NewsSource        @relation(fields: [sourceId], references: [id])
+  interactions NewsInteraction[]
+  bookmarks   NewsBookmark[]
+
+  @@index([sourceId])
+  @@index([status])
+  @@index([category])
+  @@index([publishedAt])
+  @@index([isFeatured])
+  @@index([isTrending])
+  @@index([sentiment])
+}
+
+model NewsInteraction {
+  id        String   @id @default(cuid())
+  articleId String
+  userId    String
+  type      String   // 'like', 'share', 'bookmark', 'view'
+  createdAt DateTime @default(now())
+  article   NewsArticle @relation(fields: [articleId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([articleId, userId, type])
+  @@index([articleId])
+  @@index([userId])
+  @@index([type])
+}
+
+model NewsBookmark {
+  id        String   @id @default(cuid())
+  articleId String
+  userId    String
+  createdAt DateTime @default(now())
+  article   NewsArticle @relation(fields: [articleId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([articleId, userId])
+  @@index([articleId])
+  @@index([userId])
+}
+
+model UserNewsPreference {
+  id         String        @id @default(cuid())
+  userId     String
+  categories NewsCategory[] @default([])
+  sources    String[]      @default([]) // Array of source IDs
+  tags       String[]      @default([])
+  keywords   String[]      @default([])
+  isActive   Boolean       @default(true)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  user       User          @relation(fields: [userId], references: [id])
+
+  @@unique([userId])
+  @@index([userId])
 }

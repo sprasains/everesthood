@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
-import { getAgentTemplatesWithCache } from '@/../../lib/agentTemplates';
+// import { getAgentTemplatesWithCache } from '@/../../lib/agentTemplates';
 import { prisma } from '@/lib/prisma';
 
 export async function GET() {
@@ -12,9 +12,49 @@ export async function GET() {
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    // Use cache for agent templates
-    const agentTemplates = await getAgentTemplatesWithCache();
-    return NextResponse.json(agentTemplates);
+    // Fetch agent templates from database
+    const agentTemplates = await prisma.agentTemplate.findMany({
+      where: {
+        isPublic: true,
+        deletedAt: null
+      },
+      include: {
+        reviews: {
+          select: {
+            rating: true,
+            id: true
+          }
+        },
+        _count: {
+          select: {
+            agentInstances: true,
+            reviews: true
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+
+    // Format templates with calculated fields
+    const formattedTemplates = agentTemplates.map(template => ({
+      ...template,
+      reviewCount: template._count.reviews,
+      instanceCount: template._count.agentInstances,
+      averageRating: template.reviews.length > 0 
+        ? template.reviews.reduce((sum, review) => sum + review.rating, 0) / template.reviews.length
+        : 0,
+      // Add fields expected by frontend
+      rating: template.reviews.length > 0 
+        ? template.reviews.reduce((sum, review) => sum + review.rating, 0) / template.reviews.length
+        : 0,
+      usageCount: template._count.agentInstances,
+      complexity: 'Intermediate', // Default value
+      tags: [] // Default empty array
+    }));
+
+    return NextResponse.json(formattedTemplates);
   } catch (error) {
     console.error('Error fetching agent templates:', error);
     return new NextResponse('Internal Server Error', { status: 500 });

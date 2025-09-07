@@ -16,7 +16,19 @@ interface CardProps extends Omit<PaperProps, 'component' | 'variant'> {
   loading?: boolean;
 }
 
-export default function Card({
+// Export individual components for compatibility
+export const Card = CardComponent;
+export const CardContent = ({ children, ...props }: { children: ReactNode } & BoxProps) => (
+  <Box {...props}>{children}</Box>
+);
+export const CardHeader = ({ children, ...props }: { children: ReactNode } & BoxProps) => (
+  <Box {...props}>{children}</Box>
+);
+export const CardTitle = ({ children, ...props }: { children: ReactNode } & BoxProps) => (
+  <Typography variant="h6" {...props}>{children}</Typography>
+);
+
+function CardComponent({
   title,
   subtitle,
   children,
@@ -315,3 +327,5 @@ export default function Card({
     </Box>
   );
 }
+
+export default Card;

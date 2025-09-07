@@ -17,7 +17,7 @@ const logger = pino({ level: process.env.LOG_LEVEL || 'info' });
 const { logCredentialAccess } = require('../lib/audit');
 const { decrypt } = require('../lib/crypto');
 
-const prisma = new PrismaClient();
+const { prisma } = require('../lib/prisma');
 
 const StepBuffer = require('./batchStepBuffer');
 const stepBuffer = new StepBuffer(prisma, 10, 1000); // batch size 10, flush every 1s

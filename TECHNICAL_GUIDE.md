@@ -1,5 +1,16 @@
 # 🛠️ TECHNICAL GUIDE
 
+<!--
+Why this doc exists: This guide documents the architecture, queue topology, and technical verification steps for EverestHood. It is kept in sync with code and diagrams for onboarding and debugging.
+-->
+
+## Verification Checklist
+- [ ] Can trace job flow from API to worker to DB
+- [ ] Can view system architecture diagram
+- [ ] Can view usage graph on billing page
+- [ ] All referenced file paths and diagrams exist
+- [ ] All commands and links are valid
+
 ## Verification Checklist
 - [ ] Review architecture diagrams: All major components and data flows are represented
 - [ ] Queue topology matches current codebase (see `src/lib/queue/`)
@@ -18,6 +29,7 @@
 - **Queue**: BullMQ, Redis (`src/lib/queue/`)
 - **Worker**: Processes jobs (`worker/index.js`)
 - **Database**: Prisma/Postgres (`prisma/`)
+- **Billing Usage Graph**: Chart.js-powered graph on billing page visualizes usage and costs (see `app/settings/billing/page.tsx`)
 
 ---
 
@@ -29,12 +41,22 @@
 
 ---
 
-## Worker Lifecycle
 
-1. **Startup**: Loads agent modules from `src/agents/`
-2. **Job Fetch**: Listens to queues via BullMQ/Redis
-3. **Execution**: Runs agent logic, updates DB
-4. **Completion**: Updates job status, emits events
+## Agent & Job Runbook (Technical)
+
+### How to Verify Agent Execution
+1. **Startup:** Worker loads agent modules from `src/agents/`
+2. **Job Fetch:** Worker listens to queues via BullMQ/Redis
+3. **Execution:** Worker runs agent logic, updates DB
+4. **Completion:** Worker updates job status, emits events
+5. **Monitor Jobs:** Use Bull Board at `/admin/queues` to view job status and logs
+6. **Troubleshoot:** Check worker logs, Bull Board, and TROUBLESHOOTING.md for stuck jobs or errors
+
+### URLs & Verification
+- Bull Board: `/admin/queues`
+- Worker: `worker/index.js`
+- Queue: `src/lib/queue/`
+- Troubleshooting: [TROUBLESHOOTING.md](./TROUBLESHOOTING.md)
 
 ---
 
@@ -73,7 +95,7 @@ graph TD;
 
 | Service    | Description |
 |------------|-------------|
-| frontend   | Next.js app (UI & API) |
+| frontend   | Next.js app (UI & API, includes usage graph in billing) |
 | worker     | Processes jobs from Redis queue |
 | scheduler  | Triggers scheduled agent runs |
 | postgres   | Database |

@@ -3,20 +3,23 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { getAgentJobQueue } from '@/lib/redis';
+import { enqueueRun } from '@/lib/queue/producer';
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.id) return new NextResponse('Unauthorized', { status: 401 });
+  if (!session?.user?.id)
+    return new NextResponse('Unauthorized', { status: 401 });
 
   const { agentInstanceId, input = {} } = await req.json();
-  if (!agentInstanceId) return new NextResponse('Missing agentInstanceId', { status: 400 });
+  if (!agentInstanceId)
+    return new NextResponse('Missing agentInstanceId', { status: 400 });
 
   const instance = await prisma.agentInstance.findUnique({
     where: { id: agentInstanceId },
     include: { template: true },
   });
-  if (!instance) return new NextResponse('Agent instance not found', { status: 404 });
+  if (!instance)
+    return new NextResponse('Agent instance not found', { status: 404 });
 
   // create run
   const run = await prisma.agentRun.create({
@@ -28,15 +31,14 @@ export async function POST(req: Request) {
     },
   });
 
-  // enqueue job (use template name or instance id as job name)
-  const queue = await getAgentJobQueue();
-  await queue.add('run-agent', {
+  // enqueue via the centralized producer (idempotent jobId -> runId)
+  await enqueueRun({
     runId: run.id,
     agentInstanceId: instance.id,
-    templateName: instance.template.name,
     userId: session.user.id,
     input,
-  }, { attempts: 3, backoff: { type: 'exponential', delay: 5000 } });
+    requestId: undefined,
+  });
 
   return NextResponse.json({ runId: run.id }, { status: 202 });
 }

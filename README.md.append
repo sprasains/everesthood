@@ -1,0 +1,18 @@
+## Feature Index
+For a detailed overview of feature implementation status and verification steps, see:
+- [FEATURES.json](./FEATURES.json) - Canonical feature definitions
+- [PARITY_REPORT.md](./PARITY_REPORT.md) - Implementation status and gaps
+
+### Quick Feature Status
+- ✅ Authentication System (OAuth, email/password)
+- 🟡 AI Agent Templates (templating, job queue)
+- ✅ Social Core Features (profiles, friends, posts)
+- ✅ Job Board & Career Tools
+- 🟡 Usage-based Billing (metered usage, Stripe)
+- ✅ Achievements & Gamification
+
+### Feature Documentation
+- Detailed feature specs: [FEATURE_DOCUMENTATION.md](./FEATURE_DOCUMENTATION.md)
+- User guide: [USER_GUIDE.md](./USER_GUIDE.md)
+- Technical overview: [TECHNICAL_GUIDE.md](./TECHNICAL_GUIDE.md)
+- System architecture: [SYSTEM_OVERVIEW.md](./SYSTEM_OVERVIEW.md)

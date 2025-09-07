@@ -5,9 +5,12 @@ import { PrismaClient } from '@prisma/client';
 import { encrypt } from '../../lib/crypto';
 import { logCredentialAccess } from '../../lib/audit';
 
-const prisma = new PrismaClient();
+const { prisma } = require('../../lib/prisma');
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   if (req.method !== 'POST') return res.status(405).end();
   const { userId, agentId, provider, key, secret } = req.body;
   if (!userId || !agentId || !provider || !key || !secret) {

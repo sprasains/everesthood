@@ -1,22 +1,13 @@
 // Debug endpoint for BullMQ queue stats
-import { NextRequest } from 'next/server';
-
-// Use dynamic import to ensure server-only loading
-let agentJobQueue;
-async function loadQueues() {
-  if (!agentJobQueue) {
-    const queues = await import('../../../../server/queue');
-    agentJobQueue = queues.agentJobQueue;
-  }
-}
+import { NextRequest, NextResponse } from 'next/server';
+import { agentQueue } from '../../../../lib/queue/producer';
 
 export async function GET(req: NextRequest) {
-  await loadQueues();
-  const stats = await agentJobQueue.getJobCounts();
-  const failedReasons = await agentJobQueue.getFailed();
-  return Response.json({
+  const stats = await agentQueue.getJobCounts();
+  const failedReasons = await agentQueue.getFailed();
+  return NextResponse.json({
     queue: {
-      name: 'agent:jobs',
+      name: agentQueue.name || 'agent-run',
       stats,
       failed: failedReasons,
     },

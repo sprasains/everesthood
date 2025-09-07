@@ -1,12 +1,12 @@
-import { PrismaClient } from "@prisma/client";
-import RSSParser from "rss-parser";
-import { GENZ_SOURCES } from "../src/lib/genz-sources";
+import { PrismaClient } from '@prisma/client';
+import RSSParser from 'rss-parser';
+import { GENZ_SOURCES } from '../src/lib/genz-sources';
 
-const prisma = new PrismaClient();
+import { prisma } from '../lib/prisma';
 const parser = new RSSParser();
 
 export async function fetchGenZContent() {
-  console.log("🌟 Starting Gen-Z content aggregation from live sources...");
+  console.log('🌟 Starting Gen-Z content aggregation from live sources...');
 
   for (const source of GENZ_SOURCES) {
     if (!source.rssUrl) {
@@ -42,8 +42,8 @@ export async function fetchGenZContent() {
               description:
                 item.contentSnippet ||
                 item.content?.substring(0, 150) ||
-                "No description available.",
-              content: item.content || "",
+                'No description available.',
+              content: item.content || '',
               sourceName: source.name,
               sourceUrl: item.link,
               imageUrl: imageUrl,
@@ -74,5 +74,5 @@ export async function fetchGenZContent() {
     }
   }
 
-  console.log("🎉 Gen-Z content aggregation finished.");
+  console.log('🎉 Gen-Z content aggregation finished.');
 }

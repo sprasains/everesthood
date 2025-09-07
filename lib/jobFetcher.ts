@@ -4,7 +4,7 @@ import Parser from 'rss-parser';
 import { PrismaClient } from '@prisma/client';
 import { logger } from '@/services/logger';
 
-const prisma = new PrismaClient();
+import { prisma } from './prisma';
 const parser = new Parser();
 
 export const JOB_FEEDS = [
@@ -75,5 +75,7 @@ export async function fetchAndStoreJobs() {
 
 // Placeholder function to prevent import errors
 export async function fetchAndStoreJobs() {
-  console.log('Job fetching is temporarily disabled - Job and Company models not in schema');
+  console.log(
+    'Job fetching is temporarily disabled - Job and Company models not in schema'
+  );
 }

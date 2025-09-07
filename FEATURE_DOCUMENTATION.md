@@ -529,13 +529,17 @@ interface UserAnalytics {
 ## 💳 Payment & Subscription
 
 ### Overview
+Everhood supports Stripe-based payments, tipping, and premium subscriptions. Billing is usage-based, with transparent cost breakdowns and a visual usage graph on the billing page.
 Stripe-powered subscription system with multiple tiers and payment options.
-
-### Core Features
-
+### Features
+- **Stripe Integration**: Secure payments and subscriptions
+- **Usage-Based Billing**: Pay only for what you use
+- **Cost Breakdown**: Detailed invoice and usage history
+- **Usage Graph**: Interactive graph visualizing your last 30 days of usage and costs
 #### Subscription Tiers
 - **Free Tier**: Basic features with limitations
 - **Premium ($9.99/month)**: Enhanced features and unlimited usage
+The dashboard provides a summary of your activity, achievements, analytics, and now includes a usage graph in the billing section for transparency.
 - **Creator ($19.99/month)**: Monetization and advanced tools
 
 #### Payment Features

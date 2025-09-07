@@ -118,9 +118,36 @@ export default function MoneyHubPage() {
         </Button>
       </div>
 
+      {/* Financial Overview Section */}
+      <div className="mb-10">
+        <h2 className="text-xl font-semibold mb-4">Financial Overview</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-lg">
+            <h3 className="text-lg font-semibold">Total Balance</h3>
+            <p className="text-2xl font-bold">$12,450.00</p>
+            <p className="text-sm opacity-90">+5.2% from last month</p>
+          </div>
+          <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 rounded-lg">
+            <h3 className="text-lg font-semibold">Monthly Income</h3>
+            <p className="text-2xl font-bold">$4,200.00</p>
+            <p className="text-sm opacity-90">+2.1% from last month</p>
+          </div>
+          <div className="bg-gradient-to-r from-red-500 to-red-600 text-white p-4 rounded-lg">
+            <h3 className="text-lg font-semibold">Monthly Expenses</h3>
+            <p className="text-2xl font-bold">$2,850.00</p>
+            <p className="text-sm opacity-90">-1.3% from last month</p>
+          </div>
+          <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-4 rounded-lg">
+            <h3 className="text-lg font-semibold">Savings Rate</h3>
+            <p className="text-2xl font-bold">32.1%</p>
+            <p className="text-sm opacity-90">+3.2% from last month</p>
+          </div>
+        </div>
+      </div>
+
       {/* Agent Actions Section */}
       <div className="mb-10">
-        <h2 className="text-xl font-semibold mb-4">Agent Actions</h2>
+        <h2 className="text-xl font-semibold mb-4">AI Financial Agents</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {financialAgents.map(agent => (
             <CardComponent
@@ -146,6 +173,45 @@ export default function MoneyHubPage() {
               <></>
             </CardComponent>
           ))}
+        </div>
+      </div>
+
+      {/* Quick Actions Section */}
+      <div className="mb-10">
+        <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <Button
+            variant="outlined"
+            fullWidth
+            sx={{ p: 2, height: 'auto', flexDirection: 'column', gap: 1 }}
+          >
+            <span style={{ fontSize: 24 }}>💳</span>
+            <span>Add Transaction</span>
+          </Button>
+          <Button
+            variant="outlined"
+            fullWidth
+            sx={{ p: 2, height: 'auto', flexDirection: 'column', gap: 1 }}
+          >
+            <span style={{ fontSize: 24 }}>📊</span>
+            <span>View Reports</span>
+          </Button>
+          <Button
+            variant="outlined"
+            fullWidth
+            sx={{ p: 2, height: 'auto', flexDirection: 'column', gap: 1 }}
+          >
+            <span style={{ fontSize: 24 }}>🎯</span>
+            <span>Set Goals</span>
+          </Button>
+          <Button
+            variant="outlined"
+            fullWidth
+            sx={{ p: 2, height: 'auto', flexDirection: 'column', gap: 1 }}
+          >
+            <span style={{ fontSize: 24 }}>📈</span>
+            <span>Investments</span>
+          </Button>
         </div>
       </div>
 

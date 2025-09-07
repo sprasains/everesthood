@@ -1,4 +1,14 @@
-<!-- Doc Cleanup — See SYSTEM_OVERVIEW.md and BUSINESS_OVERVIEW.md for original architecture and business notes. Merged on 2025-08-21 -->
+
+<!--
+Why this doc exists: This README provides a quick start, system overview, and feature catalog for developers and users. It is kept in sync with code and guides all local setup, troubleshooting, and feature verification.
+-->
+
+## Verification Checklist
+- [ ] Can run local setup and see dashboard at http://localhost:3000
+- [ ] Can view usage graph on billing page
+- [ ] Can run worker and see jobs processed
+- [ ] All referenced file paths exist
+- [ ] All commands and links are valid
 
 # 🏔️ EverestHood/AgentForge Overview
 
@@ -28,9 +38,11 @@ graph TD;
 
 - **All-in-one social, learning, and productivity hub for Gen-Z**
 - **AI-powered insights and automation for career and life**
+- **Personalized news and content curation system**
 - **Gamified engagement and community building**
 - **Monetization for creators and influencers**
 - **Premium SaaS model with clear upgrade paths**
+- **Usage-based billing with interactive usage graph for transparency**
 
 ---
 ---
@@ -58,7 +70,13 @@ npm run fix:routes
 Each fixer writes a report under `tmp/reports` with file paths and suggested patches.
 # 🌟 Everhood - AI Vibe Hub for Gen-Z
 
-## 🚦 Local Setup (No Docker)
+
+### Quick Start Runbook
+- Clone repo, install dependencies, set up .env
+- Run `npx prisma migrate dev` and `npx prisma db seed`
+- Start app: `npm run dev`
+- Start worker: `cd worker && node index.js`
+- Visit http://localhost:3000 and verify dashboard, billing usage graph, and agent jobs
 
 ### Prerequisites
 - [Node.js](https://nodejs.org/) (v18+)
@@ -229,7 +247,7 @@ NEXTAUTH_SECRET=your-secret
 
 ### 🧩 Integration & Modules
 - **Dashboard:** Command center with widgets for community, jobs, streaks, and more
-- **News Feed:** Personalized, real-time, and friend-filtered
+- **News & Content Curation:** Personalized news feeds, RSS aggregation, AI recommendations, and content curation
 - **Opportunities:** Career, jobs, and resume tools
 - **Achievements:** Track progress, unlock badges, and compete on leaderboards
 - **Family & Money:** Budgeting, bills, events, and family management
@@ -249,6 +267,7 @@ NEXTAUTH_SECRET=your-secret
 
 ### Ways to Use
 - **Career Growth:** Use AI summaries, job board, and resume checker
+- **Stay Informed:** Personalized news feeds, content curation, and AI-powered recommendations
 - **Learning:** Follow trending news, unlock achievements, and join discussions
 - **Networking:** Add friends, join circles, and collaborate
 - **Monetization:** Become a creator, receive tips, and unlock premium features
@@ -256,15 +275,15 @@ NEXTAUTH_SECRET=your-secret
 
 ---
 
-## 🗂️ Feature Catalog
 - **Authentication:** NextAuth.js, social login, JWT/session
 - **AI Engine:** Google Gemini Pro, OpenAI
-- **News & Content:** Aggregated feeds, likes, comments
+- **News & Content Curation:** RSS aggregation, personalized feeds, AI recommendations, content curation tools
 - **Posts & Comments:** Rich text, mentions, likes, threaded replies
 - **Friends & Circles:** Social graph, friend requests, circles
 - **Achievements & Badges:** XP, streaks, badges, leaderboards
 - **Jobs & Companies:** Curated jobs, company profiles, applications
 - **Payments:** Stripe integration, tipping, subscriptions
+- **Usage-based Billing:** Interactive usage graph on billing page
 - **Resume Tools:** AI resume analysis
 - **Family & Money:** Budgets, bills, events, subscriptions
 - **Productivity:** Tasks, digital detox, journaling
@@ -276,14 +295,38 @@ NEXTAUTH_SECRET=your-secret
 ## 💡 Ideas & Creativity
 - **Custom AI Personas:** Build your own AI assistant for unique insights
 - **Content Creation:** Share posts, guides, and resources with the community
+- **News Curation:** Discover, curate, and share relevant news and content
 - **Career Showcases:** Highlight achievements, projects, and skills
 - **Collaborative Circles:** Create private or public circles for focused discussions
 - **Hackathons & Challenges:** Compete in platform-wide events
 
 ---
 
+## Feature Index
+For a detailed overview of feature implementation status and verification steps, see:
+- [FEATURES.json](./FEATURES.json) - Canonical feature definitions
+- [PARITY_REPORT.md](./PARITY_REPORT.md) - Implementation status and gaps
+
+### Quick Feature Status
+- ✅ Authentication System (OAuth, email/password)
+- 🟡 AI Agent Templates (templating, job queue)
+- ✅ Social Core Features (profiles, friends, posts)
+- ✅ News & Content Curation (personalized feeds, RSS, AI recommendations)
+- ✅ Job Board & Career Tools
+- 🟡 Usage-based Billing (metered usage, Stripe)
+- ✅ Achievements & Gamification
+
+### Feature Documentation
+- Detailed feature specs: [FEATURE_DOCUMENTATION.md](./FEATURE_DOCUMENTATION.md)
+- User guide: [USER_GUIDE.md](./USER_GUIDE.md)
+- Technical overview: [TECHNICAL_GUIDE.md](./TECHNICAL_GUIDE.md)
+- System architecture: [SYSTEM_OVERVIEW.md](./SYSTEM_OVERVIEW.md)
+
+---
+
 ## 🧠 Knowledge & Learning
 - **AI Summaries:** Stay updated with digestible, persona-driven content
+- **News & Content Curation:** Personalized news feeds with AI-powered recommendations
 - **Guides & Tutorials:** Access and contribute to a growing library of guides
 - **Community Wisdom:** Learn from peers, mentors, and creators
 - **Analytics:** Track your growth, engagement, and learning progress

@@ -17,23 +17,36 @@ async function checkAndEnqueueDueAgents(agentJobQueue) {
     },
     include: { template: true, user: true },
   });
+  const { enqueueRun } = require('../../lib/queue/producer');
+  const { randomUUID } = require('crypto');
+  let enqueued = 0;
   for (const instance of dueInstances) {
-    // Enqueue a job for each due instance
-    await agentJobQueue.add('run-agent', {
-      agentInstanceId: instance.id,
-      templateName: instance.template.name,
-      userId: instance.userId,
-      input: instance.defaultInput || {},
-      // Add more fields as needed
-    }, {
-      attempts: 5,
-      backoff: { type: 'exponential', delay: 5000 },
-      removeOnComplete: true,
-      removeOnFail: false,
-      // Optionally, set a dead-letter queue
-      // deadLetterQueue: 'agent-jobs-dlq',
-    });
+    try {
+      // Create run record (tenant isolation and cost checks are expected elsewhere)
+      const run = await prisma.agentRun.create({
+        data: {
+          agentInstanceId: instance.id,
+          userId: instance.userId,
+          status: 'PENDING',
+          input: instance.defaultInput || {},
+        },
+      });
+
+      const requestId = randomUUID();
+      await enqueueRun({
+        runId: run.id,
+        agentInstanceId: instance.id,
+        userId: instance.userId,
+        input: instance.defaultInput || {},
+        requestId,
+      });
+      enqueued += 1;
+    } catch (err) {
+      console.error('Failed to enqueue scheduled agent', instance.id, err);
+      // continue with other instances
+    }
   }
+  return enqueued;
 }
 
 module.exports = { checkAndEnqueueDueAgents };

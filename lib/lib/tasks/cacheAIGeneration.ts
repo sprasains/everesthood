@@ -4,7 +4,7 @@ import { PrismaClient } from '@prisma/client';
 // Import your fallback logic
 // import { generateContentWithFallback } from '@/utils/aiProviders';
 
-const prisma = new PrismaClient();
+import { prisma } from '../../prisma';
 
 const prompts = [
   "What's the latest in AI?",
@@ -40,5 +40,7 @@ cacheAIGeneration().then(() => prisma.$disconnect());
 
 // Placeholder function to prevent import errors
 export async function cacheAIGeneration() {
-  console.log('AI caching is temporarily disabled - AICache model not in schema');
-} 
+  console.log(
+    'AI caching is temporarily disabled - AICache model not in schema'
+  );
+}

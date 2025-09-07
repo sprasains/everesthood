@@ -29,6 +29,9 @@ import CampaignIcon from '@mui/icons-material/Campaign';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import { useUser } from '@/hooks/useUser';
 import ContactMailIcon from '@mui/icons-material/ContactMail';
+import PsychologyIcon from '@mui/icons-material/Psychology';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
+import AnalyticsIcon from '@mui/icons-material/Analytics';
 
 // Add logical section headers and new features
 type NavSection = { header?: string; items: { text: string; icon: React.ReactElement; href: string; badge?: string; }[] };
@@ -72,6 +75,8 @@ const navSections: NavSection[] = [
     header: 'Tools',
     items: [
       { text: 'Analytics Dashboard', icon: <EmojiEventsIcon />, href: '/dashboard/analytics' },
+      // Add Marketplace Analytics to sidebar navigation
+      { text: 'Marketplace Analytics', icon: <AutoAwesomeIcon />, href: '/agents/analytics' },
       { text: 'Resume Vibe Check', icon: <WorkIcon />, href: '/tools/resume-checker' },
       { text: 'Creator API', icon: <SettingsIcon />, href: '/settings/api' },
     ],
@@ -79,6 +84,7 @@ const navSections: NavSection[] = [
   {
     header: 'Monetization',
     items: [
+      { text: 'Creator Dashboard', icon: <AnalyticsIcon />, href: '/creator-dashboard' },
       { text: 'Profile Spotlight', icon: <StarIcon />, href: '/profile/spotlight' },
       { text: 'Tipping Credits', icon: <MonetizationOnIcon />, href: '/wallet' },
       { text: 'Ambassador Hub', icon: <CampaignIcon />, href: '/ambassador' },
@@ -94,6 +100,19 @@ const navSections: NavSection[] = [
     header: 'AI',
     items: [
       { text: 'AI Summaries', icon: <AutoAwesomeIcon />, href: '/summaries' },
+      { text: 'Custom Personas', icon: <PsychologyIcon />, href: '/personas' },
+    ],
+  },
+  {
+    header: 'Learning',
+    items: [
+      { text: 'Guides & Tutorials', icon: <MenuBookIcon />, href: '/guides' },
+    ],
+  },
+  {
+    header: 'Content',
+    items: [
+      { text: 'News & Articles', icon: <ArticleIcon />, href: '/news' },
     ],
   },
   {

@@ -43,6 +43,8 @@ import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
 import HighlightIcon from '@mui/icons-material/Highlight';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
+import PsychologyIcon from '@mui/icons-material/Psychology';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
 import Tooltip from '@mui/material/Tooltip';
 
 export default function Navbar() {
@@ -68,7 +70,9 @@ export default function Navbar() {
       links: [
         { href: "/agents", label: "Agents", icon: <AutoAwesomeIcon />, desc: "Create, schedule, and run smart agents" },
         { href: "/agents/templates", label: "Agent Templates", icon: <SummarizeIcon />, desc: "Browse and manage agent templates" },
-        { href: "/agents/runs", label: "Agent Runs", icon: <AssignmentTurnedInIcon />, desc: "View and manage agent executions" },
+        { href: "/agents/instances", label: "My Agents", icon: <AssignmentTurnedInIcon />, desc: "View and manage your agent instances" },
+        { href: "/agents/performance", label: "Performance", icon: <AnalyticsIcon />, desc: "Monitor agent performance and analytics" },
+        { href: "/agents/analytics", label: "Marketplace Analytics", icon: <AnalyticsIcon />, desc: "View marketplace trends and insights" },
         { href: "/summaries", label: "AI Summaries", icon: <HighlightIcon />, desc: "Persona-driven content summaries" },
         { href: "/tools/resume-checker", label: "Resume Vibe Check", icon: <WorkIcon />, desc: "AI-powered resume analysis" },
         { href: "/dashboard/analytics", label: "Analytics Dashboard", icon: <AnalyticsIcon />, desc: "Track your growth and agent performance" },
@@ -91,6 +95,7 @@ export default function Navbar() {
       links: [
         { href: "/profile", label: "My Profile", icon: <PersonIcon />, desc: "View and edit your profile" },
         { href: "/friends", label: "My Friends", icon: <GroupAddIcon />, desc: "Manage your friends and circles" },
+        { href: "/notifications", label: "Notifications", icon: <NotificationsIcon />, desc: "View and manage your notifications" },
         { href: "/settings/personas", label: "AI Personas", icon: <AutoAwesomeIcon />, desc: "Switch and customize AI personas" },
         { href: "/settings", label: "Settings", icon: <SettingsIcon />, desc: "Account and app settings" },
         { href: "/billing", label: "Subscription", icon: <MonetizationOnIcon />, desc: "Manage your plan and billing" },
@@ -99,6 +104,7 @@ export default function Navbar() {
     {
       label: "Monetization",
       links: [
+        { href: "/creator-dashboard", label: "Creator Dashboard", icon: <AnalyticsIcon />, desc: "Manage content, track performance, and earnings" },
         { href: "/profile/spotlight", label: "Profile Spotlight", icon: <StarIcon />, desc: "Boost your profile visibility" },
         { href: "/wallet", label: "Tipping Credits", icon: <MonetizationOnIcon />, desc: "Send and receive tips" },
         { href: "/ambassador", label: "Ambassador Hub", icon: <CampaignIcon />, desc: "Earn rewards and grow the community" },
@@ -141,10 +147,12 @@ export default function Navbar() {
   // Add Main links as icon buttons in the top nav
   const MAIN_LINKS = [
     { href: "/dashboard", label: "Dashboard", icon: <DashboardIcon /> },
-    { href: "/news", label: "News Feed", icon: <ArticleIcon /> },
+    { href: "/news", label: "News & Articles", icon: <ArticleIcon /> },
     { href: "/community", label: "Community", icon: <GroupIcon /> },
     { href: "/careers", label: "Opportunities", icon: <WorkIcon /> },
     { href: "/achievements", label: "Achievements", icon: <EmojiEventsIcon /> },
+    { href: "/personas", label: "Custom Personas", icon: <PsychologyIcon /> },
+    { href: "/guides", label: "Guides & Tutorials", icon: <MenuBookIcon /> },
   ];
 
   // State for menu and category expansion

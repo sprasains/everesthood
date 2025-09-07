@@ -1,5 +1,15 @@
 # 📋 CHANGELOG
 
+<!--
+Why this doc exists: This changelog tracks all feature, fix, and security updates for EverestHood. It is kept in sync with code and docs for release management and auditing.
+-->
+
+## Verification Checklist
+- [ ] All entries are grouped by Added/Changed/Fixed/Security
+- [ ] Can view usage graph on billing page
+- [ ] All file paths and commands are valid
+- [ ] Links to docs are present
+
 ## Verification Checklist
 - [ ] All entries are grouped by Added/Changed/Fixed/Security
 - [ ] All file paths and commands are valid

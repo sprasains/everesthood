@@ -1,0 +1,10 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# Prevent commits that introduce duplicate routes
+npx ts-node scripts/find-duplicate-routes.ts
+RC=$?
+if [ $RC -ne 0 ]; then
+  echo "Duplicate routes detected. Resolve before committing or run with --apply to auto-merge (review backups)."
+  exit 1
+fi

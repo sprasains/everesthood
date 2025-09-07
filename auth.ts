@@ -1,1 +1,1 @@
-export * from './src/lib/auth';
+export * from './lib/auth';

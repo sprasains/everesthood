@@ -1,0 +1,159 @@
+{
+  "features": [
+    {
+      "id": "auth.system",
+      "title": "Authentication System",
+      "docs_sources": ["FEATURE_DOCUMENTATION.md#authentication-system"],
+      "expected_code": [
+        "src/pages/api/auth/*",
+        "src/lib/auth/*",
+        "src/components/auth/*"
+      ],
+      "expected_ui": [
+        "Login page",
+        "Register page",
+        "Profile settings",
+        "OAuth buttons"
+      ],
+      "expected_tests": [
+        "unit: password hashing",
+        "integration: OAuth flow",
+        "e2e: auth-flows.e2e.test.ts"
+      ],
+      "status": "done",
+      "gaps": [],
+      "owner": "auth"
+    },
+    {
+      "id": "ai.agents.templates",
+      "title": "AI Agent Templates",
+      "docs_sources": ["FEATURE_DOCUMENTATION.md#ai-agents--templates", "USER_GUIDE.md#ai-agents--templates"],
+      "expected_code": [
+        "src/lib/agents/*",
+        "src/server/api/routers/agent.ts",
+        "src/server/queue.ts",
+        "src/hooks/useAgent.ts"
+      ],
+      "expected_ui": [
+        "Agent template browser",
+        "Template creator",
+        "Agent instance creator",
+        "Agent dashboard"
+      ],
+      "expected_tests": [
+        "unit: agent logic",
+        "integration: queue processing",
+        "e2e: aitoolbox.e2e.test.ts"
+      ],
+      "status": "partial",
+      "gaps": [
+        "Missing template versioning",
+        "Incomplete queue error handling",
+        "Missing template search"
+      ],
+      "owner": "ai"
+    },
+    {
+      "id": "social.core",
+      "title": "Social Core Features",
+      "docs_sources": ["FEATURE_DOCUMENTATION.md#social-features"],
+      "expected_code": [
+        "src/server/api/routers/social.ts",
+        "src/components/social/*",
+        "src/hooks/useSocial.ts"
+      ],
+      "expected_ui": [
+        "Profile page",
+        "Friends list",
+        "Activity feed",
+        "Post creator"
+      ],
+      "expected_tests": [
+        "unit: post creation",
+        "integration: friend requests",
+        "e2e: friends.e2e.test.ts",
+        "e2e: profile.e2e.test.ts"
+      ],
+      "status": "done",
+      "gaps": [],
+      "owner": "social"
+    },
+    {
+      "id": "careers.jobboard",
+      "title": "Job Board & Career Tools",
+      "docs_sources": ["FEATURE_DOCUMENTATION.md#job-board--career-tools", "USER_GUIDE.md#career-tools"],
+      "expected_code": [
+        "src/server/api/routers/jobs.ts",
+        "src/components/careers/*",
+        "src/lib/careers/*"
+      ],
+      "expected_ui": [
+        "Job board",
+        "Job search",
+        "Resume builder",
+        "Application tracker"
+      ],
+      "expected_tests": [
+        "unit: job matching",
+        "integration: resume parsing",
+        "e2e: careers.e2e.test.ts"
+      ],
+      "status": "done",
+      "gaps": [],
+      "owner": "careers"
+    },
+    {
+      "id": "billing.metered.usage",
+      "title": "Usage-based Billing",
+      "docs_sources": ["USER_GUIDE.md#premium-features", "SYSTEM_OVERVIEW.md#key-features--differentiators"],
+      "expected_code": [
+        "src/lib/billing/*",
+        "src/pages/api/billing/*",
+        "src/components/billing/*",
+        "src/hooks/useBilling.ts"
+      ],
+      "expected_ui": [
+        "Settings/Billing page",
+        "Usage graph",
+        "Payment methods",
+        "Subscription manager"
+      ],
+      "expected_tests": [
+        "unit: billing calculations",
+        "integration: stripe webhook",
+        "e2e: billing.e2e.test.ts"
+      ],
+      "status": "partial",
+      "gaps": [
+        "Missing usage graph UI",
+        "Incomplete webhook handling",
+        "Missing automated billing reports"
+      ],
+      "owner": "payments"
+    },
+    {
+      "id": "achievements",
+      "title": "Achievements & Gamification",
+      "docs_sources": ["FEATURE_DOCUMENTATION.md#achievements--gamification", "USER_GUIDE.md#achievements--gamification"],
+      "expected_code": [
+        "src/lib/achievements/*",
+        "src/server/api/routers/achievements.ts",
+        "prisma/seed-achievements.ts"
+      ],
+      "expected_ui": [
+        "Achievement browser",
+        "Progress tracker",
+        "Rewards page",
+        "Leaderboard"
+      ],
+      "expected_tests": [
+        "unit: achievement logic",
+        "integration: point system",
+        "e2e: achievements.e2e.test.ts"
+      ],
+      "status": "done",
+      "gaps": [],
+      "owner": "gamification"
+    }
+  ]
+}

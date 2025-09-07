@@ -1,15 +1,22 @@
 // lib/queue.ts
-// Centralized BullMQ queue, worker, and scheduler initialization (server-only)
-import { Queue } from 'bullmq';
-import { JobScheduler } from 'bullmq/dist/esm/classes/job-scheduler.js';
-import Redis from 'ioredis';
+// Compatibility shim: re-export the new queue/connection APIs so older imports
+// that reference `lib/queue` keep working.
+import { agentQueue } from './queue/producer';
+import { getRedisConnection } from './queue/connection';
+import { JobScheduler } from 'bullmq';
 
-const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
-const connection = new Redis(redisUrl);
+const connection = getRedisConnection();
 
-const queueName = 'agent-jobs';
+let agentJobScheduler: JobScheduler | undefined;
+try {
+  agentJobScheduler = new JobScheduler(
+    (agentQueue as any).name || 'agent-run',
+    {
+      connection,
+    }
+  );
+} catch (err) {
+  agentJobScheduler = undefined;
+}
 
-const agentJobQueue = new Queue(queueName, { connection });
-const agentJobScheduler = new JobScheduler(queueName, { connection });
-
-export { agentJobQueue, agentJobScheduler, connection };
+export { agentQueue, agentJobScheduler, connection };

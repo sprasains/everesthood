@@ -8,6 +8,9 @@ import { toast } from 'react-hot-toast';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
 import AgentTemplateForm from './AgentTemplateForm';
+import AgentSearch from '@/components/marketplace/AgentSearch';
+import AgentReviews from '@/components/marketplace/AgentReviews';
+import TrendingAgents from '@/components/marketplace/TrendingAgents';
 
 // Enhanced icon mapping with more detailed icons
 const categoryIcons: Record<string, React.ReactNode> = {
@@ -730,6 +733,10 @@ export default function AgentTemplatesPage() {
   const [using, setUsing] = useState(false);
   const [agentName, setAgentName] = useState("");
   const [nameError, setNameError] = useState<string | null>(null);
+  const [filteredTemplates, setFilteredTemplates] = useState<AgentTemplate[]>([]);
+  const [searchFilters, setSearchFilters] = useState<any>({});
+  const [showReviews, setShowReviews] = useState(false);
+  const [selectedTemplateForReviews, setSelectedTemplateForReviews] = useState<AgentTemplate | null>(null);
 
   useEffect(() => {
     const fetchTemplates = async () => {
@@ -747,15 +754,14 @@ export default function AgentTemplatesPage() {
     fetchTemplates();
   }, []);
 
-  // Filter and search logic
-  const filteredTemplates = templates
-    .filter((tpl) =>
-      activeCategory === "All" ? true : tpl.category === activeCategory
-    )
-    .filter((tpl) =>
-      tpl.name.toLowerCase().includes(search.toLowerCase()) ||
-      tpl.description.toLowerCase().includes(search.toLowerCase())
-    );
+  // Handle search results from AgentSearch component
+  const handleSearchResultsChange = (results: AgentTemplate[]) => {
+    setFilteredTemplates(results);
+  };
+
+  const handleSearchFiltersChange = (filters: any) => {
+    setSearchFilters(filters);
+  };
 
   // Enhanced agent name validation
   const validateAgentName = (name: string) => {
@@ -864,18 +870,12 @@ export default function AgentTemplatesPage() {
           ))}
         </Stack>
         
-        {/* Search */}
-        <Box mb={4} sx={{ textAlign: 'center' }}>
-          <input
-            type="text"
-            placeholder="Search templates..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            className="px-6 py-3 rounded-full border-2 border-white/30 focus:outline-none focus:ring-4 focus:ring-white/20 w-full max-w-md bg-white/10 backdrop-blur-sm text-white placeholder-white/70"
-            style={{
-              fontSize: '16px',
-              color: 'white'
-            }}
+        {/* Advanced Search Component */}
+        <Box mb={4}>
+          <AgentSearch 
+            onResultsChange={handleSearchResultsChange}
+            onFiltersChange={handleSearchFiltersChange}
+            initialFilters={{ category: activeCategory, query: search }}
           />
         </Box>
         
@@ -924,6 +924,17 @@ export default function AgentTemplatesPage() {
                               fontWeight: 'bold'
                             }}
                           />
+                          <Button
+                            size="small"
+                            variant="text"
+                            onClick={() => {
+                              setSelectedTemplateForReviews(tpl);
+                              setShowReviews(true);
+                            }}
+                            sx={{ color: 'white', minWidth: 'auto', p: 0.5 }}
+                          >
+                            Reviews
+                          </Button>
                         </Stack>
                       }
                       footer={
@@ -1207,6 +1218,33 @@ export default function AgentTemplatesPage() {
           </Box>
         )}
       </Modal>
+
+      {/* Reviews Modal */}
+      {selectedTemplateForReviews && (
+        <Modal
+          open={showReviews}
+          onClose={() => { setShowReviews(false); setSelectedTemplateForReviews(null); }}
+          title={`Reviews for ${selectedTemplateForReviews.name}`}
+          variant="glass"
+          size="lg"
+          sx={{
+            '& .MuiDialog-paper': {
+              color: '#ffffff',
+              '& .MuiTypography-root': {
+                color: 'inherit',
+              },
+              '& .MuiButton-root': {
+                color: 'inherit',
+              },
+            },
+          }}
+        >
+          <AgentReviews 
+            agentId={selectedTemplateForReviews.id}
+            agentName={selectedTemplateForReviews.name}
+          />
+        </Modal>
+      )}
     </Box>
   );
 }

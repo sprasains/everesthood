@@ -29,6 +29,24 @@ export default function Sidebar() {
       description: "Your personalized insights"
     },
     { 
+      icon: "🧠", 
+      label: "Custom Personas", 
+      href: "/personas",
+      description: "Create AI assistants with unique personalities"
+    },
+    { 
+      icon: "📚", 
+      label: "Guides & Tutorials", 
+      href: "/guides",
+      description: "Learn and share knowledge with the community"
+    },
+    { 
+      icon: "📰", 
+      label: "News & Articles", 
+      href: "/news",
+      description: "Stay updated with personalized news and content"
+    },
+    { 
       icon: "🏆", 
       label: "Achievements", 
       href: "/achievements",
@@ -63,6 +81,18 @@ export default function Sidebar() {
       label: "Create Post",
       href: "/posts/create",
       description: "Share your thoughts with the community"
+    },
+    {
+      icon: "📊", // Marketplace Analytics icon
+      label: "Marketplace Analytics",
+      href: "/agents/analytics",
+      description: "Marketplace trends and insights"
+    },
+    {
+      icon: "🎨", // Creator Dashboard icon
+      label: "Creator Dashboard",
+      href: "/creator-dashboard",
+      description: "Manage content, track performance, and earnings"
     }
   ]
 

@@ -14,6 +14,13 @@ async function main() {
   console.log('🧹 Clearing old data... (Order is critical)');
 
   // Deletion in reverse order of creation to respect foreign key constraints
+  // News & Content Curation models
+  await prisma.newsBookmark.deleteMany();
+  await prisma.newsInteraction.deleteMany();
+  await prisma.newsArticle.deleteMany();
+  await prisma.newsSource.deleteMany();
+  await prisma.userNewsPreference.deleteMany();
+  
   await prisma.userActivity.deleteMany();
   await prisma.notification.deleteMany();
   await prisma.commentLike.deleteMany();
@@ -76,9 +83,14 @@ async function main() {
     await seedSophisticatedAgents(prisma);
 
     console.log('--- ✅✅✅ Seeding Process Finished Successfully! ---');
-    console.log('--- Your database is now populated with a large, complex, and interconnected dataset. ---');
+    console.log(
+      '--- Your database is now populated with a large, complex, and interconnected dataset. ---'
+    );
   } catch (error) {
-    console.error('A critical error occurred during the seeding process:', error);
+    console.error(
+      'A critical error occurred during the seeding process:',
+      error
+    );
     process.exit(1);
   }
 }

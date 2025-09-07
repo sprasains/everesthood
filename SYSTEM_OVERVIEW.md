@@ -19,6 +19,7 @@
 - Centralized logging and monitoring
 - Scalable, multi-tenant architecture
 - Social, gamified, and monetized modules
+- Usage-based billing with interactive usage graph
 
 ---
 
@@ -29,6 +30,7 @@
 - Achievements & Gamification
 - Job Board & Resume Tools
 - Payments, Tipping, and Subscriptions
+- Usage-based Billing with Usage Graph
 - Family, Money, Health, Productivity Modules
 - Notifications, Admin, and Moderation
 

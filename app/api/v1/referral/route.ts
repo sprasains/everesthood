@@ -5,12 +5,18 @@ import { prisma } from '@/lib/prisma';
 const REFERRER_BONUS_EXECUTIONS = 100;
 const REFERRED_USER_BONUS_EXECUTIONS = 50;
 
+export async function GET() {
+  return NextResponse.json({ ok: true });
+}
+
 export async function POST(req: Request) {
   try {
     const { referralCode, newUserId } = await req.json();
 
     if (!referralCode || !newUserId) {
-      return new NextResponse('Referral code and new user ID are required', { status: 400 });
+      return new NextResponse('Referral code and new user ID are required', {
+        status: 400,
+      });
     }
 
     // Find the referrer user by their referral code
@@ -32,7 +38,9 @@ export async function POST(req: Request) {
     });
 
     if (existingReferral) {
-      return new NextResponse('Referral already processed for this user', { status: 409 });
+      return new NextResponse('Referral already processed for this user', {
+        status: 409,
+      });
     }
 
     // Grant bonus to the referrer
@@ -67,9 +75,13 @@ export async function POST(req: Request) {
       },
     });
 
-    console.log(`Referral processed: User ${newUserId} referred by ${referrer.id}.`);
+    console.log(
+      `Referral processed: User ${newUserId} referred by ${referrer.id}.`
+    );
 
-    return new NextResponse('Referral bonus granted successfully', { status: 200 });
+    return new NextResponse('Referral bonus granted successfully', {
+      status: 200,
+    });
   } catch (error) {
     console.error('Error processing referral:', error);
     return new NextResponse('Internal Server Error', { status: 500 });

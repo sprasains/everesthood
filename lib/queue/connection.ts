@@ -1,22 +1,35 @@
-/**
- * Shared BullMQ Redis connection factory with TLS, metrics, lazy init.
- * Env vars: REDIS_URL, REDIS_TLS
- * Usage: import { getRedisConnection } from './connection'
- */
 import Redis from 'ioredis';
 
-let redis: Redis | null = null;
+let redisInstance: Redis | null = null;
 
-export function getRedisConnection(): Redis {
-  if (redis) return redis;
-  const url = process.env.REDIS_URL || 'redis://localhost:6379';
-  const tls = process.env.REDIS_TLS === 'true';
-  const opts: any = { lazyConnect: true };
-  if (tls) opts.tls = {};
-  redis = new Redis(url, opts);
-  // TODO: Add metrics, requestId logging, error handlers
-  redis.on('error', (err: Error) => {
-    console.error('[Redis] Error:', err);
-  });
-  return redis;
+export function getRedis() {
+  if (redisInstance) return redisInstance;
+  const opts: any = {};
+  const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
+  const REDIS_TLS = process.env.REDIS_TLS;
+  const REDIS_PREFIX = process.env.REDIS_PREFIX;
+  if ((REDIS_URL || '').startsWith('rediss://') || REDIS_TLS === 'true') {
+    opts.tls = {};
+  }
+  if (REDIS_PREFIX) opts.keyPrefix = REDIS_PREFIX;
+  redisInstance = new Redis(REDIS_URL, opts);
+  redisInstance.on('error', (err: Error) =>
+    console.error('[Redis] Error:', err)
+  );
+  redisInstance.on('connect', () => console.info('[Redis] connected'));
+  return redisInstance;
+}
+
+export function getRedisConnection() {
+  return getRedis();
+}
+
+export async function closeRedis() {
+  if (!redisInstance) return;
+  try {
+    await redisInstance.quit();
+  } catch (err) {
+    // ignore
+  }
+  redisInstance = null;
 }

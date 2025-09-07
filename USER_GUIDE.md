@@ -1,5 +1,16 @@
 # 👩‍💻 USER GUIDE
 
+<!--
+Why this doc exists: This guide explains how to use, build, and verify agents and jobs in EverestHood. It is kept in sync with code and UI for onboarding and troubleshooting.
+-->
+
+## Verification Checklist
+- [ ] Can create a multi-step agent via UI (`/agents/templates/create`)
+- [ ] Can view usage graph on billing page
+- [ ] Can run jobs and see results in dashboard
+- [ ] All referenced file paths and URLs exist
+- [ ] All screenshots/links are present
+
 ## Verification Checklist
 - [ ] Can create a multi-step agent via UI (`/agents/templates/create`)
 - [ ] Credentials setup works (see below)
@@ -8,12 +19,24 @@
 
 ---
 
-## Creating Multi-Step Agents
 
-1. Go to [Agent Template Creator](/agents/templates/create)
-2. Fill out the form (see README for required fields)
-3. Add steps, configure logic, and save
-4. Agent appears in dashboard
+## Agent & Job Runbook
+
+### How to Build and Run Agents
+1. **Go to Agent Template Creator:** Navigate to [Agent Template Creator](/agents/templates/create)
+2. **Fill Out the Form:** Enter agent name, description, and required fields (see README for details)
+3. **Add Steps:** Define each step, select logic type, and configure inputs/outputs
+4. **Save Agent:** Click save; agent will appear in your dashboard
+5. **Create Agent Instance:** Go to dashboard, select template, and create an instance (provide credentials if required)
+6. **Run Agent Job:** Click 'Run' on your agent instance; job will be queued and processed by the worker
+7. **Monitor Job Status:** View job status and output in dashboard; for advanced monitoring, use Bull Board at `/admin/queues`
+8. **Troubleshoot:** If jobs are stuck, check worker logs, Bull Board, and TROUBLESHOOTING.md
+
+### URLs & Verification
+- Agent Template Creator: `/agents/templates/create`
+- Dashboard: `/dashboard`
+- Bull Board: `/admin/queues`
+- Troubleshooting: [TROUBLESHOOTING.md](./TROUBLESHOOTING.md)
 
 ---
 
@@ -69,21 +92,13 @@
 ## 📊 Dashboard Overview
 
 ### Main Dashboard Sections
-- **🎯 Quick Actions**: Create posts, start AI conversations, check achievements
-- **📈 Activity Feed**: Recent posts from your network
-- **🏆 Achievements**: Your progress and unlocked badges
-- **🤖 AI Agents**: Your personal AI assistants
-- **📊 Analytics**: Your engagement and growth metrics
+ - **📉 Usage Graph**: Visualize your billing usage and costs (Billing page)
 
 ### Navigation Menu
 - **🏠 Home**: Main dashboard
 - **🤖 AI Agents**: Create and manage AI assistants
-- **👥 Community**: Connect with other users
-- **💼 Careers**: Job opportunities and career tools
-- **🏆 Achievements**: Track your progress
-- **⚙️ Settings**: Account and preferences
-
-## 🤖 AI Agents & Templates (NEW!)
+ - The billing page now includes an interactive usage graph for tracking your monthly usage and costs.
+ - ![Usage Graph Screenshot](./docs/screenshots/billing-usage-graph.png)
 
 ### Creating Your First AI Assistant
 

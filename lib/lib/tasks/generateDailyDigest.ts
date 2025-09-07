@@ -5,7 +5,7 @@ import axios from 'axios';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
+import { prisma } from '../../prisma';
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 const generateAndStoreDigest = async () => {
@@ -62,5 +62,7 @@ cron.schedule('0 5 * * *', () => {
 
 // Placeholder function to prevent import errors
 export async function generateAndStoreDigest() {
-  console.log('Daily digest generation is temporarily disabled - DailyDigest model not in schema');
-} 
+  console.log(
+    'Daily digest generation is temporarily disabled - DailyDigest model not in schema'
+  );
+}
