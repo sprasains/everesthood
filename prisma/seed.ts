@@ -21,53 +21,92 @@ async function main() {
   await prisma.newsSource.deleteMany();
   await prisma.userNewsPreference.deleteMany();
   
-  await prisma.userActivity.deleteMany();
-  await prisma.notification.deleteMany();
-  await prisma.commentLike.deleteMany();
-  await prisma.comment.deleteMany();
-  await prisma.postLike.deleteMany();
-  await prisma.contentVector.deleteMany();
-  await prisma.postRevision.deleteMany();
-  await prisma.tip.deleteMany();
-  await prisma.post.deleteMany();
-  await prisma.friendship.deleteMany();
+  // Guide & Tutorials models
+  await prisma.guideBookmark.deleteMany();
+  await prisma.guideProgress.deleteMany();
+  await prisma.guideReview.deleteMany();
+  await prisma.guideStep.deleteMany();
+  await prisma.guide.deleteMany();
+  
+  // Custom AI Personas models
+  await prisma.personaShare.deleteMany();
+  await prisma.personaReview.deleteMany();
+  await prisma.personaInstance.deleteMany();
+  await prisma.persona.deleteMany();
+  
+  // Money module models
+  await prisma.bill.deleteMany();
+  await prisma.budget.deleteMany();
+  await prisma.transaction.deleteMany();
+  
+  // Shopping module models
+  await prisma.productReview.deleteMany();
+  await prisma.wishlistItem.deleteMany();
+  await prisma.cartItem.deleteMany();
+  await prisma.product.deleteMany();
+  
+  // Health module models
+  await prisma.healthGoal.deleteMany();
+  await prisma.healthMetric.deleteMany();
+  
+  // Profile Spotlight models
+  await prisma.spotlightReview.deleteMany();
+  await prisma.spotlightProfile.deleteMany();
+  
+  // Exclusive Content models
+  await prisma.contentComment.deleteMany();
+  await prisma.contentAccess.deleteMany();
+  await prisma.exclusiveContent.deleteMany();
+  
+  // Ambassador Program models
+  await prisma.ambassadorReward.deleteMany();
+  await prisma.ambassadorActivity.deleteMany();
+  await prisma.ambassadorProfile.deleteMany();
+  await prisma.referral.deleteMany();
+  
+  // Billing & Subscriptions models
+  await prisma.subscription.deleteMany();
+  
+  // Achievements & Gamification models
   await prisma.userAchievement.deleteMany();
   await prisma.achievement.deleteMany();
-  await prisma.userBadge.deleteMany();
-  await prisma.badge.deleteMany();
-  await prisma.squadMembership.deleteMany();
-  await prisma.squad.deleteMany();
-  await prisma.userChangelogSeen.deleteMany();
-  await prisma.changelog.deleteMany();
-  await prisma.featureFlag.deleteMany();
+  
+  // Friends & Social Connections models
+  await prisma.friendship.deleteMany();
+  
+  // Wallet & Tipping models
+  await prisma.tip.deleteMany();
+  await prisma.walletTransaction.deleteMany();
+  await prisma.wallet.deleteMany();
+  
+  // Community models
+  await prisma.comment.deleteMany();
+  await prisma.post.deleteMany();
+  
+  // Job Board models
+  await prisma.jobApplication.deleteMany();
+  await prisma.job.deleteMany();
+  
+  // Digital Wellness models
+  await prisma.wellnessSession.deleteMany();
+  
+  // Notifications models
+  await prisma.notification.deleteMany();
+  
+  // AI Summaries models
+  await prisma.aISummary.deleteMany();
+  
+  // Agent models
   await prisma.agentRun.deleteMany();
-  await prisma.agentConfigRevision.deleteMany();
-  await prisma.agentShare.deleteMany();
+  await prisma.agentCredential.deleteMany();
   await prisma.agentInstance.deleteMany();
   await prisma.agentTemplate.deleteMany();
-  await prisma.tool.deleteMany();
-  await prisma.customPersona.deleteMany();
-  await prisma.transaction.deleteMany();
-  await prisma.budget.deleteMany();
-  await prisma.bill.deleteMany();
-  await prisma.subscription.deleteMany();
-  await prisma.eventAttendee.deleteMany();
-  await prisma.event.deleteMany();
-  await prisma.task.deleteMany();
-  await prisma.moodLog.deleteMany();
-  await prisma.journalEntry.deleteMany();
-  await prisma.journalPrompt.deleteMany();
-  await prisma.guideFavorite.deleteMany();
-  await prisma.guideView.deleteMany();
-  await prisma.guide.deleteMany();
-  await prisma.digitalDetoxProgress.deleteMany();
-  await prisma.digitalDetoxTask.deleteMany();
-  await prisma.digitalDetoxPlan.deleteMany();
-  await prisma.productivityTip.deleteMany();
-  await prisma.ambassadorMetric.deleteMany();
+  
+  // Billing Account models
+  await prisma.billingAccount.deleteMany();
+  
+  // User model (delete last due to foreign key constraints)
   await prisma.user.deleteMany();
-  await prisma.family.deleteMany();
-  await prisma.vibe.deleteMany();
   console.log('✅ Old data cleared successfully.');
 
   // --- Run Seeding Modules Sequentially ---

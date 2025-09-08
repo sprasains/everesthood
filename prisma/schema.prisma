@@ -162,6 +162,8 @@ model User {
   newsInteractions NewsInteraction[]
   newsBookmarks NewsBookmark[]
   newsPreferences UserNewsPreference?
+  contentComments ContentComment[]
+  spotlightReviews SpotlightReview[]
 }
 
 model AgentTemplate {
@@ -701,7 +703,7 @@ model AmbassadorReward {
 model Referral {
   id             String   @id @default(cuid())
   referrerId     String
-  referredId     String
+  referredId     String   @unique
   status         String   @default("PENDING") // "PENDING", "COMPLETED", "EXPIRED"
   rewardAmount   Float    @default(0.0)
   completedAt    DateTime?
@@ -787,7 +789,7 @@ model ContentComment {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   deletedAt      DateTime?
-  content        ExclusiveContent @relation(fields: [contentId], references: [id])
+  exclusiveContent ExclusiveContent @relation(fields: [contentId], references: [id])
   user           User     @relation(fields: [userId], references: [id])
   parent         ContentComment? @relation("CommentReplies", fields: [parentId], references: [id])
   replies        ContentComment[] @relation("CommentReplies")

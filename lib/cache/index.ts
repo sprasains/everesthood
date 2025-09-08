@@ -1,6 +1,35 @@
 import Redis from 'ioredis';
 
-const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
+// Create Redis client with connection error handling for build time
+const createRedisClient = () => {
+  if (process.env.NODE_ENV === 'production' && !process.env.REDIS_URL) {
+    // Return a mock client for production builds without Redis
+    return {
+      get: () => Promise.resolve(null),
+      set: () => Promise.resolve('OK'),
+      keys: () => Promise.resolve([]),
+      info: () => Promise.resolve(''),
+      on: () => {},
+      disconnect: () => Promise.resolve(),
+    } as any;
+  }
+  
+  const client = new Redis(process.env.REDIS_URL || 'redis://localhost:6379', {
+    retryDelayOnFailover: 100,
+    maxRetriesPerRequest: 1,
+    lazyConnect: true,
+  });
+  
+  client.on('error', (err) => {
+    if (process.env.NODE_ENV === 'production') {
+      console.warn('[Redis] Connection error (non-fatal):', err.message);
+    }
+  });
+  
+  return client;
+};
+
+export const redis = createRedisClient();
 
 export async function cacheGet(key: string): Promise<string | null> {
   return redis.get(key);
