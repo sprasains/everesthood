@@ -16,9 +16,7 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
 
-    const where: any = {
-      isActive: true,
-    };
+    const where: any = {};
 
     if (category) {
       where.category = category;
@@ -26,27 +24,32 @@ export async function GET(request: NextRequest) {
 
     if (search) {
       where.OR = [
-        { title: { contains: search, mode: 'insensitive' } },
+        { name: { contains: search, mode: 'insensitive' } },
         { description: { contains: search, mode: 'insensitive' } },
-        { skills: { has: search } },
+        { tags: { has: search } },
       ];
     }
 
-    const [profiles, total] = await Promise.all([
-      prisma.spotlightProfile.findMany({
+    const [circles, total] = await Promise.all([
+      prisma.circle.findMany({
         where,
         include: {
-          user: {
+          owner: {
             select: {
               id: true,
               name: true,
-              email: true,
               image: true,
             },
           },
-          reviews: {
-            select: {
-              rating: true,
+          members: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  image: true,
+                },
+              },
             },
           },
         },
@@ -54,25 +57,18 @@ export async function GET(request: NextRequest) {
         skip: (page - 1) * limit,
         take: limit,
       }),
-      prisma.spotlightProfile.count({ where }),
+      prisma.circle.count({ where }),
     ]);
 
-    // Calculate average ratings
-    const profilesWithRatings = profiles.map(profile => {
-      const reviews = profile.reviews || [];
-      const averageRating = reviews.length > 0 
-        ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length 
-        : 0;
-      
-      return {
-        ...profile,
-        rating: Math.round(averageRating * 10) / 10,
-        reviewCount: reviews.length,
-      };
-    });
+    // Add isJoined flag for current user
+    const circlesWithMembership = circles.map(circle => ({
+      ...circle,
+      memberCount: circle.members.length,
+      isJoined: circle.members.some(member => member.userId === session.user.id),
+    }));
 
     return NextResponse.json({
-      profiles: profilesWithRatings,
+      circles: circlesWithMembership,
       pagination: {
         page,
         limit,
@@ -81,9 +77,9 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Error fetching spotlight profiles:', error);
+    console.error('Error fetching circles:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch profiles' },
+      { error: 'Failed to fetch circles' },
       { status: 500 }
     );
   }
@@ -97,43 +93,61 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { title, description, category, skills, experience, achievements } = body;
+    const { name, description, category, isPrivate, maxMembers, tags } = body;
 
-    if (!title || !description || !category) {
+    if (!name || !description || !category) {
       return NextResponse.json(
-        { error: 'Title, description, and category are required' },
+        { error: 'Name, description, and category are required' },
         { status: 400 }
       );
     }
 
-    const profile = await prisma.spotlightProfile.create({
+    const circle = await prisma.circle.create({
       data: {
-        title,
+        name,
         description,
         category,
-        skills: skills || [],
-        experience: experience || '',
-        achievements: achievements || [],
-        userId: session.user.id,
-        isActive: true,
+        isPrivate: isPrivate || false,
+        maxMembers: maxMembers || 50,
+        tags: tags || [],
+        ownerId: session.user.id,
       },
       include: {
-        user: {
+        owner: {
           select: {
             id: true,
             name: true,
-            email: true,
             image: true,
+          },
+        },
+        members: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                image: true,
+              },
+            },
           },
         },
       },
     });
 
-    return NextResponse.json({ profile }, { status: 201 });
+    // Add owner as first member
+    await prisma.circleMember.create({
+      data: {
+        circleId: circle.id,
+        userId: session.user.id,
+        role: 'owner',
+      },
+    });
+
+    return NextResponse.json({ circle }, { status: 201 });
   } catch (error) {
-    console.error('Error creating spotlight profile:', error);
+    console.error('Error creating circle:', error);
     return NextResponse.json(
-      { error: 'Failed to create profile' },
+      { error: 'Failed to create circle' },
       { status: 500 }
     );
   }

@@ -12,16 +12,26 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const category = searchParams.get('category');
+    const type = searchParams.get('type');
+    const featured = searchParams.get('featured');
     const search = searchParams.get('search');
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
 
     const where: any = {
-      isActive: true,
+      status: 'published',
     };
 
     if (category) {
       where.category = category;
+    }
+
+    if (type) {
+      where.type = type;
+    }
+
+    if (featured === 'true') {
+      where.featured = true;
     }
 
     if (search) {
@@ -29,50 +39,52 @@ export async function GET(request: NextRequest) {
         { title: { contains: search, mode: 'insensitive' } },
         { description: { contains: search, mode: 'insensitive' } },
         { skills: { has: search } },
+        { tags: { has: search } },
       ];
     }
 
-    const [profiles, total] = await Promise.all([
-      prisma.spotlightProfile.findMany({
+    const [showcases, total] = await Promise.all([
+      prisma.showcase.findMany({
         where,
         include: {
-          user: {
+          author: {
             select: {
               id: true,
               name: true,
-              email: true,
               image: true,
             },
           },
-          reviews: {
+          comments: {
             select: {
-              rating: true,
+              id: true,
+            },
+          },
+          likes: {
+            select: {
+              id: true,
             },
           },
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: [
+          { featured: 'desc' },
+          { createdAt: 'desc' },
+        ],
         skip: (page - 1) * limit,
         take: limit,
       }),
-      prisma.spotlightProfile.count({ where }),
+      prisma.showcase.count({ where }),
     ]);
 
-    // Calculate average ratings
-    const profilesWithRatings = profiles.map(profile => {
-      const reviews = profile.reviews || [];
-      const averageRating = reviews.length > 0 
-        ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length 
-        : 0;
-      
-      return {
-        ...profile,
-        rating: Math.round(averageRating * 10) / 10,
-        reviewCount: reviews.length,
-      };
-    });
+    // Add computed fields
+    const showcasesWithMetrics = showcases.map(showcase => ({
+      ...showcase,
+      comments: showcase.comments.length,
+      likes: showcase.likes.length,
+      rating: 4.5, // Placeholder - would be calculated from reviews
+    }));
 
     return NextResponse.json({
-      profiles: profilesWithRatings,
+      showcases: showcasesWithMetrics,
       pagination: {
         page,
         limit,
@@ -81,9 +93,9 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Error fetching spotlight profiles:', error);
+    console.error('Error fetching showcases:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch profiles' },
+      { error: 'Failed to fetch showcases' },
       { status: 500 }
     );
   }
@@ -97,7 +109,18 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { title, description, category, skills, experience, achievements } = body;
+    const { 
+      title, 
+      description, 
+      category, 
+      type, 
+      tags, 
+      skills, 
+      impact, 
+      duration, 
+      teamSize, 
+      technologies 
+    } = body;
 
     if (!title || !description || !category) {
       return NextResponse.json(
@@ -106,34 +129,44 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const profile = await prisma.spotlightProfile.create({
+    const showcase = await prisma.showcase.create({
       data: {
         title,
         description,
         category,
+        type: type || 'project',
+        tags: tags || [],
         skills: skills || [],
-        experience: experience || '',
-        achievements: achievements || [],
-        userId: session.user.id,
-        isActive: true,
+        authorId: session.user.id,
+        status: 'published',
+        featured: false,
+        views: 0,
+        likes: 0,
+        comments: 0,
+        rating: 0,
+        metrics: {
+          impact: impact || '',
+          duration: duration || '',
+          teamSize: teamSize || 1,
+          technologies: technologies || [],
+        },
       },
       include: {
-        user: {
+        author: {
           select: {
             id: true,
             name: true,
-            email: true,
             image: true,
           },
         },
       },
     });
 
-    return NextResponse.json({ profile }, { status: 201 });
+    return NextResponse.json({ showcase }, { status: 201 });
   } catch (error) {
-    console.error('Error creating spotlight profile:', error);
+    console.error('Error creating showcase:', error);
     return NextResponse.json(
-      { error: 'Failed to create profile' },
+      { error: 'Failed to create showcase' },
       { status: 500 }
     );
   }

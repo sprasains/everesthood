@@ -113,6 +113,14 @@ const navSections: NavSection[] = [
     header: 'Content',
     items: [
       { text: 'News & Articles', icon: <ArticleIcon />, href: '/news' },
+      { text: 'Career Showcases', icon: <WorkIcon />, href: '/showcases' },
+    ],
+  },
+  {
+    header: 'Community',
+    items: [
+      { text: 'Collaborative Circles', icon: <GroupIcon />, href: '/circles' },
+      { text: 'Hackathons & Challenges', icon: <EmojiEventsIcon />, href: '/challenges' },
     ],
   },
   {

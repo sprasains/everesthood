@@ -124,6 +124,14 @@ export default function Navbar() {
       ],
     },
     {
+      label: "Community",
+      links: [
+        { href: "/circles", label: "Collaborative Circles", icon: <GroupIcon />, desc: "Join focused communities and collaborate" },
+        { href: "/challenges", label: "Hackathons & Challenges", icon: <EmojiEventsIcon />, desc: "Compete in exciting challenges and win prizes" },
+        { href: "/showcases", label: "Career Showcases", icon: <WorkIcon />, desc: "Showcase your projects and achievements" },
+      ],
+    },
+    {
       label: "Info",
       links: [
         { href: '/help', label: 'Help Center', icon: <RocketLaunchIcon />, desc: 'Guides, walkthroughs, and resources' },

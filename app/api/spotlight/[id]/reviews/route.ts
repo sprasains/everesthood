@@ -2,13 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { z } from 'zod';
-
-const createReviewSchema = z.object({
-  rating: z.number().min(1).max(5),
-  title: z.string().min(1).max(100),
-  content: z.string().min(1).max(500),
-});
 
 export async function GET(
   request: NextRequest,
@@ -16,66 +9,31 @@ export async function GET(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const profileId = params.id;
-    const url = new URL(request.url);
-    const page = parseInt(url.searchParams.get('page') || '1');
-    const limit = parseInt(url.searchParams.get('limit') || '10');
-
-    // Check if profile exists
-    const profile = await prisma.spotlightProfile.findUnique({
-      where: { id: profileId, isActive: true }
+    const reviews = await prisma.spotlightReview.findMany({
+      where: {
+        spotlightId: params.id,
+      },
+      include: {
+        reviewer: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
     });
 
-    if (!profile) {
-      return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
-    }
-
-    const [reviews, total] = await Promise.all([
-      prisma.spotlightReview.findMany({
-        where: {
-          spotlightId: profileId,
-          isVerified: true
-        },
-        include: {
-          reviewer: {
-            select: {
-              id: true,
-              name: true,
-              image: true
-            }
-          }
-        },
-        orderBy: { createdAt: 'desc' },
-        skip: (page - 1) * limit,
-        take: limit
-      }),
-      prisma.spotlightReview.count({
-        where: {
-          spotlightId: profileId,
-          isVerified: true
-        }
-      })
-    ]);
-
-    return NextResponse.json({
-      reviews,
-      pagination: {
-        page,
-        limit,
-        total,
-        pages: Math.ceil(total / limit)
-      }
-    });
-
+    return NextResponse.json({ reviews });
   } catch (error) {
     console.error('Error fetching spotlight reviews:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Failed to fetch reviews' },
       { status: 500 }
     );
   }
@@ -87,28 +45,16 @@ export async function POST(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const profileId = params.id;
     const body = await request.json();
-    const validatedData = createReviewSchema.parse(body);
+    const { rating, comment } = body;
 
-    // Check if profile exists
-    const profile = await prisma.spotlightProfile.findUnique({
-      where: { id: profileId, isActive: true }
-    });
-
-    if (!profile) {
-      return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
-    }
-
-    // Check if user is trying to review themselves
-    if (profile.userId === session.user.id) {
+    if (!rating || rating < 1 || rating > 5) {
       return NextResponse.json(
-        { error: 'Cannot review your own profile' },
+        { error: 'Rating must be between 1 and 5' },
         { status: 400 }
       );
     }
@@ -116,9 +62,9 @@ export async function POST(
     // Check if user already reviewed this profile
     const existingReview = await prisma.spotlightReview.findFirst({
       where: {
-        spotlightId: profileId,
-        reviewerId: session.user.id
-      }
+        spotlightId: params.id,
+        reviewerId: session.user.id,
+      },
     });
 
     if (existingReview) {
@@ -128,73 +74,30 @@ export async function POST(
       );
     }
 
-    // Create review
     const review = await prisma.spotlightReview.create({
       data: {
-        spotlightId: profileId,
+        spotlightId: params.id,
         reviewerId: session.user.id,
-        ...validatedData
+        rating,
+        comment: comment || '',
       },
       include: {
         reviewer: {
           select: {
             id: true,
             name: true,
-            image: true
-          }
-        }
-      }
-    });
-
-    // Update profile rating
-    const allReviews = await prisma.spotlightReview.findMany({
-      where: {
-        spotlightId: profileId,
-        isVerified: true
+            image: true,
+          },
+        },
       },
-      select: { rating: true }
     });
 
-    const averageRating = allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length;
-
-    await prisma.spotlightProfile.update({
-      where: { id: profileId },
-      data: {
-        rating: averageRating,
-        reviewCount: allReviews.length
-      }
-    });
-
-    // Create notification for profile owner
-    await prisma.notification.create({
-      data: {
-        userId: profile.userId,
-        type: 'review',
-        title: 'New Review Received!',
-        message: `${session.user.name} left a ${validatedData.rating}-star review on your spotlight profile.`,
-        data: { 
-          reviewId: review.id, 
-          reviewerId: session.user.id,
-          rating: validatedData.rating 
-        }
-      }
-    });
-
-    return NextResponse.json(review, { status: 201 });
-
+    return NextResponse.json({ review }, { status: 201 });
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: 'Validation error', details: error.errors },
-        { status: 400 }
-      );
-    }
-
     console.error('Error creating spotlight review:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Failed to create review' },
       { status: 500 }
     );
   }
 }
-
