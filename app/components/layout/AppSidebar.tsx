@@ -57,6 +57,7 @@ const navSections: NavSection[] = [
       { text: 'Health & Wellness', icon: <LocalHospitalIcon />, href: '/health' },
       { text: 'Shopping', icon: <ShoppingCartIcon />, href: '/shopping' },
       { text: 'Productivity Hub', icon: <AssignmentTurnedInIcon />, href: '/hub' },
+      { text: 'Task Management', icon: <AssignmentTurnedInIcon />, href: '/tasks' },
     ],
   },
   {

@@ -44,6 +44,77 @@ export default NextAuth({
 
 ## Endpoints
 
+### Debug & Troubleshooting
+
+#### System Health Monitor
+```typescript
+GET /api/debug/health
+// Returns system health status for all services
+// Requires: Admin role
+```
+
+#### API Request Debugger
+```typescript
+GET /api/debug/requests?limit=10&method=GET
+POST /api/debug/requests
+// View recent requests or test API endpoints
+// Requires: Admin role
+```
+
+#### Database Query Tool
+```typescript
+GET /api/debug/database?model=User&limit=5
+POST /api/debug/database
+// Execute database queries and view model data
+// Requires: Admin role
+```
+
+#### Error Log Viewer
+```typescript
+GET /api/debug/logs?level=error&limit=20
+POST /api/debug/logs
+// View and manage application logs
+// Requires: Admin role
+```
+
+#### Performance Monitor
+```typescript
+GET /api/debug/performance
+POST /api/debug/performance
+// Monitor system performance metrics
+// Requires: Admin role
+```
+
+#### Environment Checker
+```typescript
+GET /api/debug/env
+// Verify environment variables and configuration
+// Requires: Admin role
+```
+
+#### Database Schema Inspector
+```typescript
+GET /api/debug/schema?table=User&includeStats=true
+// View database schema and relationships
+// Requires: Admin role
+```
+
+#### Request Flow Tracer
+```typescript
+GET /api/debug/trace?requestId=req_123
+POST /api/debug/trace
+// Trace request flow through the system
+// Requires: Admin role
+```
+
+#### API Testing Tool
+```typescript
+GET /api/debug/test?endpoint=/api/users
+POST /api/debug/test
+// Test API endpoints with custom parameters
+// Requires: Admin role
+```
+
 ### News & Content Curation
 
 #### Get Personalized News Feed

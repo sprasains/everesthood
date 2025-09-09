@@ -20,20 +20,30 @@ EverestHood is a modern social platform built with Next.js, React, TypeScript, a
    - Content Curation Tools
    - Engagement Tracking
 
-3. Authentication & Authorization
+3. [Debugging & Troubleshooting](./DEBUGGING.md)
+   - System Health Monitoring
+   - API Request/Response Debugger
+   - Database Query Tool
+   - Error Log Viewer
+   - Performance Monitor
+   - Environment Variables Checker
+   - Request Flow Tracer
+   - Interactive Debug Panel
+
+4. Authentication & Authorization
    - Next-Auth Integration
    - Role-Based Access Control
    - JWT Handling
    - Session Management
 
-4. Social Features
+5. Social Features
    - Posts and Comments
    - Events Management
    - Polls System
    - User Profiles
    - Friend Connections
 
-5. Real-time Features
+6. Real-time Features
    - Live Updates
    - Notifications
    - Chat System

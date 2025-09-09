@@ -8,8 +8,9 @@ Welcome to EverestHood! This guide will help you get started with our codebase. 
 3. [Tech Stack](#tech-stack)
 4. [Development Environment](#development-environment)
 5. [News & Content Curation](#news--content-curation)
-6. [Common Tasks](#common-tasks)
-7. [Tips and Tricks](#tips-and-tricks)
+6. [Debugging & Troubleshooting](#debugging--troubleshooting)
+7. [Common Tasks](#common-tasks)
+8. [Tips and Tricks](#tips-and-tricks)
 
 ## 🎬 Getting Started
 
@@ -246,6 +247,159 @@ The system supports 18 different categories:
 - **Technology**: Tech news, gadgets, software updates
 - **AI/ML**: Artificial intelligence, machine learning
 - **Programming**: Software development, coding
+
+## 🔧 Debugging & Troubleshooting
+
+### Quick Debug Commands
+```bash
+# Start with debug mode enabled
+npm run debug
+
+# Check system health
+npm run debug:health
+
+# View real-time logs
+npm run debug:logs
+
+# Open debug panel
+npm run debug:panel
+
+# Check environment variables
+npm run debug:env
+
+# View performance metrics
+npm run debug:performance
+```
+
+### Debug Panel
+The debug panel is your best friend when things go wrong! Access it at:
+- **URL**: `http://localhost:3000/debug`
+- **Access**: Requires admin user role
+- **Features**: 
+  - System health monitoring
+  - Error log viewer with filtering
+  - API request/response debugging
+  - Database query tool
+  - Environment variables checker
+
+### Common Debugging Scenarios
+
+#### 1. API Not Responding
+```bash
+# Check system health
+npm run debug:health
+
+# View recent requests
+npm run debug:requests
+
+# Check error logs
+npm run debug:logs
+```
+
+#### 2. Database Issues
+```bash
+# Check database health
+npm run debug:health
+
+# Test database connection
+curl http://localhost:3000/api/debug/database?model=User&limit=1
+
+# View database schema
+npm run debug:schema
+```
+
+#### 3. Authentication Problems
+```bash
+# Check environment variables
+npm run debug:env
+
+# Test authentication endpoint
+curl -X POST http://localhost:3000/api/debug/test \
+  -H "Content-Type: application/json" \
+  -d '{"method":"GET","url":"http://localhost:3000/api/auth/session"}'
+```
+
+#### 4. Performance Issues
+```bash
+# Check performance metrics
+npm run debug:performance
+
+# Monitor system resources
+npm run debug:health
+```
+
+### Debug API Endpoints
+All debug endpoints require admin privileges:
+
+- **`/api/debug/health`** - System health monitoring
+- **`/api/debug/logs`** - Error log viewer with filtering
+- **`/api/debug/requests`** - API request/response debugging
+- **`/api/debug/database`** - Database query tool
+- **`/api/debug/performance`** - Performance metrics
+- **`/api/debug/env`** - Environment variables checker
+- **`/api/debug/schema`** - Database schema inspector
+- **`/api/debug/trace`** - Request flow tracer
+- **`/api/debug/test`** - API endpoint testing tool
+
+### Log Analysis
+```bash
+# View all logs
+npm run debug:logs
+
+# View only errors
+npm run debug:errors
+
+# View only warnings
+npm run debug:warnings
+
+# View only info logs
+npm run debug:info
+```
+
+### Database Debugging
+```bash
+# Open Prisma Studio
+npm run debug:db
+
+# Test database query
+curl -X POST http://localhost:3000/api/debug/database \
+  -H "Content-Type: application/json" \
+  -d '{"query": "SELECT COUNT(*) FROM User"}'
+```
+
+### Redis Debugging
+```bash
+# Monitor Redis commands
+npm run debug:redis
+
+# Check cache contents
+npm run debug:cache
+```
+
+### Queue Debugging
+```bash
+# Open BullMQ dashboard
+npm run debug:queue
+
+# Check queue health
+curl http://localhost:3000/api/queue/health
+```
+
+### Emergency Procedures
+If something goes really wrong:
+
+1. **Check logs first**: `npm run debug:logs`
+2. **Check system health**: `npm run debug:health`
+3. **Check environment**: `npm run debug:env`
+4. **Restart services**: `docker-compose restart` (if using Docker)
+5. **Check documentation**: [docs/DEBUGGING.md](./DEBUGGING.md)
+
+### Best Practices
+1. **Always check logs first** - Most issues are visible in logs
+2. **Use the debug panel** - It provides a comprehensive system overview
+3. **Test API endpoints** - Verify functionality step by step
+4. **Monitor performance** - Keep an eye on system resources
+5. **Document issues** - Keep track of problems and solutions
 - **Business**: Corporate news, market updates
 - **Science**: Scientific discoveries, research
 - **Health**: Medical news, wellness

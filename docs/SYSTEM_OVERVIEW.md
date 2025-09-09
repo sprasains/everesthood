@@ -11,6 +11,7 @@ High-level components:
 - **Queue System (Redis/BullMQ)** — Background job processing and scheduling
 - **Content Management** — News aggregation, RSS feeds, and content curation
 - **AI Integration** — Personalized recommendations and content processing
+- **Debug & Monitoring** — Comprehensive debugging system with health monitoring and performance analytics
 
 ## News & Content Curation System
 
@@ -19,6 +20,17 @@ High-level components:
 - **Personalization Engine** — AI-powered recommendations based on user preferences
 - **Curation Tools** — Admin interface for featuring and trending content
 - **User Engagement** — Likes, shares, bookmarks, and interaction tracking
+
+## Debug & Troubleshooting System
+
+- **System Health Monitoring** — Real-time monitoring of database, Redis, queue, and storage systems
+- **API Request Debugger** — Request/response tracking and endpoint testing capabilities
+- **Database Query Tool** — Interactive database query execution and model inspection
+- **Error Log Viewer** — Comprehensive log analysis with filtering and search capabilities
+- **Performance Monitor** — Memory, CPU, and request performance metrics tracking
+- **Environment Checker** — Configuration validation and environment variable verification
+- **Request Flow Tracer** — End-to-end request flow analysis and tracing
+- **Interactive Debug Panel** — Web-based interface for all debugging tools and monitoring
 
 ## System Architecture Diagram
 
@@ -48,6 +60,11 @@ graph TB;
     Admin[Admin Interface] --> BullBoard[Queue Monitor];
     Admin --> Curation;
     Admin --> Sources;
+    Admin --> DebugPanel[Debug Panel];
+    DebugPanel --> HealthMonitor[Health Monitor];
+    DebugPanel --> LogViewer[Log Viewer];
+    DebugPanel --> APITester[API Tester];
+    DebugPanel --> DBQuery[DB Query Tool];
   end
   
   API --> NewsAPI;

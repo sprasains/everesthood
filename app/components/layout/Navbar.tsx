@@ -88,6 +88,7 @@ export default function Navbar() {
         { href: "/health", label: "Health & Wellness", icon: <LocalHospitalIcon />, desc: "Wellness, mood tracking, and digital detox" },
         { href: "/shopping", label: "Shopping", icon: <ShoppingCartIcon />, desc: "Shopping lists and deals" },
         { href: "/hub", label: "Productivity Hub", icon: <RocketLaunchIcon />, desc: "Tasks, journaling, and focus tools" },
+        { href: "/tasks", label: "Task Management", icon: <AssignmentTurnedInIcon />, desc: "Organize and track your tasks" },
       ],
     },
     {

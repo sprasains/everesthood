@@ -164,6 +164,7 @@ model User {
   newsPreferences UserNewsPreference?
   contentComments ContentComment[]
   spotlightReviews SpotlightReview[]
+  tasks Task[]
 }
 
 model AgentTemplate {
@@ -1335,4 +1336,20 @@ model UserNewsPreference {
 
   @@unique([userId])
   @@index([userId])
+}
+
+// Task Management Model
+model Task {
+  id          String    @id @default(cuid())
+  content     String
+  details     String?
+  link        String?
+  isCompleted Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  completedAt DateTime?
+  ownerId     String
+  user        User      @relation(fields: [ownerId], references: [id])
+
+  @@index([ownerId])
+  @@index([isCompleted])
 }

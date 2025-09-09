@@ -247,6 +247,7 @@ NEXTAUTH_SECRET=your-secret
 
 ### 🧩 Integration & Modules
 - **Dashboard:** Command center with widgets for community, jobs, streaks, and more
+- **Debug & Troubleshooting:** Comprehensive debugging system with health monitoring, API testing, database tools, and performance analytics
 - **News & Content Curation:** Personalized news feeds, RSS aggregation, AI recommendations, and content curation
 - **Opportunities:** Career, jobs, and resume tools
 - **Achievements:** Track progress, unlock badges, and compete on leaderboards
@@ -411,6 +412,50 @@ everhood-platform/
 - **Docker:** `docker-compose up --build` (recommended)
 - **Local:** `npm install`, `npx prisma migrate dev`, `npm run dev`
 - **Environment:** Copy `.env.example` to `.env` and fill in all required secrets
+
+## 🔧 Debugging & Troubleshooting
+
+### Quick Debug Commands
+```bash
+# Start with debug mode enabled
+npm run debug
+
+# Check system health
+npm run debug:health
+
+# View real-time logs
+npm run debug:logs
+
+# Open debug panel
+npm run debug:panel
+
+# Check environment variables
+npm run debug:env
+
+# View performance metrics
+npm run debug:performance
+```
+
+### Debug Panel
+- **URL:** `http://localhost:3000/debug` (Admin only)
+- **Features:** System health, error logs, API requests, database tools, environment checker
+- **Access:** Requires admin user role
+
+### API Debug Endpoints
+- **Health:** `/api/debug/health` - System health monitoring
+- **Logs:** `/api/debug/logs` - Error log viewer with filtering
+- **Requests:** `/api/debug/requests` - API request/response debugging
+- **Database:** `/api/debug/database` - Database query tool
+- **Performance:** `/api/debug/performance` - Performance metrics
+- **Environment:** `/api/debug/env` - Environment variables checker
+- **Schema:** `/api/debug/schema` - Database schema inspector
+- **Trace:** `/api/debug/trace` - Request flow tracer
+- **Test:** `/api/debug/test` - API endpoint testing tool
+
+### Documentation
+- **Complete Guide:** [docs/DEBUGGING.md](./docs/DEBUGGING.md)
+- **Troubleshooting:** Common scenarios and solutions
+- **Emergency Procedures:** Step-by-step recovery processes
 
 ---
 

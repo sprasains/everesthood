@@ -7,6 +7,7 @@
 4. [Event Features](#event-features)
 5. [News & Content Curation Features](#news--content-curation-features)
 6. [Search Features](#search-features)
+7. [Debug & Troubleshooting Features](#debug--troubleshooting-features)
 
 ## Authentication Features
 
@@ -584,3 +585,185 @@ Each feature implementation includes:
 - User preference management
 - Content curation tools
 - AI-powered recommendations
+
+## Debug & Troubleshooting Features
+
+### System Health Monitoring
+```typescript
+// app/api/debug/health/route.ts
+export async function GET(req: NextRequest) {
+  const health = {
+    services: {
+      database: await checkDatabase(),
+      redis: await checkRedis(),
+      queue: await checkQueue(),
+      storage: await checkStorage(),
+    },
+    system: {
+      memory: process.memoryUsage(),
+      uptime: process.uptime(),
+      version: process.version,
+    }
+  };
+  return NextResponse.json(health);
+}
+```
+
+### API Request Debugger
+```typescript
+// app/api/debug/requests/route.ts
+export async function POST(req: NextRequest) {
+  const { method, url, headers, body } = await req.json();
+  
+  const response = await fetch(url, {
+    method,
+    headers: { 'Content-Type': 'application/json', ...headers },
+    body: body ? JSON.stringify(body) : undefined
+  });
+  
+  return NextResponse.json({
+    request: { method, url, headers, body },
+    response: {
+      status: response.status,
+      headers: Object.fromEntries(response.headers.entries()),
+      data: await response.json()
+    }
+  });
+}
+```
+
+### Database Query Tool
+```typescript
+// app/api/debug/database/route.ts
+export async function POST(req: NextRequest) {
+  const { query, params } = await req.json();
+  
+  const result = await prisma.$queryRawUnsafe(query, ...params);
+  
+  return NextResponse.json({ result, query, params });
+}
+```
+
+### Error Log Viewer
+```typescript
+// app/api/debug/logs/route.ts
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const level = searchParams.get('level') || 'error';
+  const limit = parseInt(searchParams.get('limit') || '100');
+  
+  const logs = await getLogs(level, limit);
+  return NextResponse.json({ logs, level, limit });
+}
+```
+
+### Performance Monitor
+```typescript
+// app/api/debug/performance/route.ts
+export async function GET(req: NextRequest) {
+  const performance = {
+    memory: process.memoryUsage(),
+    cpu: process.cpuUsage(),
+    system: {
+      platform: process.platform,
+      arch: process.arch,
+      uptime: process.uptime()
+    },
+    requests: {
+      total: global.requestCount || 0,
+      errors: global.errorCount || 0,
+      averageResponseTime: global.averageResponseTime || 0
+    }
+  };
+  
+  return NextResponse.json(performance);
+}
+```
+
+### Environment Variables Checker
+```typescript
+// app/api/debug/env/route.ts
+export async function GET(req: NextRequest) {
+  const envVars = {
+    DATABASE_URL: process.env.DATABASE_URL ? '✅ Set' : '❌ Missing',
+    NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET ? '✅ Set' : '❌ Missing',
+    REDIS_URL: process.env.REDIS_URL ? '✅ Set' : '❌ Missing',
+    // ... other environment variables
+  };
+  
+  return NextResponse.json({ environment: envVars });
+}
+```
+
+### Debug Panel Frontend
+```typescript
+// app/debug/page.tsx
+export default function DebugPage() {
+  const [health, setHealth] = useState(null);
+  const [logs, setLogs] = useState([]);
+  
+  const loadHealthData = async () => {
+    const response = await fetch('/api/debug/health');
+    const data = await response.json();
+    setHealth(data);
+  };
+  
+  return (
+    <Container maxWidth="lg">
+      <Tabs value={tabValue}>
+        <Tab label="System Health" />
+        <Tab label="Error Logs" />
+        <Tab label="API Requests" />
+        <Tab label="Database" />
+        <Tab label="Environment" />
+      </Tabs>
+      {/* Tab content */}
+    </Container>
+  );
+}
+```
+
+### Key Features
+- **Real-time Health Monitoring**: Database, Redis, queue, and storage status
+- **API Request/Response Debugging**: Test endpoints and view request history
+- **Database Query Tool**: Execute custom queries and view model data
+- **Error Log Viewer**: Filter and analyze application logs
+- **Performance Metrics**: Memory, CPU, and request performance monitoring
+- **Environment Validation**: Check configuration and environment variables
+- **Interactive Debug Panel**: Web-based interface for all debugging tools
+- **Request Flow Tracing**: End-to-end request flow analysis
+- **Schema Inspector**: Database structure and relationship analysis
+- **API Testing Tool**: Test endpoints with custom parameters
+
+### Security Features
+- **Admin-only Access**: All debug endpoints require admin privileges
+- **Sensitive Data Masking**: Passwords and secrets are masked in responses
+- **Production Restrictions**: Some features are limited in production
+- **Rate Limiting**: Debug endpoints are rate limited to prevent abuse
+- **Audit Logging**: All debug actions are logged for security
+
+### Usage Examples
+```bash
+# Start with debug mode
+npm run debug
+
+# Check system health
+npm run debug:health
+
+# View real-time logs
+npm run debug:logs
+
+# Open debug panel
+npm run debug:panel
+
+# Test API endpoint
+curl -X POST http://localhost:3000/api/debug/test \
+  -H "Content-Type: application/json" \
+  -d '{"method":"GET","url":"http://localhost:3000/api/users"}'
+```
+
+### Documentation
+- **Complete Guide**: [docs/DEBUGGING.md](./DEBUGGING.md)
+- **API Reference**: [docs/API.md](./API.md)
+- **Troubleshooting**: Common scenarios and solutions
+- **Emergency Procedures**: Step-by-step recovery processes
